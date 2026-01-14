@@ -1,0 +1,437 @@
+definitions:
+  contract.ForgotPasswordReq:
+    properties:
+      email:
+        maxLength: 50
+        type: string
+    required:
+    - email
+    type: object
+  contract.LoginReq:
+    properties:
+      email:
+        maxLength: 50
+        type: string
+      password:
+        maxLength: 50
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  contract.LoginRes:
+    properties:
+      accessToken:
+        type: string
+      accessTokenExpiresAt:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      isVerified:
+        type: boolean
+      name:
+        type: string
+      refreshToken:
+        type: string
+      refreshTokenExpiresAt:
+        type: string
+      role:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  contract.RefreshTokenReq:
+    properties:
+      refreshToken:
+        type: string
+    required:
+    - refreshToken
+    type: object
+  contract.RefreshTokenRes:
+    properties:
+      accessToken:
+        type: string
+      accessTokenExpiresAt:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      isVerified:
+        type: boolean
+      name:
+        type: string
+      refreshToken:
+        type: string
+      refreshTokenExpiresAt:
+        type: string
+      role:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  contract.RegisterReq:
+    properties:
+      email:
+        maxLength: 50
+        type: string
+      name:
+        maxLength: 50
+        type: string
+      password:
+        maxLength: 50
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  contract.RegisterRes:
+    properties:
+      accessToken:
+        type: string
+      accessTokenExpiresAt:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      isVerified:
+        type: boolean
+      name:
+        type: string
+      refreshToken:
+        type: string
+      refreshTokenExpiresAt:
+        type: string
+      role:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  contract.ResetPasswordReq:
+    properties:
+      password:
+        maxLength: 50
+        minLength: 8
+        type: string
+      token:
+        type: string
+    required:
+    - password
+    - token
+    type: object
+  contract.SendVerificationEmailReq:
+    properties:
+      email:
+        maxLength: 50
+        type: string
+    required:
+    - email
+    type: object
+  contract.UserRes:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      isVerified:
+        type: boolean
+      name:
+        type: string
+      role:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  util.BaseResponse:
+    properties:
+      data: {}
+      details: {}
+      message:
+        type: string
+      status:
+        type: boolean
+    type: object
+info:
+  contact: {}
+paths:
+  /auth/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Send password reset link to user's email address
+      parameters:
+      - description: Forgot password request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.ForgotPasswordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      summary: Forgot password
+      tags:
+      - Auth
+  /auth/google/login:
+    get:
+      consumes:
+      - application/json
+      description: Redirects to Google OAuth login page
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: Found
+      summary: Initiate Google OAuth login
+      tags:
+      - Auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with email and password
+      parameters:
+      - description: Login request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.LoginRes'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      summary: Login
+      tags:
+      - Auth
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: Get authenticated user information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.UserRes'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user
+      tags:
+      - Auth
+  /auth/refresh-token:
+    post:
+      consumes:
+      - application/json
+      description: Refresh access token using refresh token
+      parameters:
+      - description: Refresh token request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.RefreshTokenReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.RefreshTokenRes'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      summary: Refresh token
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user account
+      parameters:
+      - description: Register request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.RegisterReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.RegisterRes'
+              type: object
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      summary: Register
+      tags:
+      - Auth
+  /auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Reset user password using reset token
+      parameters:
+      - description: Reset password request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.ResetPasswordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      summary: Reset password
+      tags:
+      - Auth
+  /auth/send-verification:
+    post:
+      consumes:
+      - application/json
+      description: Send email verification link to user's email address
+      parameters:
+      - description: Send verification email request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.SendVerificationEmailReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      summary: Send verification email
+      tags:
+      - Auth
+  /auth/verify-email:
+    post:
+      consumes:
+      - application/json
+      description: Verify user email using verification token
+      parameters:
+      - description: Verification token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      summary: Verify email
+      tags:
+      - Auth
+  /hello:
+    get:
+      consumes:
+      - application/json
+      description: Simple hello world endpoint
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Hello, World!
+          schema:
+            type: string
+      summary: Hello
+      tags:
+      - Hello
+swagger: "2.0"
