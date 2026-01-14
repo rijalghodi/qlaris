@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Qlaris Web
 
-## Getting Started
+Tech Stack: pnpm, Next.js, Tailwind, ShadCN, react-query, axios, react-hook-formm, zod
 
-First, run the development server:
+## Guide for Code Assistant
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Folder structure:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- app: pages
+- components/ui: statis components
+- components/<features-name>: features component
+- services: api client
+- lib: constant, helpers, utils
+- lib/services: endpoints, api hook
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Guide
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Flow: create service api (if required) -> create feature and intergate API (if required) -> export feature in page -> insert page in App.tsx
+- For every command I make, search src/services and src/features first if exisit, use it.
+- Always install package using pnpm, or pnpm dlx
+- Always use lucide-react icon if possible
+- Always use export NON-default react component
+- Always use UI commponent from "@workspace/ui/components"
+- Always use global hooks from "@workspace/ui/hooks"
+- Always use ShadCN component. If not exisit, install it by `pnpm dlx shadn@latest add ...`
+- Always create feature component in "business/src/features/<feature-name>"
+- Always use axios and react-query when fetching data and create a function in "business/src/services/"
+- Always use react-hook-form when handle form
+- Always use tailwind class for style if possible. And use class (color) provided in `@workspace/ui/src/styles/global.css`
 
-## Learn More
+### Exisitng Pattern
 
-To learn more about Next.js, take a look at the following resources:
+- This project follow pattern of `@workspacee/school` project, but only different in:
+  - React router instead of next.js
+  - Business usecase instead of school usecase
+- The Facescan and fingerscan is similar to `@workspace/school` so use it
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## TODO
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [x] Authentication
+- [x] Company Management
+- [x] Account Management
+- [x] Applicant Management
+- [x] Job Management
+- [ ] Job match algorithm
+- [ ] Chat AI
