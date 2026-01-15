@@ -16,14 +16,26 @@ Ordered to **ship fast**, not perfect.
 
 ## 1️⃣ Account (minimal)
 
-### Owner
+### Backend
 
-- [ ] Owner table (email + password hash)
-- [ ] Owner login API
-- [ ] Owner login UI
-- [ ] Session/token handling
+- [x] User table
+- [x] Auth API
+  - [x] Register
+  - [x] Login
+  - [x] Forgot password
+  - [x] Reset password
+  - [x] Login by Google
+- [x] Session/token handling
 
-✅ No roles, no permissions yet.
+### Frontend
+
+- [ ] Login UI
+- [ ] Register UI
+- [ ] Forgot password UI
+- [ ] Reset password UI
+- [ ] Google login UI
+- [ ] Logout UI
+- [ ] Protect routes
 
 ---
 
@@ -31,12 +43,12 @@ Ordered to **ship fast**, not perfect.
 
 ### Backend
 
-- [ ] Product table (name, price, image_url, stock_qty)
+- [x] Product table (name, price, image, stock_qty)
 - [ ] CRUD APIs:
-
-  - create product
-  - update product
-  - list products (active only)
+  - [ ] create product
+  - [ ] update product
+  - [ ] list products (active only)
+  - [ ] delete product
 
 ### Frontend
 

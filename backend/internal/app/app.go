@@ -4,7 +4,6 @@ import (
 	"app/internal/config"
 	"app/internal/middleware"
 	"app/pkg/logger"
-	"app/pkg/postgres"
 	"context"
 	"fmt"
 	"os"
@@ -35,14 +34,7 @@ func Run() error {
 
 	app := setupFiberApp()
 
-	db, err := setupDatabase()
-	if err != nil {
-		logger.Log.Error("Failed to setup database", zap.Error(err))
-		return err
-	}
-	defer closeDatabase(db)
-
-	if err := setupRoutes(ctx, app, db); err != nil {
+	if err := setupRoutes(ctx, app); err != nil {
 		logger.Log.Error("Failed to setup routes", zap.Error(err))
 		return err
 	}
@@ -71,32 +63,11 @@ func setupFiberApp() *fiber.App {
 	return app
 }
 
-func setupDatabase() (*gorm.DB, error) {
-	db, err := postgres.NewPostgres(postgres.PostgresConfig{
-		MigrationDirectory: config.Env.Postgres.MigrationDirectory,
-		MigrationDialect:   config.Env.Postgres.MigrationDialect,
-		Host:               config.Env.Postgres.Host,
-		User:               config.Env.Postgres.User,
-		Password:           config.Env.Postgres.Password,
-		Port:               config.Env.Postgres.Port,
-		DBName:             config.Env.Postgres.DBName,
-		SSLMode:            config.Env.Postgres.SSLMode,
-		MaxOpenConns:       config.Env.Postgres.MaxOpenConns,
-		MaxIdleConns:       config.Env.Postgres.MaxIdleConns,
-		ConnMaxLifetime:    config.Env.Postgres.ConnMaxLifetime,
-		ConnMaxIdleTime:    config.Env.Postgres.ConnMaxIdleTime,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect to database: %w", err)
-	}
-	return db.DB, nil
-}
-
-func setupRoutes(ctx context.Context, app *fiber.App, db *gorm.DB) error {
+func setupRoutes(ctx context.Context, app *fiber.App) error {
 	docs := app.Group("/docs")
 	docs.Get("/*", swagger.HandlerDefault)
 
-	InjectHTTPHandlers(ctx, app, db)
+	InjectHTTPHandlers(ctx, app)
 	return nil
 }
 

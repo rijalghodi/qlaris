@@ -13,6 +13,7 @@ type Environment struct {
 	Postgres    Postgres
 	JWT         JWT
 	SMTPGoogle  SMTPGoogle
+	Storage     Storage
 	Firebase    Firebase
 	OpenAI      OpenAI
 	GoogleOAuth GoogleOAuth
@@ -80,6 +81,16 @@ type GoogleOAuth struct {
 type Auth struct {
 	ResetPasswordURL string `env:"AUTH_RESET_PASSWORD_URL"`
 	VerifyEmailURL   string `env:"AUTH_VERIFY_EMAIL_URL"`
+}
+
+type Storage struct {
+	Endpoint   string `env:"STORAGE_ENDPOINT"`
+	Region     string `env:"STORAGE_REGION"`
+	AccessKey  string `env:"STORAGE_ACCESS_KEY"`
+	SecretKey  string `env:"STORAGE_SECRET_KEY"`
+	BucketName string `env:"STORAGE_BUCKET_NAME"`
+	PublicURL  string `env:"STORAGE_PUBLIC_URL"`
+	DefaultTTL int    `env:"STORAGE_DEFAULT_TTL"`
 }
 
 var Env Environment

@@ -1,16 +1,63 @@
 package app
 
 import (
+	"app/internal/config"
 	"app/internal/handler"
 	"app/internal/repository"
 	"app/internal/usecase"
+	"app/pkg/logger"
+	"app/pkg/postgres"
+	"app/pkg/storage"
 	"context"
 
 	"github.com/gofiber/fiber/v2"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
-func InjectHTTPHandlers(ctx context.Context, app *fiber.App, db *gorm.DB) {
+func InjectLibraries() (*gorm.DB, *storage.R2Storage, error) {
+	// Postgres
+	db, err := postgres.NewPostgres(postgres.PostgresConfig{
+		MigrationDirectory: config.Env.Postgres.MigrationDirectory,
+		MigrationDialect:   config.Env.Postgres.MigrationDialect,
+		Host:               config.Env.Postgres.Host,
+		User:               config.Env.Postgres.User,
+		Password:           config.Env.Postgres.Password,
+		Port:               config.Env.Postgres.Port,
+		DBName:             config.Env.Postgres.DBName,
+		SSLMode:            config.Env.Postgres.SSLMode,
+		MaxOpenConns:       config.Env.Postgres.MaxOpenConns,
+		MaxIdleConns:       config.Env.Postgres.MaxIdleConns,
+		ConnMaxLifetime:    config.Env.Postgres.ConnMaxLifetime,
+		ConnMaxIdleTime:    config.Env.Postgres.ConnMaxIdleTime,
+	})
+	if err != nil {
+		logger.Log.Error("Failed to connect to database", zap.Error(err))
+		return nil, nil, err
+	}
+	defer closeDatabase(db.DB)
+
+	// Storage
+	storage := storage.NewR2Storage(
+		config.Env.Storage.Endpoint,
+		config.Env.Storage.AccessKey,
+		config.Env.Storage.SecretKey,
+		config.Env.Storage.BucketName,
+		config.Env.Storage.PublicURL,
+		config.Env.Storage.DefaultTTL,
+	)
+
+	return db.DB, storage, nil
+}
+
+func InjectHTTPHandlers(ctx context.Context, app *fiber.App) {
+
+	// Inject libraries
+	db, _, err := InjectLibraries()
+	if err != nil {
+		logger.Log.Error("Failed to inject libraries", zap.Error(err))
+		return
+	}
 
 	// Hello
 	helloHandler := handler.NewHelloHandler()
