@@ -33,14 +33,14 @@ CREATE UNIQUE INDEX unique_email_active ON users(email) WHERE deleted_at IS NULL
 -- =========================================
 CREATE TABLE businesses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   address TEXT,
   created_at TIMESTAMP NOT NULL DEFAULT now(),
   updated_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
-CREATE UNIQUE INDEX unique_user_id ON businesses(user_id);
+CREATE UNIQUE INDEX unique_owner_id ON businesses(owner_id);
 
 -- =========================================
 -- PRODUCTS (simple, stock included)
@@ -74,7 +74,7 @@ CREATE TABLE transactions (
 CREATE TABLE transaction_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   transaction_id UUID NOT NULL REFERENCES transactions(id) ON DELETE CASCADE,
-  product_id UUID NOT NULL REFERENCES products(id),
+  product_id UUID REFERENCES products(id) ON DELETE SET NULL,
   product_name VARCHAR(255) NOT NULL,
   price NUMERIC(12,2) NOT NULL CHECK (price >= 0),
   quantity INTEGER NOT NULL CHECK (quantity > 0),

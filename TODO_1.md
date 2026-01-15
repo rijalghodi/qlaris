@@ -44,7 +44,7 @@ Ordered to **ship fast**, not perfect.
 ### Backend
 
 - [x] Product table (name, price, image, stock_qty)
-- [ ] CRUD APIs:
+- [ ] CRUD product endpoints:
   - [ ] create product
   - [ ] update product
   - [ ] list products (active only)
@@ -68,7 +68,7 @@ Ordered to **ship fast**, not perfect.
 
 ### Backend
 
-- [ ] Create transaction API
+- [ ] Create transaction endpoint
 - [ ] Decrease stock on checkout
 - [ ] Transaction items save
 

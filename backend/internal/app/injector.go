@@ -71,6 +71,13 @@ func InjectHTTPHandlers(ctx context.Context, app *fiber.App) {
 
 	// handler
 	authHandler := handler.NewAuthHandler(authUsecase)
-	authHandler.RegisterRoutes(app)
+	authHandler.RegisterRoutes(app, db)
+
+	// Product setup
+	businessRepo := repository.NewBusinessRepository(db)
+	productRepo := repository.NewProductRepository(db)
+	productUsecase := usecase.NewProductUsecase(productRepo, businessRepo)
+	productHandler := handler.NewProductHandler(productUsecase)
+	productHandler.RegisterRoutes(app, db)
 
 }

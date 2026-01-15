@@ -18,6 +18,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
+	"gorm.io/gorm"
 )
 
 type AuthHandler struct {
@@ -30,10 +31,10 @@ func NewAuthHandler(authUsecase *usecase.AuthUsecase) *AuthHandler {
 	}
 }
 
-func (h *AuthHandler) RegisterRoutes(app *fiber.App) {
+func (h *AuthHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	authGroup := app.Group("/auth")
 	authGroup.Post("/google/login", h.GoogleLogin)
-	authGroup.Get("/me", middleware.AuthGuard(), h.GetCurrentUser)
+	authGroup.Get("/me", middleware.AuthGuard(db), h.GetCurrentUser)
 	authGroup.Post("/login", h.Login)
 	authGroup.Post("/register", h.Register)
 	authGroup.Post("/send-verification", h.SendVerificationEmail)

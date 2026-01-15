@@ -10,6 +10,6 @@ type TransactionItem struct {
 	Subtotal      float64 `gorm:"type:numeric(12,2);not null;check:subtotal >= 0" json:"subtotal"`
 
 	// Relations
-	Transaction Transaction `gorm:"foreignKey:TransactionID;constraint:OnDelete:CASCADE" json:"-"`
-	Product     Product     `gorm:"foreignKey:ProductID" json:"-"`
+	Transaction Transaction `gorm:"foreignKey:TransactionID;constraint:OnDelete:SET NULL" json:"-"`
+	Product     *Product    `gorm:"foreignKey:ProductID" json:"-"`
 }
