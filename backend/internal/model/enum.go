@@ -1,8 +1,8 @@
 package model
 
-type ROLE string
+type USER_ROLE string
 
 const (
-	ROLE_OWNER      ROLE = "owner"
-	ROLE_SUPERADMIN ROLE = "superadmin"
+	USER_ROLE_OWNER      USER_ROLE = "owner"
+	USER_ROLE_SUPERADMIN USER_ROLE = "superadmin"
 )

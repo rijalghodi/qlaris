@@ -18,18 +18,10 @@ Ordered to **ship fast**, not perfect.
 
 ### Owner
 
-- [ ] Owner table (email/phone + password hash)
+- [ ] Owner table (email + password hash)
 - [ ] Owner login API
 - [ ] Owner login UI
 - [ ] Session/token handling
-
-### Staff
-
-- [ ] Staff table (name + PIN hash)
-- [ ] Create staff (owner only)
-- [ ] Staff list by outlet
-- [ ] Staff login (select name → enter PIN)
-- [ ] Staff session handling
 
 ✅ No roles, no permissions yet.
 

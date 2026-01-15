@@ -12,6 +12,5 @@ type Transaction struct {
 
 	// Relations
 	Business Business          `gorm:"foreignKey:BusinessID" json:"-"`
-	Staff    Staff             `gorm:"foreignKey:StaffID" json:"-"`
 	Items    []TransactionItem `gorm:"foreignKey:TransactionID;constraint:OnDelete:CASCADE" json:"items,omitempty"`
 }

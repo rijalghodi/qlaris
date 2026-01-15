@@ -13,7 +13,6 @@ Qlaris is a POS (Point of Sale) application for UMKM (Mini and micro business) i
 ### Account
 
 - Owner login (email/phone + password)
-- Staff login (select name + PIN)
 
 ### Catalog
 
@@ -50,6 +49,7 @@ Qlaris is a POS (Point of Sale) application for UMKM (Mini and micro business) i
 
 ### Account
 
+- Staff login (select name + PIN)
 - Manager role (PIN)
 
 ### Catalog
@@ -85,6 +85,11 @@ Qlaris is a POS (Point of Sale) application for UMKM (Mini and micro business) i
 
 - Product variants (size, color, etc.)
 
+### Account
+
+- Access right management
+- Customm role
+
 ### System
 
 - Multi-outlet
@@ -93,9 +98,9 @@ Qlaris is a POS (Point of Sale) application for UMKM (Mini and micro business) i
 ### Checkout
 
 - Discount (flat only)
+- Tax
 - Refund / return
 - Cash in / cash out
-- Shift open / close
 
 ### Customer
 
@@ -108,3 +113,4 @@ Qlaris is a POS (Point of Sale) application for UMKM (Mini and micro business) i
 
 - Loyality program
 - Tax rules
+- Employee management

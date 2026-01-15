@@ -10,16 +10,14 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- =========================================
 -- USERS (Owner only - email/password)
 -- =========================================
-
-
-CREATE TYPE ROLE AS ENUM ('owner', 'superadmin');
+CREATE TYPE USER_ROLE AS ENUM ('owner', 'superadmin');
 
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     password_hash TEXT,
-    role ROLE NOT NULL DEFAULT 'owner',
+    role USER_ROLE NOT NULL DEFAULT 'owner',
     google_image TEXT,
     is_verified BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
@@ -31,7 +29,7 @@ CREATE TABLE users (
 CREATE UNIQUE INDEX unique_email_active ON users(email) WHERE deleted_at IS NULL;
 
 -- =========================================
--- Business (single outlet for MVP)
+-- Business (single business for MVP)
 -- =========================================
 CREATE TABLE businesses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -42,18 +40,7 @@ CREATE TABLE businesses (
   updated_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
--- =========================================
--- STAFF / CASHIERS (PIN-based)
--- =========================================
-CREATE TABLE staff (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
-  name VARCHAR(255) NOT NULL,
-  pin_hash TEXT NOT NULL,
-  is_active BOOLEAN NOT NULL DEFAULT true,
-  created_at TIMESTAMP NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP NOT NULL DEFAULT now()
-);
+CREATE UNIQUE INDEX unique_user_id ON businesses(user_id);
 
 -- =========================================
 -- PRODUCTS (simple, stock included)
@@ -76,7 +63,6 @@ CREATE TABLE products (
 CREATE TABLE transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   business_id UUID NOT NULL REFERENCES businesses(id),
-  staff_id UUID NOT NULL REFERENCES staff(id),
   total_amount NUMERIC(12,2) NOT NULL CHECK (total_amount >= 0),
   payment_method TEXT NOT NULL CHECK (payment_method = 'cash'),
   created_at TIMESTAMP NOT NULL DEFAULT now()
@@ -98,7 +84,6 @@ CREATE TABLE transaction_items (
 -- =========================================
 -- INDEXES (performance)
 -- =========================================
-CREATE INDEX idx_staff_business_id ON staff(business_id);
 CREATE INDEX idx_products_business_id ON products(business_id);
 CREATE INDEX idx_transactions_business_id ON transactions(business_id);
 CREATE INDEX idx_transactions_created_at ON transactions(created_at);
@@ -113,9 +98,11 @@ CREATE INDEX idx_transaction_items_transaction_id ON transaction_items(transacti
 DROP TABLE IF EXISTS transaction_items;
 DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS products;
-DROP TABLE IF EXISTS staff;
 DROP TABLE IF EXISTS businesses;
 DROP TABLE IF EXISTS users;
+
+-- Drop type
+DROP TYPE IF EXISTS USER_ROLE;
 
 -- Drop extension
 DROP EXTENSION IF EXISTS "pgcrypto";

@@ -7,7 +7,7 @@ type User struct {
 	Name         string     `gorm:"type:varchar(255);not null" json:"name"`
 	Email        string     `gorm:"type:varchar(255);not null" json:"email"`
 	GoogleImage  *string    `gorm:"type:text" json:"google_image"`
-	Role         ROLE       `gorm:"type:role;not null;default:'owner'" json:"role"`
+	Role         USER_ROLE  `gorm:"type:role;not null;default:'owner'" json:"role"`
 	PasswordHash *string    `gorm:"type:text" json:"-"` // Hidden from JSON, stores hashed password
 	IsVerified   bool       `gorm:"not null;default:false" json:"is_verified"`
 	CreatedAt    time.Time  `gorm:"not null;default:now()" json:"created_at"`

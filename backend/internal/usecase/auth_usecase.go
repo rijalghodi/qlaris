@@ -155,7 +155,7 @@ func (u *AuthUsecase) Register(req *contract.RegisterReq) error {
 		Email:        req.Email,
 		PasswordHash: &hashedPassword,
 		IsVerified:   false,
-		Role:         model.ROLE_OWNER,
+		Role:         model.USER_ROLE_OWNER,
 	}
 
 	if err := u.userRepo.CreateUser(newUser); err != nil {
