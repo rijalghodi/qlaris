@@ -44,11 +44,12 @@ Ordered to **ship fast**, not perfect.
 ### Backend
 
 - [x] Product table (name, price, image, stock_qty)
-- [ ] CRUD product endpoints:
-  - [ ] create product
-  - [ ] update product
-  - [ ] list products (active only)
-  - [ ] delete product
+- [x] CRUD product endpoints:
+  - [x] create product
+  - [x] update product
+  - [x] list products (active only)
+  - [x] delete product
+  - [x] toggle product status (is_active)
 
 ### Frontend
 
@@ -68,9 +69,13 @@ Ordered to **ship fast**, not perfect.
 
 ### Backend
 
-- [ ] Create transaction endpoint
-- [ ] Decrease stock on checkout
-- [ ] Transaction items save
+- [x] Init transaction table
+- [x] Create endpoint to transaction:
+  - [x] Create-transaction endpoint on checkout
+    - transaction_items as ids
+    - expiredAt is now() + 15 minutes
+    - decrease stock on checkout
+  - [x] Edit-transaction endpoint
 
 ### Frontend
 
@@ -86,10 +91,18 @@ Ordered to **ship fast**, not perfect.
 
 ## 4️⃣ Payment (cash only)
 
-- [ ] Cash payment confirmation modal
-- [ ] Optional: input received cash
-- [ ] Calculate change (optional)
-- [ ] Finalize transaction
+### Backend
+
+- [x] Cash payment confirmation endpoint
+- [x] Optional: input received cash
+- [x] Calculate change (optional)
+- [x] Finalize transaction
+
+### Frontend
+
+- [ ] Receipt screen (after checkout)
+- [ ] Print-friendly receipt layout
+- [ ] “Done / New sale” button
 
 ❌ No QRIS
 ❌ No split payment
@@ -97,20 +110,6 @@ Ordered to **ship fast**, not perfect.
 ---
 
 ## 5️⃣ Transaction & Receipt
-
-### Backend
-
-- [ ] Transaction table
-- [ ] Transaction items table
-- [ ] List today transactions
-- [ ] Aggregate total sales today
-- [ ] Count total transactions today
-
-### Frontend
-
-- [ ] Receipt screen (after checkout)
-- [ ] Print-friendly receipt layout
-- [ ] “Done / New sale” button
 
 ---
 

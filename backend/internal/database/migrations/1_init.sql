@@ -60,11 +60,19 @@ CREATE TABLE products (
 -- =========================================
 -- TRANSACTIONS (sales header)
 -- =========================================
+CREATE TYPE TRANSACTION_STATUS AS ENUM ('pending', 'paid', 'expired', 'cancelled');
+
 CREATE TABLE transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   business_id UUID NOT NULL REFERENCES businesses(id),
+  staff_id UUID NOT NULL REFERENCES users(id),
   total_amount NUMERIC(12,2) NOT NULL CHECK (total_amount >= 0),
   payment_method TEXT NOT NULL CHECK (payment_method = 'cash'),
+  amount_received NUMERIC(12,2) NOT NULL DEFAULT 0 CHECK (amount_received >= 0),
+  change_amount NUMERIC(12,2) NOT NULL DEFAULT 0 CHECK (change_amount >= 0),
+  status TRANSACTION_STATUS NOT NULL DEFAULT 'pending',
+  paid_at TIMESTAMP,
+  expired_at TIMESTAMP NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
@@ -87,6 +95,7 @@ CREATE TABLE transaction_items (
 CREATE INDEX idx_products_business_id ON products(business_id);
 CREATE INDEX idx_transactions_business_id ON transactions(business_id);
 CREATE INDEX idx_transactions_created_at ON transactions(created_at);
+CREATE INDEX idx_transactions_status ON transactions(status);
 CREATE INDEX idx_transaction_items_transaction_id ON transaction_items(transaction_id);
 
 -- =========================================
@@ -102,6 +111,7 @@ DROP TABLE IF EXISTS businesses;
 DROP TABLE IF EXISTS users;
 
 -- Drop type
+DROP TYPE IF EXISTS TRANSACTION_STATUS;
 DROP TYPE IF EXISTS USER_ROLE;
 
 -- Drop extension

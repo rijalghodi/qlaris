@@ -80,4 +80,11 @@ func InjectHTTPHandlers(ctx context.Context, app *fiber.App) {
 	productHandler := handler.NewProductHandler(productUsecase)
 	productHandler.RegisterRoutes(app, db)
 
+	// Transaction setup
+	transactionRepo := repository.NewTransactionRepository(db)
+	transactionItemRepo := repository.NewTransactionItemRepository(db)
+	transactionUsecase := usecase.NewTransactionUsecase(transactionRepo, transactionItemRepo, productRepo, businessRepo, db)
+	transactionHandler := handler.NewTransactionHandler(transactionUsecase)
+	transactionHandler.RegisterRoutes(app, db)
+
 }

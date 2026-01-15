@@ -85,3 +85,33 @@ func (r *ProductRepository) ToggleProductStatus(id string, isActive bool) error 
 		Where("id = ?", id).
 		Update("is_active", isActive).Error
 }
+
+func (r *ProductRepository) GetProductsByIDs(ids []string) ([]*model.Product, error) {
+	var products []*model.Product
+	err := r.db.Where("id IN ?", ids).Find(&products).Error
+	if err != nil {
+		return nil, err
+	}
+	return products, nil
+}
+
+func (r *ProductRepository) DecreaseStock(productID string, quantity int) error {
+	// Using raw SQL to ensure atomic operation with stock validation
+	result := r.db.Exec(
+		"UPDATE products SET stock_qty = stock_qty - ?, updated_at = now() WHERE id = ? AND stock_qty >= ?",
+		quantity, productID, quantity,
+	)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound // No rows updated means insufficient stock
+	}
+	return nil
+}
+
+func (r *ProductRepository) IncreaseStock(productID string, quantity int) error {
+	return r.db.Model(&model.Product{}).
+		Where("id = ?", productID).
+		UpdateColumn("stock_qty", gorm.Expr("stock_qty + ?", quantity)).Error
+}
