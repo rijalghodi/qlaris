@@ -5,7 +5,6 @@ import (
 	"app/internal/model"
 	"app/pkg/util"
 	"slices"
-	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -53,8 +52,8 @@ func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 }
 
 func extractToken(c *fiber.Ctx) string {
-	authHeader := c.Get("Authorization")
-	return strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer "))
+	// Read token from cookie
+	return c.Cookies("qlaris.access-token")
 }
 
 // GetAuthClaims retrieves authenticated user claims from context
