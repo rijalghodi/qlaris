@@ -14,7 +14,7 @@ type Transaction struct {
 	PaidAt         *time.Time `gorm:"type:timestamp" json:"paid_at,omitempty"`
 	ExpiredAt      time.Time  `gorm:"type:timestamp;not null" json:"expired_at"`
 	CreatedAt      time.Time  `gorm:"not null;default:now()" json:"created_at"`
-	UpdatedAt      time.Time  `gorm:"not null;default:now()" json:"created_at"`
+	UpdatedAt      time.Time  `gorm:"not null;default:now()" json:"updated_at"`
 
 	// Relations
 	Business Business          `gorm:"foreignKey:BusinessID" json:"-"`

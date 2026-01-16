@@ -63,3 +63,29 @@ func (r *TransactionRepository) UpdateTransactionStatus(id, status string) error
 		Where("id = ?", id).
 		Update("status", status).Error
 }
+
+func (r *TransactionRepository) ListTransactionsByBusinessID(businessID string, page, pageSize int) ([]*model.Transaction, int64, error) {
+	var transactions []*model.Transaction
+	var total int64
+
+	offset := (page - 1) * pageSize
+
+	// Get total count
+	if err := r.db.Model(&model.Transaction{}).Where("business_id = ?", businessID).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Get paginated results with items preloaded
+	err := r.db.Where("business_id = ?", businessID).
+		Preload("Items").
+		Order("created_at DESC").
+		Limit(pageSize).
+		Offset(offset).
+		Find(&transactions).Error
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return transactions, total, nil
+}

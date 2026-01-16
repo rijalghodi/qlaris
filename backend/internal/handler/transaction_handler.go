@@ -25,6 +25,7 @@ func NewTransactionHandler(transactionUsecase *usecase.TransactionUsecase) *Tran
 func (h *TransactionHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	transactionGroup := app.Group("/transactions", middleware.AuthGuard(db))
 	transactionGroup.Post("/", h.CreateTransaction)
+	transactionGroup.Get("/", h.ListTransactions)
 	transactionGroup.Get("/:id", h.GetTransaction)
 	transactionGroup.Put("/:id", h.UpdateTransaction)
 	transactionGroup.Post("/:id/pay", h.PayTransaction)
@@ -64,6 +65,34 @@ func (h *TransactionHandler) CreateTransaction(c *fiber.Ctx) error {
 }
 
 // @Tags Transactions
+// @Summary List transactions
+// @Description List all transactions for the authenticated user's business with pagination
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param page query int false "Page number (default: 1)"
+// @Param pageSize query int false "Page size (default: 10, max: 100)"
+// @Success 200 {object} util.PaginatedResponse{data=util.PaginatedData{items=[]contract.TransactionRes}}
+// @Failure 401 {object} util.BaseResponse
+// @Failure 500 {object} util.BaseResponse
+// @Router /transactions [get]
+func (h *TransactionHandler) ListTransactions(c *fiber.Ctx) error {
+	claims := middleware.GetAuthClaims(c)
+
+	queries, err := util.ParsePaginationQueries(c)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	transactions, total, err := h.transactionUsecase.ListTransactions(claims.BusinessID, queries.Page, queries.PageSize)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).JSON(util.ToPaginatedResponse(transactions, queries.Page, queries.PageSize, total))
+}
+
+// @Tags Transactions
 // @Summary Get transaction
 // @Description Get transaction details by ID
 // @Accept json
@@ -82,6 +111,11 @@ func (h *TransactionHandler) GetTransaction(c *fiber.Ctx) error {
 	}
 
 	claims := middleware.GetAuthClaims(c)
+
+	if err := h.transactionUsecase.IsAllowedToAccessTransaction(claims.ID, transactionID); err != nil {
+		return err
+	}
+
 	transaction, err := h.transactionUsecase.GetTransaction(claims.ID, claims.BusinessID, transactionID)
 	if err != nil {
 		return err
@@ -122,6 +156,11 @@ func (h *TransactionHandler) UpdateTransaction(c *fiber.Ctx) error {
 	}
 
 	claims := middleware.GetAuthClaims(c)
+
+	if err := h.transactionUsecase.IsAllowedToAccessTransaction(claims.ID, transactionID); err != nil {
+		return err
+	}
+
 	transaction, err := h.transactionUsecase.UpdateTransaction(claims.ID, claims.BusinessID, transactionID, &req)
 	if err != nil {
 		return err
@@ -162,6 +201,11 @@ func (h *TransactionHandler) PayTransaction(c *fiber.Ctx) error {
 	}
 
 	claims := middleware.GetAuthClaims(c)
+
+	if err := h.transactionUsecase.IsAllowedToAccessTransaction(claims.ID, transactionID); err != nil {
+		return err
+	}
+
 	transaction, err := h.transactionUsecase.PayTransaction(claims.ID, claims.BusinessID, transactionID, &req)
 	if err != nil {
 		return err

@@ -421,3 +421,46 @@ func (u *TransactionUsecase) buildTransactionRes(transaction *model.Transaction)
 		Items:          items,
 	}
 }
+
+// IsAllowedToAccessTransaction checks if a user has access to a transaction
+func (u *TransactionUsecase) IsAllowedToAccessTransaction(userID string, transactionID string) error {
+	business, err := u.businessRepo.GetBusinessByUserID(userID)
+	if err != nil {
+		logger.Log.Error("Failed to get user business", zap.Error(err), zap.String("userID", userID))
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get user business")
+	}
+
+	if business == nil {
+		logger.Log.Warn("Business not found for user", zap.String("userID", userID))
+		return fiber.NewError(fiber.StatusNotFound, "Business not found. Please create a business first.")
+	}
+
+	transaction, err := u.transactionRepo.GetTransactionByIDAndBusinessID(transactionID, business.ID)
+	if err != nil {
+		logger.Log.Error("Failed to get transaction", zap.Error(err), zap.String("transactionID", transactionID))
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get transaction")
+	}
+
+	if transaction == nil {
+		logger.Log.Warn("Transaction not found", zap.String("transactionID", transactionID))
+		return fiber.NewError(fiber.StatusNotFound, "You don't have permission to access this transaction")
+	}
+
+	return nil
+}
+
+// ListTransactions lists transactions with pagination
+func (u *TransactionUsecase) ListTransactions(businessID string, page, pageSize int) ([]*contract.TransactionRes, int64, error) {
+	transactions, total, err := u.transactionRepo.ListTransactionsByBusinessID(businessID, page, pageSize)
+	if err != nil {
+		logger.Log.Error("Failed to list transactions", zap.Error(err))
+		return nil, 0, fiber.NewError(fiber.StatusInternalServerError, "Failed to list transactions")
+	}
+
+	results := make([]*contract.TransactionRes, len(transactions))
+	for i, transaction := range transactions {
+		results[i] = u.buildTransactionRes(transaction)
+	}
+
+	return results, total, nil
+}
