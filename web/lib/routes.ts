@@ -1,5 +1,5 @@
 export const ROUTES = {
-  HOME: "/",
+  DASHBOARD: "/",
   LOGIN: "/login",
   GOOGLE_SUCCESS: "/google-success",
 };

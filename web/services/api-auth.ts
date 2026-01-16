@@ -1,6 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { setAuthCookie } from "@/lib/auth-cookie";
+import { removeAuthCookie } from "@/lib/auth-cookie";
+import { ROUTES } from "@/lib/routes";
 import { Role } from "@/lib/constant";
 
 import { apiClient } from "./api-client";
@@ -62,6 +64,18 @@ export type SetPasswordReq = {
 
 export type SetPasswordRes = GResponse<Record<string, never>>;
 
+// --- GET CURRENT USER ---
+
+export type GetCurrentUserRes = GResponse<{
+  name?: string;
+  phone?: string;
+  email?: string;
+  role?: Role;
+  token?: string;
+  googleImage?: string;
+  tokenExpiredAt?: string;
+}>;
+
 // --- RESET PASSWORD ---
 
 export type ResetPasswordReq = {
@@ -96,6 +110,11 @@ export const authApi = {
 
   setPassword: async (data: SetPasswordReq): Promise<SetPasswordRes> => {
     const response = await apiClient.post("/auth/set-password", data);
+    return response.data;
+  },
+
+  getCurrentUser: async (): Promise<GetCurrentUserRes> => {
+    const response = await apiClient.get("/auth/me");
     return response.data;
   },
 };
@@ -222,4 +241,24 @@ export const useSetPassword = ({
       onError?.(error.response?.data?.message || "An error occurred");
     },
   });
+};
+
+export const useGetCurrentUser = () => {
+  return useQuery({
+    queryKey: ["current-user"],
+    queryFn: () => authApi.getCurrentUser(),
+  });
+};
+
+import { useCallback, useState } from "react";
+
+export const useLogout = () => {
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const logout = useCallback(async () => {
+    setIsLoggingOut(true);
+    removeAuthCookie();
+    window.location.href = ROUTES.LOGIN;
+    setIsLoggingOut(false);
+  }, []);
+  return { isLoggingOut, logout };
 };
