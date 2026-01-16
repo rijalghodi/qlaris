@@ -6,6 +6,22 @@ import { Role } from "@/lib/constant";
 import { apiClient } from "./api-client";
 import type { GErrorResponse, GResponse } from "./type";
 
+// --- REGISTER ---
+
+export type RegisterReq = {
+  phone?: string;
+  email?: string;
+  password: string;
+};
+
+export type RegisterRes = GResponse<{
+  phone?: string;
+  email?: string;
+  role?: Role;
+  token?: string;
+  tokenExpiredAt?: string;
+}>;
+
 // --- LOGIN ---
 
 export type LoginReq = {
@@ -58,6 +74,11 @@ export type ResetPasswordRes = GResponse<Record<string, never>>;
 // Main Function
 
 export const authApi = {
+  register: async (credentials: RegisterReq): Promise<RegisterRes> => {
+    const response = await apiClient.post("/auth/register", credentials);
+    return response.data;
+  },
+
   login: async (credentials: LoginReq): Promise<LoginRes> => {
     const response = await apiClient.post("/auth/login", credentials);
     return response.data;
@@ -81,6 +102,30 @@ export const authApi = {
 
 // --- HOOKS ---
 
+export const useRegister = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (data: RegisterRes) => void;
+  onError?: (error: string) => void;
+}) => {
+  return useMutation({
+    mutationFn: (data: RegisterReq) => authApi.register(data),
+    onSuccess: (data: RegisterRes) => {
+      if (data.data?.token) {
+        setAuthCookie({
+          accessToken: data.data.token,
+          accessTokenExpires: data.data.tokenExpiredAt,
+        });
+      }
+      onSuccess?.(data);
+    },
+    onError: (error: GErrorResponse) => {
+      onError?.(error.response?.data?.message || "An error occurred");
+    },
+  });
+};
+
 export const useLogin = ({
   onSuccess,
   onError,
@@ -97,6 +142,60 @@ export const useLogin = ({
           accessTokenExpires: data.data.tokenExpiredAt,
         });
       }
+      onSuccess?.(data);
+    },
+    onError: (error: GErrorResponse) => {
+      onError?.(error.response?.data?.message || "An error occurred");
+    },
+  });
+};
+
+export const useForgotPassword = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (data: ForgotPasswordRes) => void;
+  onError?: (error: string) => void;
+} = {}) => {
+  return useMutation({
+    mutationFn: (data: ForgotPasswordReq) => authApi.forgotPassword(data),
+    onSuccess: (data: ForgotPasswordRes) => {
+      onSuccess?.(data);
+    },
+    onError: (error: GErrorResponse) => {
+      onError?.(error.response?.data?.message || "An error occurred");
+    },
+  });
+};
+
+export const useResetPassword = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (data: ResetPasswordRes) => void;
+  onError?: (error: string) => void;
+} = {}) => {
+  return useMutation({
+    mutationFn: (data: ResetPasswordReq) => authApi.resetPassword(data),
+    onSuccess: (data: ResetPasswordRes) => {
+      onSuccess?.(data);
+    },
+    onError: (error: GErrorResponse) => {
+      onError?.(error.response?.data?.message || "An error occurred");
+    },
+  });
+};
+
+export const useSetPassword = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (data: SetPasswordRes) => void;
+  onError?: (error: string) => void;
+} = {}) => {
+  return useMutation({
+    mutationFn: (data: SetPasswordReq) => authApi.setPassword(data),
+    onSuccess: (data: SetPasswordRes) => {
       onSuccess?.(data);
     },
     onError: (error: GErrorResponse) => {

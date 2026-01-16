@@ -9,43 +9,43 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
-import { useLogin } from "@/services/api-auth";
+import { useRegister } from "@/services/api-auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const loginSchema = z.object({
+const registerSchema = z.object({
   email: z.email("Please enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type RegisterFormData = z.infer<typeof registerSchema>;
 
-export function LoginForm() {
+export function RegisterForm() {
   const router = useRouter();
   const [error, setError] = useState<string>("");
 
-  const form = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema as any),
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema as any),
   });
 
-  const { mutate: login, isPending } = useLogin({
+  const { mutate: register, isPending } = useRegister({
     onSuccess: (data) => {
-      console.log("Login successful:", data);
-      // Redirect to home page after successful login
+      console.log("Registration successful:", data);
+      // Redirect to home page after successful registration
       router.push("/");
     },
     onError: (errorMessage) => {
-      console.error("Login error:", errorMessage);
+      console.error("Registration error:", errorMessage);
       setError(errorMessage);
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: RegisterFormData) => {
     setError(""); // Clear previous errors
-    login(data);
+    register(data);
   };
 
-  const handleContinueWithGoogle = () => {
+  const handleContiueWithGoogle = () => {
     // TODO: Implement Google OAuth logic
     console.log("Sign in with Google");
   };
@@ -54,9 +54,9 @@ export function LoginForm() {
     <div className="w-full max-w-sm space-y-6">
       {/* Header */}
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-semibold">Login to account</h1>
+        <h1 className="text-2xl font-semibold">Create an account</h1>
         <p className="text-sm text-muted-foreground">
-          Enter your email below to login to your account
+          Enter your email below to create new account
         </p>
       </div>
 
@@ -99,7 +99,7 @@ export function LoginForm() {
             disabled={isPending}
             className="h-10 w-full bg-primary font-medium text-primary-foreground hover:bg-primary/90"
           >
-            {isPending ? "Signing in..." : "Sign in with Email"}
+            {isPending ? "Signing up..." : "Sign up with Email"}
           </Button>
         </form>
       </Form>
@@ -119,7 +119,7 @@ export function LoginForm() {
         type="button"
         variant="outline"
         className="h-10 w-full"
-        onClick={handleContinueWithGoogle}
+        onClick={handleContiueWithGoogle}
       >
         <IconGoogle className="mr-2 h-4 w-4" />
         Continue with Google
@@ -127,12 +127,12 @@ export function LoginForm() {
 
       {/* Terms and Privacy */}
       <p className="px-8 text-center text-sm text-muted-foreground">
-        Don't have an account?{" "}
+        Already have account?{" "}
         <Link
-          href="/register"
+          href="/login"
           className="hover:underline underline-offset-4 font-medium text-foreground"
         >
-          Register
+          Login
         </Link>
       </p>
     </div>
