@@ -35,7 +35,6 @@ func InjectLibraries() (*gorm.DB, *storage.R2Storage, error) {
 		logger.Log.Error("Failed to connect to database", zap.Error(err))
 		return nil, nil, err
 	}
-	defer closeDatabase(db.DB)
 
 	// Storage
 	storage := storage.NewR2Storage(

@@ -17,7 +17,7 @@ var customMessages = map[string]string{
 	"positive": "Field %s must be a positive number",
 	"alphanum": "Field %s must contain only alphanumeric characters",
 	"oneof":    "Invalid value for field %s",
-	"password": "Field %s must contain at least 8 characters, contain at least 1 letter and 1 number",
+	"password": "Field %s must contain at least 8 characters",
 }
 
 func CustomErrorMessages(err error) map[string]string {
@@ -31,7 +31,7 @@ func CustomErrorMessages(err error) map[string]string {
 func generateErrorMessages(validationErrors validator.ValidationErrors) map[string]string {
 	errorsMap := make(map[string]string)
 	for _, err := range validationErrors {
-		fieldName := err.Field()
+		fieldName := ToCamelCase(err.Field())
 		tag := err.Tag()
 
 		customMessage := customMessages[tag]
@@ -62,19 +62,21 @@ func Password(fl validator.FieldLevel) bool {
 		return false
 	}
 
-	hasLetter := false
-	hasNumber := false
+	return true
 
-	for _, char := range password {
-		if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') {
-			hasLetter = true
-		}
-		if char >= '0' && char <= '9' {
-			hasNumber = true
-		}
-	}
+	// hasLetter := false
+	// hasNumber := false
 
-	return hasLetter && hasNumber
+	// for _, char := range password {
+	// 	if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') {
+	// 		hasLetter = true
+	// 	}
+	// 	if char >= '0' && char <= '9' {
+	// 		hasNumber = true
+	// 	}
+	// }
+
+	// return hasLetter && hasNumber
 }
 
 func Validator() *validator.Validate {
@@ -94,6 +96,7 @@ func ValidateStruct(s interface{}) error {
 	}
 
 	if err := validate.Struct(s); err != nil {
+		// this error will be handled by ErrorHandler
 		return err
 	}
 	return nil

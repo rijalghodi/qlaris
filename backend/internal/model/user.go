@@ -13,7 +13,4 @@ type User struct {
 	CreatedAt    time.Time  `gorm:"not null;default:now()" json:"created_at"`
 	UpdatedAt    time.Time  `gorm:"not null;default:now()" json:"updated_at"`
 	DeletedAt    *time.Time `gorm:"index" json:"deleted_at,omitempty"`
-
-	// Relations
-	Business []Business
 }

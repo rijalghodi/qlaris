@@ -18,7 +18,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/swagger"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 // Run starts the application server
@@ -77,23 +76,23 @@ func startServer(app *fiber.App, address string, errs chan<- error) {
 	}
 }
 
-func closeDatabase(db *gorm.DB) {
-	if db == nil {
-		return
-	}
+// func closeDatabase(db *gorm.DB) {
+// 	if db == nil {
+// 		return
+// 	}
 
-	sqlDB, errDB := db.DB()
-	if errDB != nil {
-		logger.Log.Error("Error getting database instance", zap.Error(errDB))
-		return
-	}
+// 	sqlDB, errDB := db.DB()
+// 	if errDB != nil {
+// 		logger.Log.Error("Error getting database instance", zap.Error(errDB))
+// 		return
+// 	}
 
-	if err := sqlDB.Close(); err != nil {
-		logger.Log.Error("Error closing database connection", zap.Error(err))
-	} else {
-		logger.Log.Info("Database connection closed successfully")
-	}
-}
+// 	if err := sqlDB.Close(); err != nil {
+// 		logger.Log.Error("Error closing database connection", zap.Error(err))
+// 	} else {
+// 		logger.Log.Info("Database connection closed successfully")
+// 	}
+// }
 
 func handleGracefulShutdown(ctx context.Context, app *fiber.App, serverErrors <-chan error) {
 	quit := make(chan os.Signal, 1)
