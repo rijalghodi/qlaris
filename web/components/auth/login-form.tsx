@@ -110,11 +110,7 @@ export function LoginForm() {
             </Link>
           </p>
 
-          <Button
-            type="submit"
-            disabled={isPending}
-            className="h-10 w-full bg-primary font-medium text-primary-foreground hover:bg-primary/90"
-          >
+          <Button type="submit" disabled={isPending} className="h-10 w-full rounded-full">
             {isPending ? "Signing in..." : "Sign in with Email"}
           </Button>
         </form>
@@ -134,7 +130,7 @@ export function LoginForm() {
       <Button
         type="button"
         variant="outline"
-        className="h-10 w-full"
+        className="h-10 w-full rounded-full"
         onClick={handleContinueWithGoogle}
       >
         <IconGoogle className="mr-2 h-4 w-4" />

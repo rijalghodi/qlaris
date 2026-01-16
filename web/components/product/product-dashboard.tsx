@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { useProducts, type Product } from "@/services/api-product";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import RowsPerPage from "../ui/rows-perpage";
 
 export function ProductDashboard() {
   const [page, setPage] = useState(1);
@@ -22,7 +23,7 @@ export function ProductDashboard() {
 
   const products = data?.data || [];
   const totalItems = data?.pagination?.total_items || 0;
-  const totalPages = data?.pagination?.last_page || 1;
+  const totalPages = data?.pagination?.last_page || 20;
 
   const columns: ColumnDef<Product>[] = [
     {
@@ -97,42 +98,6 @@ export function ProductDashboard() {
 
   return (
     <div className="flex flex-col gap-3 w-full">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-xl font-semibold leading-none">Products</h1>
-          <Breadcrumb
-            items={[
-              { label: "Dashboard", href: "/dashboard" },
-              { label: "Products", href: "/products" },
-            ]}
-          />
-        </div>
-
-        {/* Search and Actions */}
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" className="shrink-0 rounded-full">
-              <FileText className="size-4 text-destructive" />
-            </Button>
-            <Button variant="outline" size="icon" className="shrink-0 rounded-full">
-              <FileText className="size-4 text-primary" />
-            </Button>
-            <Button
-              variant="default"
-              className="bg-orange-500 hover:bg-orange-600 shrink-0 rounded-full"
-            >
-              <Plus className="size-4" />
-              Add Product
-            </Button>
-            <Button variant="default" className="shrink-0 rounded-full">
-              <Upload className="size-4" />
-              Import Product
-            </Button>
-          </div>
-        </div>
-      </div>
-
       {/* Table */}
       <div className="bg-card rounded-xl shadow-lg overflow-hidden space-y-3 py-4 px-3">
         <div className="flex items-center justify-between gap-2">
@@ -156,20 +121,7 @@ export function ProductDashboard() {
         />
         {/* Pagination Footer */}
         <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            <span className="font-medium">Row Per Page</span>{" "}
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Rows" />
-              </SelectTrigger>
-              <SelectContent className="w-10">
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-              </SelectContent>
-            </Select>{" "}
-            Entries
-          </div>
+          <RowsPerPage />
           <Pagination page={page} totalPage={totalPages} onPageChange={setPage} />
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import {
   ArrowRightLeftIcon,
+  Box,
   ChartNoAxesCombinedIcon,
   ChartPieIcon,
   ChartSplineIcon,
@@ -11,6 +12,7 @@ import {
   Gift,
   HashIcon,
   Home,
+  LayoutDashboard,
   ListTodo,
   ShoppingBag,
   ShoppingBagIcon,
@@ -65,7 +67,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link href={ROUTES.DASHBOARD}>
-                    <Home />
+                    <LayoutDashboard />
                     <span>Dashboard</span>
                   </Link>
                 </SidebarMenuButton>
@@ -73,7 +75,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link href={ROUTES.PRODUCTS}>
-                    <UsersIcon />
+                    <Box />
                     <span>Products</span>
                   </Link>
                 </SidebarMenuButton>
@@ -81,7 +83,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link href={ROUTES.TRANSACTIONS}>
-                    <ChartPieIcon />
+                    <ShoppingBag />
                     <span>Transactions</span>
                   </Link>
                 </SidebarMenuButton>

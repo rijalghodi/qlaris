@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Barlow, Inter } from "next/font/google";
+import { Barlow, Inter, Special_Gothic } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { BRAND } from "@/lib/brand";
 
-const inter = Barlow({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-sans",
 });
 

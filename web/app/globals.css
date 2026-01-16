@@ -45,17 +45,17 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
-  --text-xs: 0.875rem;
+  /* --text-xs: 0.875rem;
   --text-sm: 1rem;
   --text-base: 1.125rem;
   --text-lg: 1.25rem;
-  --text-xl: 1.5rem;
+  --text-xl: 1.5rem; */
 }
 
 :root {
   --radius: 0.65rem;
   --background: hsl(0, 0%, 100%);
-  --foreground: hsl(240, 10%, 4%);
+  --foreground: hsl(0, 0%, 20%);
   --card: hsl(0, 0%, 100%);
   --card-foreground: hsl(240, 10%, 4%);
   --popover: oklch(1 0 0);
@@ -78,7 +78,7 @@
   --chart-4: oklch(0.527 0.154 150.069);
   --chart-5: oklch(0.448 0.119 151.328);
   --sidebar: hsl(0, 0%, 100%);
-  --sidebar-foreground: hsl(240, 10%, 4%);
+  --sidebar-foreground: hsl(0, 0%, 21%);
   --sidebar-primary: hsl(86, 100%, 32%);
   --sidebar-primary-foreground: oklch(0.986 0.031 120.757);
   --sidebar-accent: hsl(240, 5%, 92%);
