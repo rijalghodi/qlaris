@@ -32,19 +32,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuBadge,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 import { ProfileDropdown } from "./profile-dropdown";
 import { AppSidebar } from "./app-sidebar";
@@ -55,41 +43,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-dvh w-full">
       <SidebarProvider>
         <AppSidebar />
-        <div className="flex flex-1 flex-col">
-          <header className="bg-card sticky top-0 z-50 border-b">
+        <div className="flex flex-1 flex-col bg-muted">
+          <header className="bg-card sticky top-0 z-50 border-b border-sidebar-border h-14">
             <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-2 sm:px-6">
-              <div className="flex items-center gap-4">
-                <SidebarTrigger className="[&_svg]:!size-5" />
-                <Separator orientation="vertical" className="hidden !h-4 sm:block" />
-                <Breadcrumb className="hidden sm:block">
-                  <BreadcrumbList>
-                    <BreadcrumbItem>
-                      <BreadcrumbLink href="#">Home</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                      <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                      <BreadcrumbPage>Free</BreadcrumbPage>
-                    </BreadcrumbItem>
-                  </BreadcrumbList>
-                </Breadcrumb>
-              </div>
+              <div className="flex items-center gap-4"></div>
               <div className="flex items-center gap-1.5">
                 <ProfileDropdown />
               </div>
             </div>
           </header>
-          <main className="mx-auto size-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
-            <Card className="h-250">
-              <CardContent className="h-full">
-                <div className="h-full rounded-md border bg-[repeating-linear-gradient(45deg,var(--muted),var(--muted)_1px,var(--card)_2px,var(--card)_15px)]" />
-                {children}
-              </CardContent>
-            </Card>
-          </main>
+          <main className="mx-auto size-full max-w-7xl flex-1 px-4 py-6 sm:px-6">{children}</main>
           <footer>
             <div className="text-muted-foreground mx-auto flex size-full max-w-7xl items-center justify-between gap-3 px-4 py-3 max-sm:flex-col sm:gap-6 sm:px-6">
               <p className="text-xs text-balance max-sm:text-center">

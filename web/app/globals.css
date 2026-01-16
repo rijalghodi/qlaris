@@ -60,7 +60,7 @@
   --card-foreground: hsl(240, 10%, 4%);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.648 0.2 131.684);
+  --primary: #5ca300;
   --primary-foreground: oklch(0.986 0.031 120.757);
   --secondary: hsl(240, 5%, 94%);
   --secondary-foreground: oklch(0.21 0.006 285.885);
@@ -83,7 +83,7 @@
   --sidebar-primary-foreground: oklch(0.986 0.031 120.757);
   --sidebar-accent: hsl(240, 5%, 92%);
   --sidebar-accent-foreground: hsl(240, 6%, 10%);
-  --sidebar-border: hsl(240, 6%, 94%);
+  --sidebar-border: hsl(240, 6%, 92%);
   --sidebar-ring: hsl(80, 100%, 45%);
 }
 

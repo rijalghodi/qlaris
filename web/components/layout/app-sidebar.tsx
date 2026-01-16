@@ -12,6 +12,9 @@ import {
   HashIcon,
   Home,
   ListTodo,
+  ShoppingBag,
+  ShoppingBagIcon,
+  ShoppingBasket,
   SquareActivityIcon,
   UsersIcon,
 } from "lucide-react";
@@ -39,88 +42,48 @@ export function AppSidebar() {
   return (
     <Sidebar variant="sidebar" collapsible="icon">
       <SidebarContent>
-        <SidebarHeader>
+        <SidebarHeader className="border-b border-sidebar-border h-14">
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
                 className="bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent"
               >
-                <Link href="#">
-                  <Gift className="size-7!" />
-                  <span className="font-semibold text-2xl">QLaris</span>
+                <Link href="#" className="flex items-center gap-2">
+                  <ShoppingBagIcon className="size-6! text-primary" strokeWidth={2.5} />
+                  <span className="font-semibold text-2xl bg-linear-to-r from-lime-600 to-lime-700 bg-clip-text text-transparent tracking-normal leading-none">
+                    Qlaris
+                  </span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
         <SidebarGroup>
-          {/* <SidebarGroupLabel>Pages</SidebarGroupLabel> */}
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="#">
-                    <ChartSplineIcon />
-                    <span>Content Performance</span>
-                  </a>
+                  <Link href={ROUTES.DASHBOARD}>
+                    <Home />
+                    <span>Dashboard</span>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="#">
+                  <Link href={ROUTES.PRODUCTS}>
                     <UsersIcon />
-                    <span>Audience Insight</span>
-                  </a>
+                    <span>Products</span>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="#">
+                  <Link href={ROUTES.TRANSACTIONS}>
                     <ChartPieIcon />
-                    <span>Engagement Metrics</span>
-                  </a>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <a href="#">
-                    <HashIcon />
-                    <span>Hashtag Performance</span>
-                  </a>
-                </SidebarMenuButton>
-                <SidebarMenuBadge className="bg-primary/10 rounded-full">3</SidebarMenuBadge>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <a href="#">
-                    <ArrowRightLeftIcon />
-                    <span>Competitor Analysis</span>
-                  </a>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <a href="#">
-                    <Clock9Icon />
-                    <span>Campaign Tracking</span>
-                  </a>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <a href="#">
-                    <ClipboardListIcon />
-                    <span>Sentiment Tracking</span>
-                  </a>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <a href="#">
-                    <CrownIcon />
-                    <span>Influencer</span>
-                  </a>
+                    <span>Transactions</span>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
