@@ -1,4 +1,4 @@
-import { AppLayout } from "@/components/layout/app-layout";
+import { AppShell } from "@/components/layout/app-shell";
 import React from "react";
 
 type Props = {
@@ -6,5 +6,5 @@ type Props = {
 };
 
 export default function Layout({ children }: Props) {
-  return <AppLayout>{children}</AppLayout>;
+  return <AppShell>{children}</AppShell>;
 }
