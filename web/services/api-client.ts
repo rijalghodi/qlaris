@@ -1,10 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://api-dev.unkeyme.com";
-
-if (!process.env.NEXT_PUBLIC_BASE_URL) {
-  console.warn("NEXT_PUBLIC_BASE_URL is not set. Using default: https://api-dev.unkeyme.com");
-}
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,

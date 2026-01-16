@@ -36,7 +36,7 @@ type RefreshTokenRes struct {
 }
 
 type GoogleLoginReq struct {
-	Name          string `json:"name" validate:"required,max=50"`
+	Name          string `json:"name"`
 	Email         string `json:"email" validate:"required,email,max=50"`
 	VerifiedEmail bool   `json:"verified_email" validate:"required"`
 	Picture       string `json:"picture" validate:"omitempty,url"`
@@ -60,7 +60,7 @@ type LoginRes struct {
 type RegisterReq struct {
 	Email    string `json:"email" validate:"required,email,max=50"`
 	Password string `json:"password" validate:"required,min=8,max=50"`
-	Name     string `json:"name" validate:"required,max=50"`
+	Name     string `json:"name"`
 }
 
 type RegisterRes struct {

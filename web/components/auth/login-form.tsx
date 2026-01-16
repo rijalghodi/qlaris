@@ -58,7 +58,7 @@ export function LoginForm() {
     <div className="w-full max-w-sm space-y-6">
       {/* Header */}
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-semibold">Login to account</h1>
+        <h1 className="text-2xl font-semibold">Login to your account</h1>
         <p className="text-sm text-muted-foreground">
           Enter your email below to login to your account
         </p>
@@ -66,7 +66,9 @@ export function LoginForm() {
 
       {/* Error Message */}
       {error && (
-        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
+        <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {error}
+        </div>
       )}
 
       {/* Form */}

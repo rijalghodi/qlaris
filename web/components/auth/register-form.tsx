@@ -13,10 +13,16 @@ import { useRegister } from "@/services/api-auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const registerSchema = z.object({
-  email: z.email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
+const registerSchema = z
+  .object({
+    email: z.email("Please enter a valid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
@@ -29,6 +35,7 @@ export function RegisterForm() {
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
@@ -66,7 +73,9 @@ export function RegisterForm() {
 
       {/* Error Message */}
       {error && (
-        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
+        <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {error}
+        </div>
       )}
 
       {/* Form */}
@@ -93,6 +102,19 @@ export function RegisterForm() {
                 <FormLabel>Password</FormLabel>
                 <FormControl>
                   <Input type="password" placeholder="Your Password" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="Confirm Password" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
