@@ -124,7 +124,7 @@ export function DataTable<TData, TValue>({
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className="has-data-[state=open]:bg-muted">
+            <TableRow key={headerGroup.id} className="has-data-[state=open]:bg-muted bg-muted">
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
@@ -157,7 +157,7 @@ export function DataTable<TData, TValue>({
               </TableRow>
             ))
           ) : (
-            <TableRow className="min-h-40 w-full">
+            <TableRow className="min-h-40 w-full hover:bg-transparent">
               <TableCell
                 colSpan={columns.length}
                 className="w-full min-h-40 text-center items-center justify-center"
