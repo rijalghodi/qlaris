@@ -2,66 +2,68 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import { IconGoogle } from "../ui/icon-google";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
-import { useRegister } from "@/services/api-auth";
-import { useRouter } from "next/navigation";
+import { useSetPassword } from "@/services/api-auth";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-const registerSchema = z.object({
-  email: z.email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
+const setPasswordSchema = z
+  .object({
+    token: z.string().min(1, "Token is required"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
-type RegisterFormData = z.infer<typeof registerSchema>;
+type SetPasswordFormData = z.infer<typeof setPasswordSchema>;
 
-export function RegisterForm() {
+export function SetPasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string>("");
 
-  const form = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema as any),
+  const form = useForm<SetPasswordFormData>({
+    resolver: zodResolver(setPasswordSchema as any),
     defaultValues: {
-      email: "",
+      token: searchParams.get("token") || "",
       password: "",
+      confirmPassword: "",
     },
   });
 
-  const { mutate: register, isPending } = useRegister({
+  const { mutate: setPassword, isPending } = useSetPassword({
     onSuccess: (data) => {
-      console.log("Registration successful:", data);
-      // Redirect to home page after successful registration
-      router.push("/");
+      console.log("Set password successful:", data);
+      // Redirect to login page after successful password setup
+      router.push("/login");
     },
     onError: (errorMessage) => {
-      console.error("Registration error:", errorMessage);
+      console.error("Set password error:", errorMessage);
       setError(errorMessage);
     },
   });
 
-  const onSubmit = async (data: RegisterFormData) => {
+  const onSubmit = async (data: SetPasswordFormData) => {
     setError(""); // Clear previous errors
-    register(data);
-  };
-
-  const handleContiueWithGoogle = () => {
-    // TODO: Implement Google OAuth logic
-    console.log("Sign in with Google");
+    setPassword({
+      token: data.token,
+      password: data.password,
+    });
   };
 
   return (
     <div className="w-full max-w-sm space-y-6">
       {/* Header */}
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-semibold">Create an account</h1>
-        <p className="text-sm text-muted-foreground">
-          Enter your email below to create new account
-        </p>
+        <h1 className="text-2xl font-semibold">Set Your Password</h1>
+        <p className="text-sm text-muted-foreground">Create a password for your new account</p>
       </div>
 
       {/* Error Message */}
@@ -74,12 +76,12 @@ export function RegisterForm() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
-            name="email"
+            name="token"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Verification Token</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your Email" {...field} />
+                  <Input placeholder="Enter verification token" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -92,7 +94,20 @@ export function RegisterForm() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="Your Password" {...field} />
+                  <Input type="password" placeholder="Create Password" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="Confirm Password" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -103,35 +118,14 @@ export function RegisterForm() {
             disabled={isPending}
             className="h-10 w-full bg-primary font-medium text-primary-foreground hover:bg-primary/90"
           >
-            {isPending ? "Signing up..." : "Sign up with Email"}
+            {isPending ? "Setting up..." : "Set Password"}
           </Button>
         </form>
       </Form>
 
-      {/* Divider */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <Separator className="w-full" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">Or</span>
-        </div>
-      </div>
-
-      {/* OAuth Buttons */}
-      <Button
-        type="button"
-        variant="outline"
-        className="h-10 w-full"
-        onClick={handleContiueWithGoogle}
-      >
-        <IconGoogle className="mr-2 h-4 w-4" />
-        Continue with Google
-      </Button>
-
-      {/* Terms and Privacy */}
+      {/* Back to Login */}
       <p className="px-8 text-center text-sm text-muted-foreground">
-        Already have account?{" "}
+        Already have an account?{" "}
         <Link
           href="/login"
           className="hover:underline underline-offset-4 font-medium text-foreground"

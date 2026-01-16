@@ -102,6 +102,26 @@ export const authApi = {
 
 // --- HOOKS ---
 
+// type MutationBuilderProps<T, R> = {
+//   mutationFn: (data: T) => Promise<R>;
+//   onSuccess?: (data: R) => void;
+//   onError?: (error: string) => void;
+// };
+
+// export const mutationBuilder = <T, R>({
+//   mutationFn,
+//   onSuccess,
+//   onError,
+// }: MutationBuilderProps<T, R>) => {
+//   return useMutation<R, GErrorResponse, T>({
+//     mutationFn,
+//     onSuccess,
+//     onError: (error) => {
+//       onError?.(error.response?.data?.message ?? "An error occurred");
+//     },
+//   });
+// };
+
 export const useRegister = ({
   onSuccess,
   onError,

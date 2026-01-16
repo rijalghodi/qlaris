@@ -26,6 +26,10 @@ export function LoginForm() {
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema as any),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
   const { mutate: login, isPending } = useLogin({
@@ -94,6 +98,16 @@ export function LoginForm() {
               </FormItem>
             )}
           />
+          {/* Forgot Password */}
+          <p className="text-right text-sm text-muted-foreground">
+            <Link
+              href="/forgot-password"
+              className="hover:underline underline-offset-4 font-medium text-foreground"
+            >
+              Forgot Password
+            </Link>
+          </p>
+
           <Button
             type="submit"
             disabled={isPending}
@@ -125,7 +139,7 @@ export function LoginForm() {
         Continue with Google
       </Button>
 
-      {/* Terms and Privacy */}
+      {/* Register */}
       <p className="px-8 text-center text-sm text-muted-foreground">
         Don't have an account?{" "}
         <Link
