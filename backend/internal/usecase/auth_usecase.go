@@ -349,17 +349,6 @@ func (u *AuthUsecase) RefreshToken(c *fiber.Ctx, req *contract.RefreshTokenReq) 
 		return fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	// Set access token cookie
-	c.Cookie(&fiber.Cookie{
-		Name:     "qlaris.access-token",
-		Value:    tokens.AccessToken,
-		HTTPOnly: true,
-		Secure:   false, // Set to true in production with HTTPS
-		SameSite: "Lax",
-		MaxAge:   config.Env.JWT.AccessExpMinutes * 60,
-		Path:     "/",
-	})
-
 	// Set refresh token cookie
 	c.Cookie(&fiber.Cookie{
 		Name:     "qlaris.refresh-token",
@@ -368,6 +357,17 @@ func (u *AuthUsecase) RefreshToken(c *fiber.Ctx, req *contract.RefreshTokenReq) 
 		Secure:   false, // Set to true in production with HTTPS
 		SameSite: "Lax",
 		MaxAge:   config.Env.JWT.RefreshExpDays * 24 * 60 * 60,
+		Path:     "/",
+	})
+
+	// Set access token cookie
+	c.Cookie(&fiber.Cookie{
+		Name:     "qlaris.access-token",
+		Value:    tokens.AccessToken,
+		HTTPOnly: true,
+		Secure:   false, // Set to true in production with HTTPS
+		SameSite: "Lax",
+		MaxAge:   config.Env.JWT.AccessExpMinutes * 60,
 		Path:     "/",
 	})
 

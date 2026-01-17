@@ -315,7 +315,12 @@ func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
 		return err
 	}
 
-	return h.authUsecase.ResetPassword(req.Token, req.Password)
+	err := h.authUsecase.ResetPassword(req.Token, req.Password)
+	if err != nil {
+		logger.Log.Warn("Failed to reset password: %v", err)
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse("Password reset successfully"))
 }
 
 // @Tags Auth
@@ -339,5 +344,10 @@ func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
 		return err
 	}
 
-	return h.authUsecase.RefreshToken(c, &req)
+	err := h.authUsecase.RefreshToken(c, &req)
+	if err != nil {
+		logger.Log.Warn("Failed to refresh token: %v", err)
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse("Token refreshed successfully"))
 }

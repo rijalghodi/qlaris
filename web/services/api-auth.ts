@@ -41,6 +41,17 @@ export type LoginRes = GResponse<{
   tokenExpiredAt?: string;
 }>;
 
+// --- REFRESH TOKEN ---
+
+export type RefreshTokenReq = {
+  refreshToken: string;
+};
+
+export type RefreshTokenRes = GResponse<{
+  token?: string;
+  tokenExpiredAt?: string;
+}>;
+
 // --- FORGOT PASSWORD (REQUEST OTP) ---
 
 export type ForgotPasswordReq = {
@@ -110,6 +121,11 @@ export const authApi = {
 
   setPassword: async (data: SetPasswordReq): Promise<SetPasswordRes> => {
     const response = await apiClient.post("/auth/set-password", data);
+    return response.data;
+  },
+
+  refreshToken: async (): Promise<RefreshTokenRes> => {
+    const response = await apiClient.post("/auth/refresh-token");
     return response.data;
   },
 
