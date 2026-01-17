@@ -55,7 +55,7 @@ func NewR2Storage(
 	}
 }
 
-func (r *R2Storage) Upload(file *multipart.FileHeader) error {
+func (r *R2Storage) Upload(file *multipart.FileHeader, key string) error {
 	f, err := file.Open()
 	if err != nil {
 		return err
@@ -64,7 +64,7 @@ func (r *R2Storage) Upload(file *multipart.FileHeader) error {
 
 	_, err = r.client.PutObject(context.Background(), &s3.PutObjectInput{
 		Bucket: &r.bucket,
-		Key:    &file.Filename,
+		Key:    &key,
 		Body:   f,
 	})
 

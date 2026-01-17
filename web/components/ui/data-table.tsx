@@ -121,7 +121,7 @@ export function DataTable<TData, TValue>({
   return (
     <div className="relative flex flex-col gap-4">
       <LoadingOverlay visible={loading} />
-      <Table>
+      <Table className="rounded-lg overflow-clip">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id} className="has-data-[state=open]:bg-muted bg-muted">

@@ -2,6 +2,8 @@ import { ProductDashboard } from "@/components/product/product-dashboard";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { FileText, Plus, Upload } from "lucide-react";
+import Link from "next/link";
+import { ROUTES } from "@/lib/routes";
 
 export default function ProductsPage() {
   return (
@@ -28,11 +30,14 @@ export default function ProductsPage() {
               <FileText className="text-primary" />
             </Button>
             <Button
+              asChild
               variant="default"
               className="bg-orange-500 hover:bg-orange-600 shrink-0 rounded-full"
             >
-              <Plus />
-              Add Product
+              <Link href={`${ROUTES.PRODUCTS}/add`}>
+                <Plus />
+                Add Product
+              </Link>
             </Button>
             <Button variant="default" className="shrink-0 rounded-full">
               <Upload />

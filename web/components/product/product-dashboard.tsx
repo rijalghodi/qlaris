@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, Pencil, Trash2, Plus, Upload, FileText } from "lucide-react";
+import { Eye, Pencil, Trash2, Plus, Upload, FileText, Box } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
@@ -13,6 +13,7 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { useProducts, type Product } from "@/services/api-product";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import RowsPerPage from "../ui/rows-perpage";
+import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 
 export function ProductDashboard() {
   const [page, setPage] = useState(1);
@@ -22,8 +23,7 @@ export function ProductDashboard() {
   const { data, isLoading } = useProducts({ page, pageSize, search });
 
   const products = data?.data || [];
-  const totalItems = data?.pagination?.total_items || 0;
-  const totalPages = data?.pagination?.last_page || 20;
+  const totalPages = data?.pagination?.totalPages || 1;
 
   const columns: ColumnDef<Product>[] = [
     {
@@ -39,7 +39,7 @@ export function ProductDashboard() {
                   <AvatarImage src={product.image} alt={product.name} />
                 </Avatar>
               ) : (
-                <span className="text-base">📦</span>
+                <Box className="size-4" />
               )}
             </div>
             <span className="text-sm font-normal">{product.name}</span>
@@ -97,9 +97,9 @@ export function ProductDashboard() {
   ];
 
   return (
-    <div className="flex flex-col gap-3 w-full">
+    <Card className="flex flex-col gap-3 w-full">
       {/* Table */}
-      <div className="bg-card rounded-xl shadow-lg overflow-hidden space-y-3 py-4 px-3">
+      <CardHeader>
         <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Search"
@@ -112,6 +112,8 @@ export function ProductDashboard() {
             {/* TODO: Add Category and Brand dropdown filters */}
           </div>
         </div>
+      </CardHeader>
+      <CardContent>
         <DataTable
           columns={columns}
           data={products}
@@ -119,12 +121,11 @@ export function ProductDashboard() {
           emptyMessage="No products found"
           emptyDescription="Get started by adding your first product"
         />
-        {/* Pagination Footer */}
-        <div className="flex items-center justify-between">
-          <RowsPerPage />
-          <Pagination page={page} totalPage={totalPages} onPageChange={setPage} />
-        </div>
-      </div>
-    </div>
+      </CardContent>
+      <CardFooter className="flex items-center justify-between">
+        <RowsPerPage />
+        <Pagination page={page} totalPage={totalPages} onPageChange={setPage} />
+      </CardFooter>
+    </Card>
   );
 }

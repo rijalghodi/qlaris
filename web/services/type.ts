@@ -17,10 +17,10 @@ type GResponse<T> = CResponse<{ data?: T }>;
 type MResponse<T> = CResponse<{
   data?: T[];
   pagination?: {
-    current_page: number;
-    last_page: number;
-    total_items: number;
-    items_per_page: number;
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
     from: number;
     to: number;
   };
