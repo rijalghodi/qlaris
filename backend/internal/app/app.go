@@ -56,7 +56,12 @@ func setupFiberApp() *fiber.App {
 	app.Use(middleware.LoggerConfig())
 	app.Use(helmet.New())
 	app.Use(compress.New())
-	app.Use(cors.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     config.Env.Cors.Origins,
+		AllowHeaders:     "*",
+		AllowMethods:     "*",
+		AllowCredentials: true,
+	}))
 	app.Use(middleware.RecoverConfig())
 
 	return app

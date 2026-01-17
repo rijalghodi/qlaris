@@ -18,6 +18,7 @@ type Environment struct {
 	OpenAI      OpenAI
 	GoogleOAuth GoogleOAuth
 	Auth        Auth
+	Cors        Cors
 }
 
 type App struct {
@@ -91,6 +92,10 @@ type Storage struct {
 	BucketName string `env:"STORAGE_BUCKET_NAME"`
 	PublicURL  string `env:"STORAGE_PUBLIC_URL"`
 	DefaultTTL int    `env:"STORAGE_DEFAULT_TTL"`
+}
+
+type Cors struct {
+	Origins string `env:"CORS_ORIGINS"`
 }
 
 var Env Environment

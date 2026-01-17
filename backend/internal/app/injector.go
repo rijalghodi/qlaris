@@ -52,7 +52,7 @@ func InjectLibraries() (*gorm.DB, *storage.R2Storage, error) {
 func InjectHTTPHandlers(ctx context.Context, app *fiber.App) {
 
 	// Inject libraries
-	db, _, err := InjectLibraries()
+	db, storage, err := InjectLibraries()
 	if err != nil {
 		logger.Log.Error("Failed to inject libraries", zap.Error(err))
 		return
@@ -61,6 +61,10 @@ func InjectHTTPHandlers(ctx context.Context, app *fiber.App) {
 	// Hello
 	helloHandler := handler.NewHelloHandler()
 	helloHandler.RegisterRoutes(app)
+
+	// File
+	fileHandler := handler.NewFileHandler(storage)
+	fileHandler.RegisterRoutes(app)
 
 	// Auth setup
 	userRepo := repository.NewUserRepository(db)

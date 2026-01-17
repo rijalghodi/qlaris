@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from "./dialog";
 import { cn } from "@/lib/utils";
-import { Edit, Eye, ImageUp, Trash, X } from "lucide-react";
+import { Edit, Eye, ImageUp, PlusCircle, Trash, Upload, X } from "lucide-react";
 import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Spinner } from "./spinner";
@@ -33,7 +33,7 @@ export type ImageInputProps = Omit<
   disabled?: boolean;
   readOnly?: boolean;
   folder?: string;
-  isPrivate?: boolean;
+  isPublic?: boolean;
   maxSizeMB?: number;
   defaultValueUrl?: string;
   enableDelete?: boolean;
@@ -60,7 +60,7 @@ export const ImageInput = React.forwardRef<ImageInputRef, ImageInputProps>(
       placeholder = "Drag & drop or select image",
       folder,
       maxSizeMB,
-      isPrivate,
+      isPublic,
       defaultValueUrl,
       className,
       enableDelete = true,
@@ -116,8 +116,8 @@ export const ImageInput = React.forwardRef<ImageInputRef, ImageInputProps>(
           onUploadProgress: (progress) => {
             setUploadProgress(Math.floor((progress.loaded / (progress.total || 1)) * 100));
           },
-          isPublic: !isPrivate,
-          folder: folder,
+          isPublic,
+          folder,
         });
 
         const url = res?.data?.url;
@@ -171,9 +171,9 @@ export const ImageInput = React.forwardRef<ImageInputRef, ImageInputProps>(
           handleDrop(files);
         }}
         className={cn(
-          "relative border rounded-md cursor-pointer flex justify-center items-center w-[150px] h-[100px] sm:w-[200px] sm:h-[120px] text-xs hover:bg-accent",
-          error ? "border-destructive" : "border-border",
-          isDragging && "border-primary bg-muted/50",
+          "relative border-2 border-input border-dashed bg-input hover:bg-input/50 hover:border-ring rounded-lg cursor-pointer flex justify-center items-center w-[150px] h-[100px] sm:w-[200px] sm:h-[120px] text-xs",
+          error && "border-destructive",
+          isDragging && "border-ring bg-input/50",
           disabled && "opacity-50",
           (disabled || readOnly) && "cursor-default",
           className
@@ -200,8 +200,14 @@ export const ImageInput = React.forwardRef<ImageInputRef, ImageInputProps>(
 
     // Render preview
     const renderPreview = (url: string) => (
-      <div className="relative group w-full h-full">
-        <Image src={url} alt="Uploaded image" className="rounded-md object-cover w-full h-full" />
+      <div className="relative group w-full h-full" data-slot="image-preview">
+        <Image
+          src={url}
+          alt="Uploaded image"
+          width={500}
+          height={500}
+          className="rounded-md object-cover w-full h-full"
+        />
 
         {/* Control buttons overlay */}
         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center gap-2">
@@ -218,24 +224,30 @@ export const ImageInput = React.forwardRef<ImageInputRef, ImageInputProps>(
                 <Eye className="h-4 w-4" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="p-6">
+            <DialogContent className="p-6 w-fit" showCloseButton={false}>
               <DialogHeader className="sr-only">
                 <DialogTitle>Image Preview</DialogTitle>
                 <DialogDescription className="sr-only">Image Preview</DialogDescription>
               </DialogHeader>
-              <div className="relative w-full h-[500px] ">
+              <div className="relative w-full min-h-[300px] ">
                 <BgRectanglePattern className="absolute inset-0 z-0" />
-                <DialogClose className="absolute z-10 top-2 right-2" asChild>
+                <DialogClose className="absolute z-10 top-1 right-1" asChild>
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    className="bg-black/30 hover:bg-black/40 text-white border-white/30"
+                    className="bg-background/50 hover:bg-background/70 text-foreground hover:text-foreground border-white/30"
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 </DialogClose>
-                <Image src={url} alt="Full size image" className="object-contain w-full h-full" />
+                <Image
+                  src={url}
+                  alt="Full size image"
+                  className="object-contain w-full h-full relative"
+                  width={500}
+                  height={500}
+                />
               </div>
             </DialogContent>
           </Dialog>
@@ -287,7 +299,7 @@ export const ImageInput = React.forwardRef<ImageInputRef, ImageInputProps>(
     if (!displayUrl) {
       return renderUploadLabel(
         <div className="flex flex-col items-center justify-center gap-3 p-4">
-          <ImageUp className="text-primary/90 h-5 w-5" />
+          <Upload className="text-primary/90 h-5 w-5" />
           <span className="text-muted-foreground text-center">{placeholder}</span>
         </div>
       );

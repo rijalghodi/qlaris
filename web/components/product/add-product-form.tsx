@@ -133,8 +133,8 @@ export function AddProductForm() {
               control={form.control}
               name="image"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Image URL (Optional)</FormLabel>
+                <FormItem className="col-span-2">
+                  <FormLabel>Image</FormLabel>
                   <FormControl>
                     <ImageInput {...field} />
                   </FormControl>

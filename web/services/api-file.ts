@@ -27,9 +27,9 @@ export const uploadFile = async ({
   signal,
 }: UploadFileRequest): Promise<UploadFileResponse> => {
   const data = new FormData();
-  data.append("file", file);
   if (isPublic !== undefined) data.append("isPublic", String(isPublic));
   if (folder !== undefined) data.append("folder", folder);
+  data.append("file", file);
 
   const response = await apiClient.post<UploadFileResponse>("/files", data, {
     headers: {

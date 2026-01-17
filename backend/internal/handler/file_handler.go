@@ -7,6 +7,7 @@ import (
 
 	"app/internal/contract"
 	"app/pkg/storage"
+	"app/pkg/util"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -46,8 +47,8 @@ func (h FileHandler) UploadFile(c *fiber.Ctx) error {
 
 	// dir
 	isPublic := c.FormValue("isPublic")
-	if isPublic != "true" && isPublic != "false" {
-		return fiber.NewError(fiber.StatusBadRequest, "isPublic not allowed (true or false)")
+	if isPublic != "true" && isPublic != "false" && isPublic != "" && isPublic != "undefined" {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("value %s of isPublic not allowed (must be true or false)", isPublic))
 	}
 	parentDir := "private"
 	if isPublic == "true" {
@@ -79,7 +80,7 @@ func (h FileHandler) UploadFile(c *fiber.Ctx) error {
 		url = h.storage.PublicURL(key)
 	} else {
 		// For private files, generate presigned URL (15 minutes)
-		url, err = h.storage.PresignGet(key, 15*time.Minute)
+		url, err = h.storage.PresignGet(key, 0)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, "failed to generate download URL")
 		}
@@ -90,5 +91,5 @@ func (h FileHandler) UploadFile(c *fiber.Ctx) error {
 		URL: url,
 	}
 
-	return c.Status(fiber.StatusOK).JSON(res)
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
 }
