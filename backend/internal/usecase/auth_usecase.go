@@ -16,13 +16,15 @@ import (
 
 type AuthUsecase struct {
 	userRepo     *repository.UserRepository
+	businessRepo *repository.BusinessRepository
 	emailUsecase *EmailUsecase
 	tokenUsecase *TokenUsecase
 }
 
-func NewAuthUsecase(userRepo *repository.UserRepository, emailUsecase *EmailUsecase, tokenUsecase *TokenUsecase) *AuthUsecase {
+func NewAuthUsecase(userRepo *repository.UserRepository, businessRepo *repository.BusinessRepository, emailUsecase *EmailUsecase, tokenUsecase *TokenUsecase) *AuthUsecase {
 	return &AuthUsecase{
 		userRepo:     userRepo,
+		businessRepo: businessRepo,
 		emailUsecase: emailUsecase,
 		tokenUsecase: tokenUsecase,
 	}
@@ -379,13 +381,19 @@ func (u *AuthUsecase) RefreshToken(c *fiber.Ctx, req *contract.RefreshTokenReq) 
 	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
 }
 
-func (u *AuthUsecase) GetUserByID(id string) (*model.User, error) {
+func (u *AuthUsecase) GetUserByID(id string) (*contract.UserRes, error) {
 	user, err := u.userRepo.GetUserByID(id)
 	if err != nil {
 		logger.Log.Error("Failed to get user by ID", zap.Error(err), zap.String("userID", id))
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
-	return user, nil
+
+	business, err := u.businessRepo.GetBusinessByUserID(id)
+	if err != nil {
+		logger.Log.Error("Failed to get business", zap.Error(err), zap.String("userID", id))
+	}
+
+	return u.buildUserResWithBusiness(user, business), nil
 }
 
 func (u *AuthUsecase) generateTokenPair(userID, role string) (*contract.TokenRes, error) {
@@ -429,4 +437,28 @@ func (u *AuthUsecase) buildUserRes(user *model.User) contract.UserRes {
 		CreatedAt:  user.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:  user.UpdatedAt.Format(time.RFC3339),
 	}
+}
+
+func (u *AuthUsecase) buildUserResWithBusiness(user *model.User, business *model.Business) *contract.UserRes {
+	userRes := contract.UserRes{
+		ID:              user.ID,
+		Email:           user.Email,
+		Name:            user.Name,
+		Role:            string(user.Role),
+		IsVerified:      user.IsVerified,
+		IsDataCompleted: false,
+		CreatedAt:       user.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:       user.UpdatedAt.Format(time.RFC3339),
+	}
+
+	if business != nil {
+		userRes.BusinessName = &business.Name
+		userRes.BusinessAddress = business.Address
+		// Check if data is completed (business name is not empty)
+		if business.Name != "" {
+			userRes.IsDataCompleted = true
+		}
+	}
+
+	return &userRes
 }

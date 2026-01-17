@@ -1,13 +1,16 @@
 package contract
 
 type UserRes struct {
-	ID         string `json:"id"`
-	Email      string `json:"email"`
-	Name       string `json:"name"`
-	Role       string `json:"role"`
-	IsVerified bool   `json:"isVerified"`
-	CreatedAt  string `json:"createdAt"`
-	UpdatedAt  string `json:"updatedAt"`
+	ID              string  `json:"id"`
+	Email           string  `json:"email"`
+	Name            string  `json:"name"`
+	Role            string  `json:"role"`
+	IsVerified      bool    `json:"isVerified"`
+	BusinessName    *string `json:"businessName,omitempty"`
+	BusinessAddress *string `json:"businessAddress,omitempty"`
+	IsDataCompleted bool    `json:"isDataCompleted"`
+	CreatedAt       string  `json:"createdAt"`
+	UpdatedAt       string  `json:"updatedAt"`
 }
 
 type TokenRes struct {
@@ -93,4 +96,15 @@ type SendVerificationEmailReq struct {
 type SendVerificationEmailRes struct {
 	TokenRes
 	UserRes
+}
+
+type EditCurrentUserReq struct {
+	Name            *string `json:"name" validate:"omitempty,max=255"`
+	BusinessName    *string `json:"businessName" validate:"omitempty,max=255"`
+	BusinessAddress *string `json:"businessAddress"`
+}
+
+type EditPasswordReq struct {
+	CurrentPassword string `json:"currentPassword" validate:"required,min=8,max=50"`
+	NewPassword     string `json:"newPassword" validate:"required,min=8,max=50"`
 }

@@ -29,3 +29,7 @@ func (r *BusinessRepository) GetBusinessByUserID(userID string) (*model.Business
 func (r *BusinessRepository) CreateBusiness(business *model.Business) error {
 	return r.db.Create(business).Error
 }
+
+func (r *BusinessRepository) UpdateBusiness(business *model.Business) error {
+	return r.db.Save(business).Error
+}

@@ -68,16 +68,16 @@ func InjectHTTPHandlers(ctx context.Context, app *fiber.App) {
 
 	// Auth setup
 	userRepo := repository.NewUserRepository(db)
+	businessRepo := repository.NewBusinessRepository(db)
 	emailUsecase := usecase.NewEmailUsecase()
 	tokenUsecase := usecase.NewTokenUsecase()
-	authUsecase := usecase.NewAuthUsecase(userRepo, emailUsecase, tokenUsecase)
+	authUsecase := usecase.NewAuthUsecase(userRepo, businessRepo, emailUsecase, tokenUsecase)
 
 	// handler
 	authHandler := handler.NewAuthHandler(authUsecase)
 	authHandler.RegisterRoutes(app, db)
 
 	// Product setup
-	businessRepo := repository.NewBusinessRepository(db)
 	productRepo := repository.NewProductRepository(db)
 	productUsecase := usecase.NewProductUsecase(productRepo, businessRepo)
 	productHandler := handler.NewProductHandler(productUsecase)
@@ -89,5 +89,10 @@ func InjectHTTPHandlers(ctx context.Context, app *fiber.App) {
 	transactionUsecase := usecase.NewTransactionUsecase(transactionRepo, transactionItemRepo, productRepo, businessRepo, db)
 	transactionHandler := handler.NewTransactionHandler(transactionUsecase)
 	transactionHandler.RegisterRoutes(app, db)
+
+	// User setup
+	userUsecase := usecase.NewUserUsecase(userRepo, businessRepo)
+	userHandler := handler.NewUserHandler(userUsecase)
+	userHandler.RegisterRoutes(app, db)
 
 }
