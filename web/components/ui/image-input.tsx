@@ -171,7 +171,7 @@ export const ImageInput = React.forwardRef<ImageInputRef, ImageInputProps>(
           handleDrop(files);
         }}
         className={cn(
-          "relative border-2 border-input border-dashed bg-input hover:bg-input/50 hover:border-ring rounded-lg cursor-pointer flex justify-center items-center w-[150px] h-[100px] sm:w-[200px] sm:h-[120px] text-xs",
+          "relative border-3 border-input border-dashed bg-input hover:bg-input/50 hover:border-ring rounded-xl overflow-hidden cursor-pointer flex justify-center items-center w-[150px] h-[100px] sm:w-[200px] sm:h-[140px] text-xs",
           error && "border-destructive",
           isDragging && "border-ring bg-input/50",
           disabled && "opacity-50",

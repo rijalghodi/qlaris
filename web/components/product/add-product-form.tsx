@@ -21,8 +21,10 @@ import { useCreateProduct } from "@/services/api-product";
 import { ROUTES } from "@/lib/routes";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { ImageInput } from "../ui/image-input";
+// import { ImageInput } from "../ui/image-input";
 import { Info } from "lucide-react";
+import { NumberInput } from "../ui/number-input";
+import { ImageInput } from "../ui/image-input-2";
 
 const productSchema = z.object({
   name: z.string().min(1, "Product name is required").max(255, "Product name is too long"),
@@ -90,7 +92,7 @@ export function AddProductForm() {
                     Product Name <span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter product name" {...field} />
+                    <Input placeholder="Example: Nasi Padang" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -106,7 +108,14 @@ export function AddProductForm() {
                     Price <span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.01" placeholder="0.00" {...field} />
+                    <NumberInput
+                      leftSection="Rp"
+                      step="1000"
+                      placeholder="Example: 20000"
+                      min={0}
+                      withDelimiter
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -122,7 +131,7 @@ export function AddProductForm() {
                     Stock Quantity <span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="0" {...field} />
+                    <NumberInput placeholder="0" min={0} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
