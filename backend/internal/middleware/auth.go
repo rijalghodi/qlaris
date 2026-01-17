@@ -3,6 +3,7 @@ package middleware
 import (
 	"app/internal/config"
 	"app/internal/model"
+	"app/pkg/logger"
 	"app/pkg/util"
 	"slices"
 
@@ -41,7 +42,7 @@ func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 		// get user from DB
 		business := &model.Business{}
 		if err := db.First(business, "owner_id = ?", claims.ID).Error; err != nil {
-			return fiber.NewError(fiber.StatusUnauthorized, "Please authenticate")
+			logger.Log.Warn("Business not found", "error", err)
 		}
 
 		claims.BusinessID = business.ID

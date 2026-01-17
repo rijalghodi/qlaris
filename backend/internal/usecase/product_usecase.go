@@ -151,7 +151,7 @@ func (u *ProductUsecase) IsAllowedToAccessProduct(userID string, productID strin
 
 	if business == nil {
 		logger.Log.Warn("Business not found for user", zap.String("userID", userID))
-		return fiber.NewError(fiber.StatusNotFound, "Business not found. Please create a business first.")
+		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
 	}
 
 	product, err := u.productRepo.GetProductByIDAndBusinessID(productID, business.ID)

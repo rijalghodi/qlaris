@@ -156,6 +156,10 @@ func (h *ProductHandler) GetProduct(c *fiber.Ctx) error {
 func (h *ProductHandler) ListProducts(c *fiber.Ctx) error {
 	claims := middleware.GetAuthClaims(c)
 
+	if claims.BusinessID == "" {
+		return fiber.NewError(fiber.StatusUnauthorized, "Finish onboarding first")
+	}
+
 	queries, err := util.ParsePaginationQueries(c)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())

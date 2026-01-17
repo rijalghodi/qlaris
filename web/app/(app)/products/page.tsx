@@ -21,29 +21,14 @@ export default function ProductsPage() {
         </div>
 
         {/* Search and Actions */}
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" className="shrink-0 rounded-full">
-              <FileText className="text-destructive" />
-            </Button>
-            <Button variant="outline" size="icon" className="shrink-0 rounded-full">
-              <FileText className="text-primary" />
-            </Button>
-            <Button
-              asChild
-              variant="default"
-              className="bg-orange-500 hover:bg-orange-600 shrink-0 rounded-full"
-            >
-              <Link href={`${ROUTES.PRODUCTS}/add`}>
-                <Plus />
-                Add Product
-              </Link>
-            </Button>
-            <Button variant="default" className="shrink-0 rounded-full">
-              <Upload />
-              Import Product
-            </Button>
-          </div>
+
+        <div className="flex items-center gap-2">
+          <Button asChild variant="default" className="rounded-full">
+            <Link href={`${ROUTES.PRODUCTS}/add`}>
+              <Plus />
+              Add Product
+            </Link>
+          </Button>
         </div>
       </div>
 
