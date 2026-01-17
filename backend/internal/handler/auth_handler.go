@@ -38,7 +38,7 @@ func (h *AuthHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	authGroup.Post("/login", h.Login)
 	authGroup.Post("/register", h.Register)
 	authGroup.Post("/send-verification", h.SendVerificationEmail)
-	authGroup.Post("/verify-email", h.VerifyEmail)
+	authGroup.Get("/verify-email", h.VerifyEmail)
 	authGroup.Post("/forgot-password", h.ForgotPassword)
 	authGroup.Post("/reset-password", h.ResetPassword)
 	authGroup.Post("/refresh-token", h.RefreshToken)
@@ -192,7 +192,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 // @Param request body contract.RegisterReq true "Register request"
 // @Success 201 {object} util.BaseResponse{data=contract.RegisterRes}
 // @Failure 409 {object} util.BaseResponse
-// @Router /auth/register [post]
+// @Router /auth/register [get]
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	var req contract.RegisterReq
 	if err := c.BodyParser(&req); err != nil {
@@ -205,12 +205,13 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 		return err
 	}
 
-	if err := h.authUsecase.Register(&req); err != nil {
+	res, err := h.authUsecase.Register(&req)
+	if err != nil {
 		logger.Log.Error("Failed to register user", zap.Error(err))
 		return err
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(util.ToSuccessResponse(contract.RegisterRes{}))
+	return c.Status(fiber.StatusCreated).JSON(util.ToSuccessResponse(res))
 }
 
 // @Tags Auth
@@ -260,7 +261,12 @@ func (h *AuthHandler) VerifyEmail(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Token is required")
 	}
 
-	return h.authUsecase.VerifyEmail(token)
+	err := h.authUsecase.VerifyEmail(token)
+	if err != nil {
+		logger.Log.Warn("Failed to verify email: %v", err)
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse("Email verified successfully"))
 }
 
 // @Tags Auth

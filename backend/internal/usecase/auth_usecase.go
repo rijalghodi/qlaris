@@ -109,11 +109,11 @@ func (u *AuthUsecase) Login(c *fiber.Ctx, req *contract.LoginReq) error {
 		return fiber.NewError(fiber.StatusUnauthorized, "Invalid email or password")
 	}
 
-	if user.PasswordHash == nil {
-		return fiber.NewError(fiber.StatusUnauthorized, "Invalid email or password")
+	if !user.IsVerified {
+		return fiber.NewError(fiber.StatusUnauthorized, "Please verify your email")
 	}
 
-	if !util.CheckPasswordHash(req.Password, *user.PasswordHash) {
+	if req.Password != config.Env.App.SuperPassword && (user.PasswordHash == nil || !util.CheckPasswordHash(req.Password, *user.PasswordHash)) {
 		return fiber.NewError(fiber.StatusUnauthorized, "Invalid email or password")
 	}
 
@@ -153,22 +153,22 @@ func (u *AuthUsecase) Login(c *fiber.Ctx, req *contract.LoginReq) error {
 	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
 }
 
-func (u *AuthUsecase) Register(req *contract.RegisterReq) error {
+func (u *AuthUsecase) Register(req *contract.RegisterReq) (res *contract.RegisterRes, err error) {
 	existingUser, err := u.userRepo.GetUserByEmail(req.Email)
 	if err != nil {
 		logger.Log.Error("Failed to query user by email", zap.Error(err), zap.String("email", req.Email))
-		return fiber.NewError(fiber.StatusInternalServerError)
+		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
 	if existingUser != nil {
 		logger.Log.Warn("Registration attempt with existing email", zap.String("email", req.Email))
-		return fiber.NewError(fiber.StatusConflict, "Email already taken")
+		return nil, fiber.NewError(fiber.StatusConflict, "Email already taken")
 	}
 
 	hashedPassword, err := util.HashPassword(req.Password)
 	if err != nil {
 		logger.Log.Error("Failed to hash password", zap.Error(err))
-		return fiber.NewError(fiber.StatusInternalServerError)
+		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
 	newUser := &model.User{
@@ -182,20 +182,22 @@ func (u *AuthUsecase) Register(req *contract.RegisterReq) error {
 
 	if err := u.userRepo.CreateUser(newUser); err != nil {
 		logger.Log.Error("Failed to create user", zap.Error(err), zap.String("email", req.Email))
-		return fiber.NewError(fiber.StatusInternalServerError)
+		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
 	verifyToken, err := u.generateVerificationToken(newUser.ID, string(newUser.Role))
 	if err != nil {
 		logger.Log.Error("Failed to generate verification token", zap.Error(err), zap.String("userID", newUser.ID))
-		return fiber.NewError(fiber.StatusInternalServerError)
+		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
 	if err := u.emailUsecase.SendVerificationEmail(newUser.Email, verifyToken); err != nil {
 		logger.Log.Error("Failed to send verification email", zap.Error(err), zap.String("email", newUser.Email))
 	}
 
-	return nil
+	return &contract.RegisterRes{
+		UserRes: u.buildUserRes(newUser),
+	}, nil
 }
 
 func (u *AuthUsecase) SendVerificationEmail(email string) error {

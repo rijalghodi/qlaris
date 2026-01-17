@@ -64,7 +64,6 @@ type RegisterReq struct {
 }
 
 type RegisterRes struct {
-	TokenRes
 	UserRes
 }
 

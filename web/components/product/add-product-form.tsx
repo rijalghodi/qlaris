@@ -30,7 +30,7 @@ const productSchema = z.object({
   name: z.string().min(1, "Product name is required").max(255, "Product name is too long"),
   price: z.number().min(0, "Price must be at least 0"),
   stockQty: z.number().int().min(0, "Stock quantity must be at least 0"),
-  image: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  image: z.string().optional().or(z.literal("")),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;

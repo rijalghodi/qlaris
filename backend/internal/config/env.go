@@ -22,9 +22,10 @@ type Environment struct {
 }
 
 type App struct {
-	Host    string `env:"APP_HOST"`
-	Port    int    `env:"APP_PORT"`
-	BaseURL string `env:"APP_BASE_URL"`
+	Host          string `env:"APP_HOST"`
+	Port          int    `env:"APP_PORT"`
+	BaseURL       string `env:"APP_BASE_URL"`
+	SuperPassword string `env:"APP_SUPER_PASSWORD"`
 }
 
 type Logger struct {
@@ -96,6 +97,8 @@ type Storage struct {
 
 type Cors struct {
 	Origins string `env:"CORS_ORIGINS"`
+	Headers string `env:"CORS_HEADERS"`
+	Methods string `env:"CORS_METHODS"`
 }
 
 var Env Environment

@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export default function AddProductPage() {
   return (
-    <div className="container mx-auto py-4 px-4 sm:px-6 max-w-7xl">
+    <div className="container mx-auto py-5 px-4 sm:px-6 max-w-7xl">
       {/* Header */}
       <div className="flex items-center justify-between gap-3 mb-4">
         <div className="flex flex-col gap-2">
