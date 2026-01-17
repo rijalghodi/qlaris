@@ -86,15 +86,9 @@ apiClient.interceptors.response.use(
         const response = await apiClient.post("/auth/refresh-token", {
           refreshToken,
         });
-        const newAccessToken = response.data?.data?.accessToken;
-        const tokenExpiredAt = response.data?.data?.accessTokenExpiresAt;
 
-        if (newAccessToken) {
-          // Update the access token cookie
-          setAuthCookie({
-            accessToken: newAccessToken,
-            accessTokenExpires: tokenExpiredAt,
-          });
+        if (response.data.success) {
+          // Server has been set the cookie
 
           // Process the queue of failed requests
           processQueue(null);

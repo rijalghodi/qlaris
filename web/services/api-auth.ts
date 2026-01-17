@@ -191,12 +191,12 @@ export const useLogin = ({
   return useMutation({
     mutationFn: (data: LoginReq) => authApi.login(data),
     onSuccess: (data: LoginRes) => {
-      if (data.data?.token) {
-        setAuthCookie({
-          accessToken: data.data.token,
-          accessTokenExpires: data.data.tokenExpiredAt,
-        });
-      }
+      // if (data.data?.token) {
+      //   setAuthCookie({
+      //     accessToken: data.data.token,
+      //     accessTokenExpires: data.data.tokenExpiredAt,
+      //   });
+      // }
       onSuccess?.(data);
     },
     onError: (error: GErrorResponse) => {
