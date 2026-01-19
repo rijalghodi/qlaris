@@ -29,7 +29,7 @@ const getCurrentUser = async (request: NextRequest) => {
     // Get cookies from the request
     const cookies = request.cookies.toString();
 
-    // console.log("Cookies:", cookies);
+    console.log("Cookies:", cookies);
 
     const response = await fetch(`${apiBaseUrl}/users/current`, {
       method: "GET",
@@ -40,7 +40,7 @@ const getCurrentUser = async (request: NextRequest) => {
       credentials: "include",
     });
 
-    // console.log("Response:", response.ok);
+    console.log("Response:", response.ok);
 
     if (!response.ok) {
       return null;

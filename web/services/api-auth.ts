@@ -7,6 +7,7 @@ import { Role } from "@/lib/constant";
 
 import { apiClient } from "./api-client";
 import type { GErrorResponse, GResponse } from "./type";
+import { useCallback, useState } from "react";
 
 // --- REGISTER ---
 
@@ -56,14 +57,10 @@ export type RefreshTokenRes = GResponse<{
 
 export type ForgotPasswordReq = {
   email?: string;
-  phone?: string;
 };
 
 export type ForgotPasswordRes = GResponse<{
-  email?: string;
-  phone?: string;
-  resendAt: number;
-  ttl: number;
+  nextRequestAt?: string;
 }>;
 
 // --- SET PASSWORD ---
@@ -74,6 +71,12 @@ export type SetPasswordReq = {
 };
 
 export type SetPasswordRes = GResponse<Record<string, never>>;
+
+// --- VERIFY EMAIL ---
+
+export type VerifyEmailReq = {
+  token: string;
+};
 
 // --- GET CURRENT USER ---
 
@@ -124,6 +127,16 @@ export const authApi = {
     return response.data;
   },
 
+  sendVerification: async (data: ForgotPasswordReq): Promise<ForgotPasswordRes> => {
+    const response = await apiClient.post("/auth/send-verification", data);
+    return response.data;
+  },
+
+  verifyEmail: async (data: VerifyEmailReq): Promise<LoginRes> => {
+    const response = await apiClient.post("/auth/verify-email", data);
+    return response.data;
+  },
+
   refreshToken: async (): Promise<RefreshTokenRes> => {
     const response = await apiClient.post("/auth/refresh-token");
     return response.data;
@@ -136,26 +149,6 @@ export const authApi = {
 };
 
 // --- HOOKS ---
-
-// type MutationBuilderProps<T, R> = {
-//   mutationFn: (data: T) => Promise<R>;
-//   onSuccess?: (data: R) => void;
-//   onError?: (error: string) => void;
-// };
-
-// export const mutationBuilder = <T, R>({
-//   mutationFn,
-//   onSuccess,
-//   onError,
-// }: MutationBuilderProps<T, R>) => {
-//   return useMutation<R, GErrorResponse, T>({
-//     mutationFn,
-//     onSuccess,
-//     onError: (error) => {
-//       onError?.(error.response?.data?.message ?? "An error occurred");
-//     },
-//   });
-// };
 
 export const useRegister = ({
   onSuccess,
@@ -200,6 +193,7 @@ export const useLogin = ({
       onSuccess?.(data);
     },
     onError: (error: GErrorResponse) => {
+      console.log(error);
       onError?.(error.response?.data?.message || "An error occurred");
     },
   });
@@ -259,14 +253,48 @@ export const useSetPassword = ({
   });
 };
 
+export const useSendVerification = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (data: ForgotPasswordRes) => void;
+  onError?: (error: string) => void;
+} = {}) => {
+  return useMutation({
+    mutationFn: (data: ForgotPasswordReq) => authApi.sendVerification(data),
+    onSuccess: (data: ForgotPasswordRes) => {
+      onSuccess?.(data);
+    },
+    onError: (error: GErrorResponse) => {
+      onError?.(error.response?.data?.message || "An error occurred");
+    },
+  });
+};
+
+export const useVerifyEmail = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (data: LoginRes) => void;
+  onError?: (error: string) => void;
+} = {}) => {
+  return useMutation({
+    mutationFn: (data: VerifyEmailReq) => authApi.verifyEmail(data),
+    onSuccess: (data: LoginRes) => {
+      onSuccess?.(data);
+    },
+    onError: (error: GErrorResponse) => {
+      onError?.(error.response?.data?.message || "An error occurred");
+    },
+  });
+};
+
 export const useGetCurrentUser = () => {
   return useQuery({
     queryKey: ["current-user"],
     queryFn: () => authApi.getCurrentUser(),
   });
 };
-
-import { useCallback, useState } from "react";
 
 export const useLogout = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);

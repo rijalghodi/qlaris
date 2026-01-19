@@ -129,8 +129,7 @@ func (u *AuthUsecase) Login(c *fiber.Ctx, req *contract.LoginReq) error {
 	setAuthCookies(c, tokens)
 
 	res := contract.LoginRes{
-		TokenRes: *tokens,
-		UserRes:  u.buildUserRes(user),
+		UserRes: u.buildUserRes(user),
 	}
 
 	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
@@ -234,36 +233,47 @@ func (u *AuthUsecase) SendVerificationEmail(email string) (*contract.SendVerific
 	}, nil
 }
 
-func (u *AuthUsecase) VerifyEmail(token string) error {
+func (u *AuthUsecase) VerifyEmail(c *fiber.Ctx, token string) (*contract.VerifyEmailRes, error) {
 	claims, err := util.VerifyToken(token, config.Env.JWT.Secret)
 	if err != nil {
 		logger.Log.Error("Invalid or expired verification token", zap.Error(err))
-		return fiber.NewError(fiber.StatusUnauthorized, "Invalid or expired token")
+		return nil, fiber.NewError(fiber.StatusUnauthorized, "Invalid or expired token")
 	}
 
 	if claims.Type != config.TokenTypeVerifyEmail {
 		logger.Log.Warn("Invalid token type for email verification", zap.String("tokenType", claims.Type))
-		return fiber.NewError(fiber.StatusUnauthorized, "Invalid token type")
+		return nil, fiber.NewError(fiber.StatusUnauthorized, "Invalid token type")
 	}
 
 	user, err := u.userRepo.GetUserByID(claims.ID)
 	if err != nil {
 		logger.Log.Error("Failed to get user by ID", zap.Error(err), zap.String("userID", claims.ID))
-		return fiber.NewError(fiber.StatusInternalServerError)
+		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
 	if user == nil {
 		logger.Log.Warn("User not found for email verification", zap.String("userID", claims.ID))
-		return fiber.NewError(fiber.StatusNotFound, "User not found")
+		return nil, fiber.NewError(fiber.StatusNotFound, "User not found")
 	}
 
 	user.IsVerified = true
 	if err := u.userRepo.UpdateUser(user); err != nil {
 		logger.Log.Error("Failed to update user verification status", zap.Error(err), zap.String("userID", user.ID))
-		return fiber.NewError(fiber.StatusInternalServerError)
+		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	return nil
+	// add token to response
+	tokens, err := u.generateTokenPair(user.ID, string(user.Role))
+	if err != nil {
+		logger.Log.Error("Failed to generate token pair", zap.Error(err), zap.String("userID", user.ID))
+		return nil, fiber.NewError(fiber.StatusInternalServerError)
+	}
+
+	setAuthCookies(c, tokens)
+
+	return &contract.VerifyEmailRes{
+		UserRes: u.buildUserRes(user),
+	}, nil
 }
 
 func (u *AuthUsecase) ForgotPassword(req *contract.ForgotPasswordReq) (*contract.ForgotPasswordRes, error) {
@@ -385,8 +395,7 @@ func (u *AuthUsecase) RefreshToken(c *fiber.Ctx, req *contract.RefreshTokenReq) 
 	setAuthCookies(c, tokens)
 
 	res := contract.RefreshTokenRes{
-		TokenRes: *tokens,
-		UserRes:  u.buildUserRes(user),
+		UserRes: u.buildUserRes(user),
 	}
 
 	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))

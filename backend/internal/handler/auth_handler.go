@@ -36,7 +36,7 @@ func (h *AuthHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	authGroup.Post("/login", h.Login)
 	authGroup.Post("/register", h.Register)
 	authGroup.Post("/send-verification", h.SendVerificationEmail)
-	authGroup.Get("/verify-email", h.VerifyEmail)
+	authGroup.Post("/verify-email", h.VerifyEmail)
 	authGroup.Post("/forgot-password", h.ForgotPassword)
 	authGroup.Post("/reset-password", h.ResetPassword)
 	authGroup.Post("/refresh-token", h.RefreshToken)
@@ -240,12 +240,12 @@ func (h *AuthHandler) VerifyEmail(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Token is required")
 	}
 
-	err := h.authUsecase.VerifyEmail(token)
+	res, err := h.authUsecase.VerifyEmail(c, token)
 	if err != nil {
 		logger.Log.Warn("Failed to verify email: %v", err)
 		return err
 	}
-	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse("Email verified successfully"))
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
 }
 
 // @Tags Auth

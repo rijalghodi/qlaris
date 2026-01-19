@@ -12,8 +12,16 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useRegister } from "@/services/api-auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Check } from "lucide-react";
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "../ui/empty";
+import { ArrowLeft, Check } from "lucide-react";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "../ui/empty";
+import { ROUTES } from "@/lib/route";
 
 const registerSchema = z
   .object({
@@ -78,6 +86,15 @@ export function RegisterForm() {
             click on the link in the email to verify your account.
           </EmptyDescription>
         </EmptyHeader>
+        <EmptyContent>
+          <Button
+            variant="outline"
+            className="h-10 w-full rounded-full"
+            onClick={() => router.push(ROUTES.LOGIN)}
+          >
+            <ArrowLeft /> Back to Login
+          </Button>
+        </EmptyContent>
       </Empty>
     );
   }
@@ -94,7 +111,7 @@ export function RegisterForm() {
 
       {/* Error Message */}
       {error && (
-        <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive text-center">
           {error}
         </div>
       )}

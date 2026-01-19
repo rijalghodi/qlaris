@@ -21,7 +21,6 @@ type RefreshTokenReq struct {
 }
 
 type RefreshTokenRes struct {
-	TokenRes
 	UserRes
 }
 
@@ -43,7 +42,6 @@ type LoginReq struct {
 }
 
 type LoginRes struct {
-	TokenRes
 	UserRes
 }
 
@@ -81,4 +79,8 @@ type SendVerificationEmailReq struct {
 
 type SendVerificationEmailRes struct {
 	NextRequestAt *string `json:"nextRequestAt"`
+}
+
+type VerifyEmailRes struct {
+	UserRes
 }

@@ -53,8 +53,12 @@ apiClient.interceptors.response.use(
       _retry?: boolean;
     };
 
-    // Check if error is 401 and we haven't retried yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Check if error is 401 and we haven't retried yet and not login path
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      originalRequest.url !== "/auth/login"
+    ) {
       // Prevent infinite loops by marking this request as retried
       originalRequest._retry = true;
 
@@ -79,7 +83,8 @@ apiClient.interceptors.response.use(
         const refreshToken = getCookie("qlaris.refresh-token");
 
         if (!refreshToken) {
-          throw new Error("No refresh token available");
+          // throw new Error("No refresh token available");
+          return; // No need to refresh token
         }
 
         // Call the refresh token endpoint with the refresh token in the body

@@ -7,48 +7,48 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
-import { useForgotPassword } from "@/services/api-auth";
+import { useSendVerification } from "@/services/api-auth";
 import { useState } from "react";
 import { useCountdown } from "@/hooks/use-countdown";
 
-const forgotPasswordSchema = z.object({
+const sendVerificationSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
 });
 
-type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+type SendVerificationFormData = z.infer<typeof sendVerificationSchema>;
 
-export function ForgotPasswordForm() {
+export function SendVerificationForm() {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
   const [nextRequestAt, setNextRequestAt] = useState<string | null>(null);
 
   const { isExpired, formattedTime } = useCountdown(nextRequestAt);
 
-  const form = useForm<ForgotPasswordFormData>({
-    resolver: zodResolver(forgotPasswordSchema as any),
+  const form = useForm<SendVerificationFormData>({
+    resolver: zodResolver(sendVerificationSchema as any),
     defaultValues: {
       email: "",
     },
   });
 
-  const { mutate: forgotPassword, isPending } = useForgotPassword({
+  const { mutate: sendVerification, isPending } = useSendVerification({
     onSuccess: (data) => {
-      console.log("Forgot password successful:", data);
+      console.log("Send verification successful:", data);
       setSuccess(true);
       setError("");
       setNextRequestAt(data.data?.nextRequestAt || null);
     },
     onError: (errorMessage) => {
-      console.error("Forgot password error:", errorMessage);
+      console.error("Send verification error:", errorMessage);
       setError(errorMessage);
       setSuccess(false);
     },
   });
 
-  const onSubmit = async (data: ForgotPasswordFormData) => {
+  const onSubmit = async (data: SendVerificationFormData) => {
     setError(""); // Clear previous errors
     setSuccess(false);
-    forgotPassword(data);
+    sendVerification(data);
   };
 
   const isDisabled = isPending || (!isExpired && success);
@@ -57,19 +57,16 @@ export function ForgotPasswordForm() {
     <div className="w-full max-w-sm space-y-6">
       {/* Header */}
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-semibold">Forgot Password</h1>
+        <h1 className="text-2xl font-semibold">Email Verification</h1>
         <p className="text-sm text-muted-foreground">
-          Enter your email to receive a password reset link
+          Enter your email to receive a verification link
         </p>
       </div>
 
       {/* Success Message */}
       {success && (
-        <div className="rounded-md bg-primary/10 p-3 text-sm text-primary">
-          Password reset link has been sent to your email. Please check your inbox.
-          {!isExpired && (
-            <p className="mt-1 text-xs">You can request another reset in {formattedTime}</p>
-          )}
+        <div className="rounded-md bg-primary/10 p-3 text-sm text-primary text-center">
+          Verification link has been sent to your email. Please check your inbox.
         </div>
       )}
 
@@ -90,7 +87,7 @@ export function ForgotPasswordForm() {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your Email" {...field} disabled={isDisabled} />
+                  <Input placeholder="Your Email" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -101,14 +98,14 @@ export function ForgotPasswordForm() {
               ? "Sending..."
               : !isExpired && success
                 ? `Resend in ${formattedTime}`
-                : "Send Reset Link"}
+                : "Send Verification Link"}
           </Button>
         </form>
       </Form>
 
       {/* Back to Login */}
       <p className="px-8 text-center text-sm text-muted-foreground">
-        Remember your password?{" "}
+        Already verified?{" "}
         <Link
           href="/login"
           className="hover:underline underline-offset-4 font-medium text-foreground"

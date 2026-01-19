@@ -23,7 +23,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
   const router = useRouter();
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string | React.ReactNode>("");
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema as any),
@@ -37,11 +37,23 @@ export function LoginForm() {
     onSuccess: (data) => {
       console.log("Login successful:", data);
       // Redirect to home page after successful login
-      router.push(ROUTES.DASHBOARD);
+      // router.push(ROUTES.DASHBOARD);
     },
     onError: (errorMessage) => {
       console.error("Login error:", errorMessage);
-      setError(errorMessage);
+      if (/(verify|verification|verified)/i.test(errorMessage)) {
+        // router.push(ROUTES.SEND_VERIFICATION);
+        setError(
+          <>
+            Please verify your email address in{" "}
+            <Link href={ROUTES.SEND_VERIFICATION} className="underline">
+              here
+            </Link>
+          </>
+        );
+        return;
+      }
+      setError(errorMessage || "An error occurred");
     },
   });
 
@@ -67,20 +79,14 @@ export function LoginForm() {
 
       {/* Error Message */}
       {error && (
-        <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive text-center">
           {error}
         </div>
       )}
 
       {/* Form */}
       <Form {...form}>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit(onSubmit);
-          }}
-          className="space-y-4"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="email"
