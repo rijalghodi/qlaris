@@ -159,7 +159,7 @@ func (u *AuthUsecase) Register(req *contract.RegisterReq) (*contract.RegisterRes
 		Email:        req.Email,
 		PasswordHash: &hashedPassword,
 		IsVerified:   false,
-		Role:         model.USER_ROLE_OWNER,
+		Role:         config.USER_ROLE_OWNER,
 	}
 
 	if err := u.userRepo.CreateUser(newUser); err != nil {
@@ -198,7 +198,7 @@ func (u *AuthUsecase) SendVerificationEmail(email string) (*contract.SendVerific
 	// Check if verification email was requested recently (rate limiting)
 	if user.RequestVerificationAt != nil {
 		timeSinceLastRequest := time.Since(*user.RequestVerificationAt)
-		ttlDuration := time.Duration(config.Env.App.RequestVerificationTtl) * time.Minute
+		ttlDuration := time.Duration(config.REQUEST_VERIFICATION_TTL) * time.Minute
 		if timeSinceLastRequest < ttlDuration {
 			remainingTime := ttlDuration - timeSinceLastRequest
 			logger.Log.Warn("Verification email requested too soon",
@@ -229,7 +229,7 @@ func (u *AuthUsecase) SendVerificationEmail(email string) (*contract.SendVerific
 	}
 
 	return &contract.SendVerificationEmailRes{
-		NextRequestAt: nextRequestAt(user.RequestVerificationAt, time.Duration(config.Env.App.RequestVerificationTtl)*time.Minute),
+		NextRequestAt: nextRequestAt(user.RequestVerificationAt, time.Duration(config.REQUEST_VERIFICATION_TTL)*time.Minute),
 	}, nil
 }
 
@@ -291,7 +291,7 @@ func (u *AuthUsecase) ForgotPassword(req *contract.ForgotPasswordReq) (*contract
 	// Check if password reset was requested recently (rate limiting)
 	if user.RequestResetPasswordAt != nil {
 		timeSinceLastRequest := time.Since(*user.RequestResetPasswordAt)
-		ttlDuration := time.Duration(config.Env.App.RequestResetPasswordTtl) * time.Minute
+		ttlDuration := time.Duration(config.REQUEST_RESET_PASSWORD_TTL) * time.Minute
 		if timeSinceLastRequest < ttlDuration {
 			remainingTime := ttlDuration - timeSinceLastRequest
 			logger.Log.Warn("Password reset requested too soon",
@@ -322,7 +322,7 @@ func (u *AuthUsecase) ForgotPassword(req *contract.ForgotPasswordReq) (*contract
 	}
 
 	return &contract.ForgotPasswordRes{
-		NextRequestAt: nextRequestAt(user.RequestResetPasswordAt, time.Duration(config.Env.App.RequestResetPasswordTtl)*time.Minute),
+		NextRequestAt: nextRequestAt(user.RequestResetPasswordAt, time.Duration(config.REQUEST_RESET_PASSWORD_TTL)*time.Minute),
 	}, nil
 }
 
@@ -453,7 +453,7 @@ func nextRequestAt(lastRequestAt *time.Time, ttlDuration time.Duration) *string 
 func setAuthCookies(c *fiber.Ctx, tokens *contract.TokenRes) {
 	// Set access token cookie
 	c.Cookie(&fiber.Cookie{
-		Name:     config.AccessTokenCookieName,
+		Name:     config.ACCESS_TOKEN_COOKIE_NAME,
 		Value:    tokens.AccessToken,
 		HTTPOnly: true,
 		Secure:   false, // Set to true in production with HTTPS
@@ -464,7 +464,7 @@ func setAuthCookies(c *fiber.Ctx, tokens *contract.TokenRes) {
 
 	// Set refresh token cookie
 	c.Cookie(&fiber.Cookie{
-		Name:     config.RefreshTokenCookieName,
+		Name:     config.REFRESH_TOKEN_COOKIE_NAME,
 		Value:    tokens.RefreshToken,
 		HTTPOnly: true,
 		Secure:   false, // Set to true in production with HTTPS

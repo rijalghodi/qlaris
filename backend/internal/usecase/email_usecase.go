@@ -54,7 +54,7 @@ func (s *EmailUsecase) SendHTMLEmail(to, subject, body string) error {
 }
 
 func (s *EmailUsecase) SendResetPasswordEmail(to, token string) error {
-	subject := fmt.Sprintf("Reset password - %s", config.AppName)
+	subject := fmt.Sprintf("Reset password - %s", config.APP_NAME)
 
 	// TODO: replace this url with the link to the reset password page of your front-end app
 	resetPasswordURL := fmt.Sprintf("%s?token=%s", config.Env.Auth.ResetPasswordURL, token)
@@ -98,7 +98,7 @@ func (s *EmailUsecase) SendResetPasswordEmail(to, token string) error {
 }
 
 func (s *EmailUsecase) SendVerificationEmail(to, token string) error {
-	subject := fmt.Sprintf("Email Verification - %s", config.AppName)
+	subject := fmt.Sprintf("Email Verification - %s", config.APP_NAME)
 
 	// TODO: replace this url with the link to the email verification page of your front-end app
 	verificationEmailURL := fmt.Sprintf("%s?token=%s", config.Env.Auth.VerifyEmailURL, token)

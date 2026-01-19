@@ -1,10 +1,12 @@
 package usecase
 
 import (
+	"app/internal/config"
 	"app/internal/contract"
 	"app/internal/model"
 	"app/internal/repository"
 	"app/pkg/logger"
+	"slices"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -95,7 +97,7 @@ func (u *ProductUsecase) ListProducts(businessID string, page, pageSize int) ([]
 	return productResList, total, nil
 }
 
-func (u *ProductUsecase) DeleteProduct(userID, productID string) error {
+func (u *ProductUsecase) DeleteProduct(productID string) error {
 	if err := u.productRepo.DeleteProduct(productID); err != nil {
 		logger.Log.Error("Failed to delete product", zap.Error(err), zap.String("productID", productID))
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to delete product")
@@ -128,27 +130,92 @@ func (u *ProductUsecase) buildProductRes(product *model.Product) *contract.Produ
 	}
 }
 
-func (u *ProductUsecase) IsAllowedToAccessProduct(userID string, productID string) error {
-	business, err := u.businessRepo.GetBusinessByUserID(userID)
-	if err != nil {
-		logger.Log.Error("Failed to get user business", zap.Error(err), zap.String("userID", userID))
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get user business")
+// func (u *ProductUsecase) IsAllowedToAccessProduct(role model.USER_ROLE, businessID *string, productID *string) error {
+// 	if role != model.USER_ROLE_SUPERADMIN && businessID == nil {
+// 		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
+// 	}
+
+// 	if role != model.USER_ROLE_OWNER && productID == nil {
+// 		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
+// 	}
+
+// 	product, err := u.productRepo.GetProductByIDAndBusinessID(productID, *businessID)
+// 	if err != nil {
+// 		logger.Log.Error("Failed to get product", zap.Error(err), zap.String("productID", productID))
+// 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get product")
+// 	}
+
+// 	if product == nil {
+// 		logger.Log.Warn("Product not found", zap.String("productID", productID))
+// 		return fiber.NewError(fiber.StatusNotFound, "You don't have permission to modify this product")
+// 	}
+
+// 	return nil
+// }
+
+// type RoleAccess struct {
+// 	Role     model.USER_ROLE
+// 	Access   string
+// 	IsInself string
+// }
+
+// type PRODUCT_RIGHT_ACCESS string
+
+// const (
+// 	CREATE_PRODUCT_OWNED PRODUCT_RIGHT_ACCESS = "create_product_owned"
+// 	READ_PRODUCT_OWNED   PRODUCT_RIGHT_ACCESS = "read_product_owned"
+// 	UPDATE_PRODUCT_OWNED PRODUCT_RIGHT_ACCESS = "update_product_owned"
+// 	DELETE_PRODUCT_OWNED PRODUCT_RIGHT_ACCESS = "delete_product_owned"
+// 	CREATE_PRODUCT       PRODUCT_RIGHT_ACCESS = "create_product"
+// 	READ_PRODUCT         PRODUCT_RIGHT_ACCESS = "read_product"
+// 	UPDATE_PRODUCT       PRODUCT_RIGHT_ACCESS = "update_product"
+// 	DELETE_PRODUCT       PRODUCT_RIGHT_ACCESS = "delete_product"
+// )
+
+// var RoleAccessMap = map[model.USER_ROLE][]PRODUCT_RIGHT_ACCESS{
+// 	model.USER_ROLE_SUPERADMIN: {CREATE_PRODUCT, READ_PRODUCT, UPDATE_PRODUCT, DELETE_PRODUCT},
+// 	model.USER_ROLE_OWNER:      {CREATE_PRODUCT_OWNED, READ_PRODUCT_OWNED, UPDATE_PRODUCT_OWNED, DELETE_PRODUCT_OWNED},
+// 	model.USER_ROLE_MANAGER:    {CREATE_PRODUCT, READ_PRODUCT, UPDATE_PRODUCT, DELETE_PRODUCT},
+// 	model.USER_ROLE_CASHIER:    {CREATE_PRODUCT, READ_PRODUCT, UPDATE_PRODUCT, DELETE_PRODUCT},
+// }
+
+func (u *ProductUsecase) IsAllowedToAccess(role config.UserRole, allowedPermissions []config.Permission, businessID *string, productID *string) error {
+	rolePermissions := config.RolePermissionMap[role]
+
+	var permission *config.Permission
+	for _, p := range rolePermissions {
+		idx, found := slices.BinarySearch(allowedPermissions, p)
+		if !found {
+			continue
+		}
+
+		permission = &allowedPermissions[idx]
+		break
 	}
 
-	if business == nil {
-		logger.Log.Warn("Business not found for user", zap.String("userID", userID))
-		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
+	if permission == nil {
+		return fiber.NewError(fiber.StatusForbidden, "You don't have permission to perform this action")
 	}
 
-	product, err := u.productRepo.GetProductByIDAndBusinessID(productID, business.ID)
-	if err != nil {
-		logger.Log.Error("Failed to get product", zap.Error(err), zap.String("productID", productID))
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get product")
-	}
+	scope := permission.Scope()
 
-	if product == nil {
-		logger.Log.Warn("Product not found", zap.String("productID", productID))
-		return fiber.NewError(fiber.StatusNotFound, "You don't have permission to modify this product")
+	if scope == config.PERMISSION_SCOPE_ORG {
+		if businessID == nil {
+			return fiber.NewError(fiber.StatusNotFound, "Need businessID to access product")
+		}
+
+		if productID != nil {
+			product, err := u.productRepo.GetProductByIDAndBusinessID(*productID, *businessID)
+			if err != nil {
+				logger.Log.Error("Failed to get product", zap.Error(err), zap.String("productID", *productID))
+				return fiber.NewError(fiber.StatusInternalServerError, "Failed to get product")
+			}
+
+			if product == nil {
+				logger.Log.Warn("Product not found", zap.String("productID", *productID))
+				return fiber.NewError(fiber.StatusNotFound, "You don't have permission to perform this action")
+			}
+		}
 	}
 
 	return nil

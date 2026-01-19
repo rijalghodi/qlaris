@@ -21,6 +21,7 @@ type UpdateProductReq struct {
 	Image         *string  `json:"image" validate:"omitempty,url"`
 	CategoryID    *string  `json:"categoryId" validate:"omitempty"`
 	IsFavorite    *bool    `json:"isFavorite"`
+	IsActive      *bool    `json:"isActive"`
 	EnableStock   *bool    `json:"enableStock"`
 	StockQty      *int     `json:"stockQty" validate:"omitempty,gte=0"`
 	Unit          *string  `json:"unit,omitempty"`

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"app/internal/config"
 	"app/internal/contract"
 	"app/internal/middleware"
 	"app/internal/usecase"
@@ -57,7 +58,10 @@ func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 	}
 
 	claims := middleware.GetAuthClaims(c)
-	product, err := h.productUsecase.CreateProduct(claims.BusinessID, &req)
+	if claims.BusinessID == nil {
+		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
+	}
+	product, err := h.productUsecase.CreateProduct(*claims.BusinessID, &req)
 	if err != nil {
 		return err
 	}
@@ -97,7 +101,7 @@ func (h *ProductHandler) UpdateProduct(c *fiber.Ctx) error {
 	}
 
 	claims := middleware.GetAuthClaims(c)
-	if err := h.productUsecase.IsAllowedToAccessProduct(claims.ID, productID); err != nil {
+	if err := h.productUsecase.IsAllowedToAccess(claims.Role, []config.Permission{config.UPDATE_PRODUCT_ANY, config.UPDATE_PRODUCT_ORG}, claims.BusinessID, &productID); err != nil {
 		return err
 	}
 	product, err := h.productUsecase.UpdateProduct(productID, &req)
@@ -128,7 +132,7 @@ func (h *ProductHandler) GetProduct(c *fiber.Ctx) error {
 
 	claims := middleware.GetAuthClaims(c)
 
-	if err := h.productUsecase.IsAllowedToAccessProduct(claims.ID, productID); err != nil {
+	if err := h.productUsecase.IsAllowedToAccess(claims.Role, []config.Permission{config.READ_PRODUCT_ANY, config.READ_PRODUCT_ORG}, claims.BusinessID, &productID); err != nil {
 		return err
 	}
 
@@ -156,7 +160,7 @@ func (h *ProductHandler) GetProduct(c *fiber.Ctx) error {
 func (h *ProductHandler) ListProducts(c *fiber.Ctx) error {
 	claims := middleware.GetAuthClaims(c)
 
-	if claims.BusinessID == "" {
+	if claims.BusinessID == nil {
 		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
 	}
 
@@ -165,7 +169,11 @@ func (h *ProductHandler) ListProducts(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	products, total, err := h.productUsecase.ListProducts(claims.BusinessID, queries.Page, queries.PageSize)
+	if err := h.productUsecase.IsAllowedToAccess(claims.Role, []config.Permission{config.READ_PRODUCT_ANY, config.READ_PRODUCT_ORG}, claims.BusinessID, nil); err != nil {
+		return err
+	}
+
+	products, total, err := h.productUsecase.ListProducts(*claims.BusinessID, queries.Page, queries.PageSize)
 	if err != nil {
 		return err
 	}
@@ -192,12 +200,11 @@ func (h *ProductHandler) DeleteProduct(c *fiber.Ctx) error {
 	}
 
 	claims := middleware.GetAuthClaims(c)
-
-	if err := h.productUsecase.IsAllowedToAccessProduct(claims.ID, productID); err != nil {
+	if err := h.productUsecase.IsAllowedToAccess(claims.Role, []config.Permission{config.DELETE_PRODUCT_ANY, config.DELETE_PRODUCT_ORG}, claims.BusinessID, &productID); err != nil {
 		return err
 	}
 
-	if err := h.productUsecase.DeleteProduct(claims.ID, productID); err != nil {
+	if err := h.productUsecase.DeleteProduct(productID); err != nil {
 		return err
 	}
 

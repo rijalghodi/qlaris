@@ -56,9 +56,9 @@ func (u *UserUsecase) EditCurrentUser(userID string, req *contract.EditCurrentUs
 	// Handle business data
 	var business *model.Business
 	if req.BusinessName != nil || req.BusinessAddress != nil {
-		business, err = u.businessRepo.GetBusinessByUserID(userID)
-		if err != nil {
-			logger.Log.Error("Failed to get business", zap.Error(err), zap.String("userID", userID))
+		business = user.Business
+		if business == nil {
+			logger.Log.Error("Failed to get business", zap.String("userID", userID))
 			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to get business data")
 		}
 
@@ -91,9 +91,9 @@ func (u *UserUsecase) EditCurrentUser(userID string, req *contract.EditCurrentUs
 		}
 	} else {
 		// Just fetch existing business for response
-		business, err = u.businessRepo.GetBusinessByUserID(userID)
-		if err != nil {
-			logger.Log.Error("Failed to get business", zap.Error(err), zap.String("userID", userID))
+		business = user.Business
+		if business == nil {
+			logger.Log.Error("Failed to get business", zap.String("userID", userID))
 			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to get business data")
 		}
 	}

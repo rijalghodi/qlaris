@@ -13,7 +13,8 @@ import (
 
 type Claims struct {
 	util.JWTClaims
-	BusinessID string `json:"business_id"`
+	Role       config.UserRole `json:"role"`
+	BusinessID *string         `json:"business_id"`
 }
 
 func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
@@ -35,7 +36,7 @@ func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 		}
 
 		// Check role permissions if roles are specified
-		if len(roles) > 0 && !slices.Contains(roles, claims.Role) {
+		if len(roles) > 0 && !slices.Contains(roles, string(claims.Role)) {
 			return fiber.NewError(fiber.StatusForbidden, "You are not authorized to access this resource")
 		}
 
@@ -46,7 +47,7 @@ func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 		}
 
 		if user.Business != nil {
-			claims.BusinessID = user.Business.ID
+			claims.BusinessID = &user.Business.ID
 		}
 
 		c.Locals("user", claims)
@@ -56,7 +57,7 @@ func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 
 func extractToken(c *fiber.Ctx) string {
 	// Read token from cookie
-	return c.Cookies(config.AccessTokenCookieName)
+	return c.Cookies(config.ACCESS_TOKEN_COOKIE_NAME)
 }
 
 // GetAuthClaims retrieves authenticated user claims from context
