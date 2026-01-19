@@ -59,5 +59,5 @@ func (r *UserRepository) UpdateUser(user *model.User) error {
 }
 
 func (r *UserRepository) UpdateUserPassword(userID, hashedPassword string) error {
-	return r.db.Model(&model.User{}).Where("id = ?", userID).Update("password", hashedPassword).Error
+	return r.db.Model(&model.User{}).Where("id = ?", userID).Update("password_hash", hashedPassword).Error
 }
