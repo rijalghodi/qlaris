@@ -53,7 +53,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </header>
           <main className="mx-auto size-full flex-1 shadow-inner-sm">{children}</main>
-          <footer>
+          <footer className="border-t border-sidebar-border bg-background">
             <div className="text-muted-foreground mx-auto flex size-full max-w-7xl items-center justify-center gap-3 px-4 py-3 max-sm:flex-col sm:gap-6 sm:px-6">
               <p className="text-xs text-balance max-sm:text-center">
                 {`©${new Date().getFullYear()}`} Qlaris. Create with 💪 by{" "}

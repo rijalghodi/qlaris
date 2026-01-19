@@ -48,7 +48,7 @@ const getCurrentUser = async (request: NextRequest) => {
 
     const data = await response.json();
 
-    // console.log("Data:", data);
+    console.log("Data:", data);
 
     // Check if the response has success flag and data
     if (data.success && data.data) {

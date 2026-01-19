@@ -63,8 +63,9 @@ export function LoginForm() {
   };
 
   const handleContinueWithGoogle = () => {
-    // TODO: Implement Google OAuth logic
-    console.log("Sign in with Google");
+    // Redirect to backend Google OAuth endpoint
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    window.location.href = `${apiBaseUrl}/auth/google/login`;
   };
 
   return (

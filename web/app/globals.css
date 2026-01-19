@@ -90,8 +90,8 @@
   --sidebar-primary-foreground: hsl(78, 92%, 95%);
   --sidebar-accent: hsl(240, 5%, 92%);
   --sidebar-accent-foreground: hsl(240, 6%, 10%);
-  /* --sidebar-border: hsl(240, 6%, 92%); */
-  --sidebar-border: transparent;
+  /* --sidebar-border: transparent; */
+  --sidebar-border: hsl(240, 6%, 92%);
   --sidebar-ring: hsl(80, 100%, 45%);
 }
 

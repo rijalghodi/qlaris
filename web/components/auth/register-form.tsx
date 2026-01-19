@@ -67,9 +67,10 @@ export function RegisterForm() {
     register(data);
   };
 
-  const handleContiueWithGoogle = () => {
-    // TODO: Implement Google OAuth logic
-    console.log("Sign in with Google");
+  const handleContinueWithGoogle = () => {
+    // Redirect to backend Google OAuth endpoint
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    window.location.href = `${apiBaseUrl}/auth/google/login`;
   };
 
   if (isSuccess) {
@@ -179,7 +180,7 @@ export function RegisterForm() {
         type="button"
         variant="outline"
         className="h-10 w-full rounded-full"
-        onClick={handleContiueWithGoogle}
+        onClick={handleContinueWithGoogle}
       >
         <IconGoogle className="mr-2 h-4 w-4" />
         Continue with Google

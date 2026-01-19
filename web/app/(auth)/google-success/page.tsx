@@ -9,57 +9,52 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { useVerifyEmail } from "@/services/api-auth";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ROUTES } from "@/lib/route";
 import { Loader2, CheckCircle2, X } from "lucide-react";
+import { setAuthCookie } from "@/lib/auth-cookie";
 
-export default function VerifyEmailPage() {
+export default function GoogleSuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token");
+
+  const accessToken = searchParams.get("accessToken");
+  const refreshToken = searchParams.get("refreshToken");
 
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
 
-  const { mutate: verifyEmail, isPending } = useVerifyEmail({
-    onSuccess: (data) => {
-      console.log("Email verification successful:", data);
-      setSuccess(true);
-      setError("");
-
-      // Redirect after a brief moment to show success message
-      setTimeout(() => {
-        router.push(ROUTES.DASHBOARD);
-      }, 1500);
-    },
-    onError: (errorMessage) => {
-      console.error("Email verification error:", errorMessage);
-      setError(errorMessage);
-      setSuccess(false);
-    },
-  });
-
   useEffect(() => {
-    if (token) {
-      // Automatically verify when token is present
-      verifyEmail({ token });
-    } else {
-      setError("Verification token is missing");
+    if (!accessToken || !refreshToken) {
+      setError("No access token or refresh token found");
+      return;
     }
-  }, [token]);
 
-  // Loading State
-  if (isPending) {
+    try {
+      setAuthCookie({
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      });
+
+      setSuccess(true);
+      router.push(ROUTES.DASHBOARD);
+    } catch (err) {
+      setError("Failed to set authentication cookies");
+      console.error(err);
+    }
+  }, [accessToken, refreshToken, router]);
+
+  // Loading State (initial state)
+  if (!success && !error) {
     return (
       <Empty>
         <EmptyMedia>
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
         </EmptyMedia>
         <EmptyHeader>
-          <EmptyTitle>Email Verification</EmptyTitle>
-          <EmptyDescription>Please wait while we verify your email...</EmptyDescription>
+          <EmptyTitle>Completing Sign In</EmptyTitle>
+          <EmptyDescription>Please wait while we complete your Google sign in...</EmptyDescription>
         </EmptyHeader>
       </Empty>
     );
@@ -73,10 +68,8 @@ export default function VerifyEmailPage() {
           <CheckCircle2 className="h-12 w-12 text-primary" />
         </EmptyMedia>
         <EmptyHeader>
-          <EmptyTitle>Email Verified Successfully!</EmptyTitle>
-          <EmptyDescription>
-            Your email has been verified. Redirecting to dashboard...
-          </EmptyDescription>
+          <EmptyTitle>Successfully Signed In!</EmptyTitle>
+          <EmptyDescription>Welcome! Redirecting to dashboard...</EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
           <Button
@@ -98,21 +91,11 @@ export default function VerifyEmailPage() {
           <X className="h-12 w-12 text-destructive" />
         </EmptyMedia>
         <EmptyHeader>
-          <EmptyTitle>Verification Failed</EmptyTitle>
+          <EmptyTitle>Sign In Failed</EmptyTitle>
           <EmptyDescription className="text-destructive">{error}</EmptyDescription>
         </EmptyHeader>
         <EmptyContent className="flex flex-col gap-2 w-full">
-          <Button
-            className="h-10 w-full rounded-full"
-            onClick={() => router.push(ROUTES.SEND_VERIFICATION)}
-          >
-            Request New Verification Link
-          </Button>
-          <Button
-            variant="outline"
-            className="h-10 w-full rounded-full"
-            onClick={() => router.push(ROUTES.LOGIN)}
-          >
+          <Button className="h-10 w-full rounded-full" onClick={() => router.push(ROUTES.LOGIN)}>
             Back to Login
           </Button>
         </EmptyContent>

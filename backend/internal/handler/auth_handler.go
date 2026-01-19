@@ -32,7 +32,8 @@ func NewAuthHandler(authUsecase *usecase.AuthUsecase) *AuthHandler {
 
 func (h *AuthHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	authGroup := app.Group("/auth")
-	authGroup.Post("/google/login", h.GoogleLogin)
+	authGroup.Get("/google/login", h.GoogleLogin)
+	authGroup.Get("/google/callback", h.GoogleCallback)
 	authGroup.Post("/login", h.Login)
 	authGroup.Post("/register", h.Register)
 	authGroup.Post("/send-verification", h.SendVerificationEmail)

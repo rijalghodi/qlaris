@@ -1,18 +1,18 @@
 package util
 
 type BaseResponse struct {
-	Status  bool   `json:"status"`
+	Success bool   `json:"success"`
 	Message string `json:"message"`
 	Data    any    `json:"data,omitempty"`
 	Details any    `json:"details,omitempty"`
 }
 
 func ToSuccessResponse(data any) BaseResponse {
-	return BaseResponse{Status: true, Message: "success", Data: data}
+	return BaseResponse{Success: true, Message: "success", Data: data}
 }
 
 func ToErrorResponse(msg string, details any) BaseResponse {
-	return BaseResponse{Status: false, Message: msg, Details: details}
+	return BaseResponse{Success: false, Message: msg, Details: details}
 }
 
 type PaginatedData struct {
@@ -24,7 +24,7 @@ type PaginatedData struct {
 }
 
 type PaginatedResponse struct {
-	Status  bool          `json:"status"`
+	Success bool          `json:"success"`
 	Message string        `json:"message"`
 	Data    PaginatedData `json:"data"`
 }
@@ -42,7 +42,7 @@ func ToPaginatedData(items any, page, pageSize int, total int64) PaginatedData {
 
 func ToPaginatedResponse(items any, page, pageSize int, total int64) PaginatedResponse {
 	return PaginatedResponse{
-		Status:  true,
+		Success: true,
 		Message: "success",
 		Data:    ToPaginatedData(items, page, pageSize, total),
 	}
