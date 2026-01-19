@@ -54,23 +54,16 @@ func (u *ProductUsecase) UpdateProduct(productID string, req *contract.UpdatePro
 		return nil, fiber.NewError(fiber.StatusNotFound, "Product not found")
 	}
 
-	// Apply partial updates
-	// if req.Name != nil {
-	// 	product.Name = *req.Name
-	// }
-	// if req.Price != nil {
-	// 	product.Price = *req.Price
-	// }
-	// if req.Image != nil {
-	// 	product.Image = req.Image
-	// }
-	// if req.StockQty != nil {
-	// 	product.StockQty = *req.StockQty
-	// }
-
 	copier.CopyWithOption(product, req, copier.Option{
 		IgnoreEmpty: true,
 	})
+
+	if req.EnableBarcode != product.EnableBarcode {
+		product.EnableBarcode = req.EnableBarcode
+	}
+	if req.EnableStock != product.EnableStock {
+		product.EnableStock = req.EnableStock
+	}
 
 	if err := u.productRepo.UpdateProduct(product); err != nil {
 		logger.Log.Error("Failed to update product", zap.Error(err), zap.String("productID", productID))

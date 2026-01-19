@@ -86,7 +86,10 @@ func (u *TransactionUsecase) CreateTransaction(userID, businessID string, req *c
 			tx.Rollback()
 			return nil, fiber.NewError(fiber.StatusForbidden, "You don't have permission to sell this product")
 		}
-		if product.StockQty < item.Quantity {
+		if !product.EnableStock {
+			continue
+		}
+		if product.StockQty != nil && util.ToValue(product.StockQty) < item.Quantity {
 			tx.Rollback()
 			return nil, fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Insufficient stock for product %s. Available: %d, Requested: %d", product.Name, product.StockQty, item.Quantity))
 		}
@@ -144,6 +147,10 @@ func (u *TransactionUsecase) CreateTransaction(userID, businessID string, req *c
 
 	// Decrease stock for all products
 	for _, item := range req.Items {
+		product := productMap[item.ProductID]
+		if !product.EnableStock {
+			continue
+		}
 		if err := u.productRepo.DecreaseStock(item.ProductID, item.Quantity); err != nil {
 			tx.Rollback()
 			logger.Log.Error("Failed to decrease stock", zap.Error(err), zap.String("productID", item.ProductID))
@@ -256,7 +263,10 @@ func (u *TransactionUsecase) UpdateTransaction(userID, businessID, transactionID
 	// Decrease stock for new items and validate
 	for _, item := range req.Items {
 		product := productMap[item.ProductID]
-		if product.StockQty < item.Quantity {
+		if !product.EnableStock {
+			continue
+		}
+		if product.StockQty != nil && util.ToValue(product.StockQty) < item.Quantity {
 			tx.Rollback()
 			return nil, fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Insufficient stock for product %s. Available: %d, Requested: %d", product.Name, product.StockQty, item.Quantity))
 		}
