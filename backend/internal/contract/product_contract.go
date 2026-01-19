@@ -4,9 +4,10 @@ type CreateProductReq struct {
 	Name          string   `json:"name" validate:"required,max=255"`
 	Price         float64  `json:"price" validate:"required,gte=0"`
 	Image         *string  `json:"image" validate:"omitempty,url"`
-	StockQty      *int     `json:"stockQty" validate:"omitempty,gte=0"`
 	CategoryID    *string  `json:"categoryId" validate:"omitempty"`
+	IsFavorite    bool     `json:"isFavorite"`
 	EnableStock   bool     `json:"enableStock"`
+	StockQty      *int     `json:"stockQty" validate:"omitempty,gte=0"`
 	Unit          *string  `json:"unit,omitempty"`
 	EnableBarcode bool     `json:"enableBarcode"`
 	BarcodeValue  *string  `json:"barcodeValue,omitempty"`
@@ -18,11 +19,12 @@ type UpdateProductReq struct {
 	Name          *string  `json:"name" validate:"omitempty,max=255"`
 	Price         *float64 `json:"price" validate:"omitempty,gte=0"`
 	Image         *string  `json:"image" validate:"omitempty,url"`
-	StockQty      *int     `json:"stockQty" validate:"omitempty,gte=0"`
 	CategoryID    *string  `json:"categoryId" validate:"omitempty"`
-	EnableStock   bool     `json:"enableStock"`
+	IsFavorite    *bool    `json:"isFavorite"`
+	EnableStock   *bool    `json:"enableStock"`
+	StockQty      *int     `json:"stockQty" validate:"omitempty,gte=0"`
 	Unit          *string  `json:"unit,omitempty"`
-	EnableBarcode bool     `json:"enableBarcode"`
+	EnableBarcode *bool    `json:"enableBarcode"`
 	BarcodeValue  *string  `json:"barcodeValue,omitempty"`
 	BarcodeType   *string  `json:"barcodeType,omitempty"`
 	Cost          *float64 `json:"cost,omitempty"`

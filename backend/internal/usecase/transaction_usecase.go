@@ -40,91 +40,31 @@ func NewTransactionUsecase(
 
 // CreateTransaction handles the checkout process
 func (u *TransactionUsecase) CreateTransaction(userID, businessID string, req *contract.CreateTransactionReq) (*contract.TransactionRes, error) {
-	// Start transaction
 	tx := u.db.Begin()
 	if tx.Error != nil {
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to start transaction")
 	}
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
+	defer handlePanic(tx)
 
-	// Get all product IDs
-	productIDs := make([]string, len(req.Items))
-	for i, item := range req.Items {
-		productIDs[i] = item.ProductID
-	}
-
-	// Fetch all products
-	products, err := u.productRepo.GetProductsByIDs(productIDs)
+	// Validate products and build items
+	productMap, err := u.fetchAndValidateProducts(tx, req.Items, businessID)
 	if err != nil {
 		tx.Rollback()
-		logger.Log.Error("Failed to fetch products", zap.Error(err))
-		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch products")
+		return nil, err
 	}
 
-	// Create product map for quick lookup
-	productMap := make(map[string]*model.Product)
-	for _, p := range products {
-		productMap[p.ID] = p
-	}
-
-	// Validate all products exist, are active, and belong to the business
-	for _, item := range req.Items {
-		product, exists := productMap[item.ProductID]
-		if !exists {
-			tx.Rollback()
-			return nil, fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Product %s not found", item.ProductID))
-		}
-		if !product.IsActive {
-			tx.Rollback()
-			return nil, fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Product %s is not active", product.Name))
-		}
-		if product.BusinessID != businessID {
-			tx.Rollback()
-			return nil, fiber.NewError(fiber.StatusForbidden, "You don't have permission to sell this product")
-		}
-		if !product.EnableStock {
-			continue
-		}
-		if product.StockQty != nil && util.ToValue(product.StockQty) < item.Quantity {
-			tx.Rollback()
-			return nil, fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Insufficient stock for product %s. Available: %d, Requested: %d", product.Name, product.StockQty, item.Quantity))
-		}
-	}
-
-	// Calculate total and create transaction items
-	var totalAmount float64
-	transactionItems := make([]*model.TransactionItem, len(req.Items))
-
-	for i, item := range req.Items {
-		product := productMap[item.ProductID]
-		subtotal := product.Price * float64(item.Quantity)
-		totalAmount += subtotal
-
-		transactionItems[i] = &model.TransactionItem{
-			ProductID:   &item.ProductID,
-			ProductName: product.Name,
-			Price:       product.Price,
-			Quantity:    item.Quantity,
-			Subtotal:    subtotal,
-		}
-	}
+	// Create transaction items and calculate total
+	totalAmount, transactionItems := u.buildTransactionItems(req.Items, productMap, "")
 
 	// Create transaction
-	now := time.Now()
-	expiredAt := now.Add(15 * time.Minute)
-
 	transaction := &model.Transaction{
 		BusinessID:     businessID,
 		CreatedBy:      userID,
 		TotalAmount:    totalAmount,
 		ReceivedAmount: 0,
 		ChangeAmount:   0,
-		Status:         "pending",
-		ExpiredAt:      expiredAt,
+		Status:         model.TRANSACTION_STATUS_PENDING,
+		ExpiredAt:      time.Now().Add(15 * time.Minute),
 	}
 
 	if err := tx.Create(transaction).Error; err != nil {
@@ -133,29 +73,21 @@ func (u *TransactionUsecase) CreateTransaction(userID, businessID string, req *c
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to create transaction")
 	}
 
-	// Set transaction ID for items
+	// Set transaction ID for items and create them
 	for _, item := range transactionItems {
 		item.TransactionID = transaction.ID
 	}
 
-	// Create transaction items
 	if err := tx.Create(&transactionItems).Error; err != nil {
 		tx.Rollback()
 		logger.Log.Error("Failed to create transaction items", zap.Error(err))
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to create transaction items")
 	}
 
-	// Decrease stock for all products
-	for _, item := range req.Items {
-		product := productMap[item.ProductID]
-		if !product.EnableStock {
-			continue
-		}
-		if err := u.productRepo.DecreaseStock(item.ProductID, item.Quantity); err != nil {
-			tx.Rollback()
-			logger.Log.Error("Failed to decrease stock", zap.Error(err), zap.String("productID", item.ProductID))
-			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to update stock")
-		}
+	// Update stock
+	if err := u.updateStock(tx, req.Items, productMap, false); err != nil {
+		tx.Rollback()
+		return nil, err
 	}
 
 	// Commit transaction
@@ -165,117 +97,44 @@ func (u *TransactionUsecase) CreateTransaction(userID, businessID string, req *c
 	}
 
 	// Load items for response
-	transaction.Items = make([]model.TransactionItem, len(transactionItems))
-	for i, item := range transactionItems {
-		transaction.Items[i] = *item
-	}
-
+	transaction.Items = convertToTransactionItems(transactionItems)
 	return util.ToPointer(buildTransactionRes(util.ToValue(transaction))), nil
 }
 
 // UpdateTransaction updates a pending transaction
 func (u *TransactionUsecase) UpdateTransaction(userID, businessID, transactionID string, req *contract.UpdateTransactionReq) (*contract.TransactionRes, error) {
-	// Start transaction
 	tx := u.db.Begin()
 	if tx.Error != nil {
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to start transaction")
 	}
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
+	defer handlePanic(tx)
 
-	// Get existing transaction
-	transaction, err := u.transactionRepo.GetTransactionByIDAndBusinessID(transactionID, businessID)
+	// Get and validate existing transaction
+	transaction, err := u.getAndValidatePendingTransaction(tx, transactionID, businessID)
 	if err != nil {
 		tx.Rollback()
-		logger.Log.Error("Failed to get transaction", zap.Error(err))
-		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to get transaction")
+		return nil, err
 	}
 
-	if transaction == nil {
-		tx.Rollback()
-		return nil, fiber.NewError(fiber.StatusNotFound, "Transaction not found")
-	}
-
-	// Validate transaction status
-	if transaction.Status != "pending" {
-		tx.Rollback()
-		return nil, fiber.NewError(fiber.StatusBadRequest, "Can only update pending transactions")
-	}
-
-	// Check if expired
-	if time.Now().After(transaction.ExpiredAt) {
-		tx.Rollback()
-		return nil, fiber.NewError(fiber.StatusBadRequest, "Transaction has expired")
-	}
-
-	// Get old items for stock restoration
 	oldItems := transaction.Items
 
-	// Get all new product IDs
-	productIDs := make([]string, len(req.Items))
-	for i, item := range req.Items {
-		productIDs[i] = item.ProductID
-	}
-
-	// Fetch all products
-	products, err := u.productRepo.GetProductsByIDs(productIDs)
+	// Validate new products
+	productMap, err := u.fetchAndValidateProducts(tx, req.Items, businessID)
 	if err != nil {
 		tx.Rollback()
-		logger.Log.Error("Failed to fetch products", zap.Error(err))
-		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch products")
-	}
-
-	// Create product map
-	productMap := make(map[string]*model.Product)
-	for _, p := range products {
-		productMap[p.ID] = p
-	}
-
-	// Validate all products
-	for _, item := range req.Items {
-		product, exists := productMap[item.ProductID]
-		if !exists {
-			tx.Rollback()
-			return nil, fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Product %s not found", item.ProductID))
-		}
-		if !product.IsActive {
-			tx.Rollback()
-			return nil, fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Product %s is not active", product.Name))
-		}
-		if product.BusinessID != businessID {
-			tx.Rollback()
-			return nil, fiber.NewError(fiber.StatusForbidden, "You don't have permission to sell this product")
-		}
+		return nil, err
 	}
 
 	// Restore stock from old items
-	for _, oldItem := range oldItems {
-		if err := u.productRepo.IncreaseStock(*oldItem.ProductID, oldItem.Quantity); err != nil {
-			tx.Rollback()
-			logger.Log.Error("Failed to restore stock", zap.Error(err))
-			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to restore stock")
-		}
+	if err := u.restoreStock(tx, oldItems); err != nil {
+		tx.Rollback()
+		return nil, err
 	}
 
-	// Decrease stock for new items and validate
-	for _, item := range req.Items {
-		product := productMap[item.ProductID]
-		if !product.EnableStock {
-			continue
-		}
-		if product.StockQty != nil && util.ToValue(product.StockQty) < item.Quantity {
-			tx.Rollback()
-			return nil, fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Insufficient stock for product %s. Available: %d, Requested: %d", product.Name, product.StockQty, item.Quantity))
-		}
-
-		if err := u.productRepo.DecreaseStock(item.ProductID, item.Quantity); err != nil {
-			tx.Rollback()
-			logger.Log.Error("Failed to decrease stock", zap.Error(err))
-			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to update stock")
-		}
+	// Update stock with new items
+	if err := u.updateStock(tx, req.Items, productMap, false); err != nil {
+		tx.Rollback()
+		return nil, err
 	}
 
 	// Delete old transaction items
@@ -285,26 +144,8 @@ func (u *TransactionUsecase) UpdateTransaction(userID, businessID, transactionID
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to update transaction")
 	}
 
-	// Calculate new total and create new items
-	var totalAmount float64
-	transactionItems := make([]*model.TransactionItem, len(req.Items))
-
-	for i, item := range req.Items {
-		product := productMap[item.ProductID]
-		subtotal := product.Price * float64(item.Quantity)
-		totalAmount += subtotal
-
-		transactionItems[i] = &model.TransactionItem{
-			TransactionID: transactionID,
-			ProductID:     &item.ProductID,
-			ProductName:   product.Name,
-			Price:         product.Price,
-			Quantity:      item.Quantity,
-			Subtotal:      subtotal,
-		}
-	}
-
-	// Update transaction total
+	// Create new items and update total
+	totalAmount, transactionItems := u.buildTransactionItems(req.Items, productMap, transactionID)
 	transaction.TotalAmount = totalAmount
 
 	if err := tx.Save(transaction).Error; err != nil {
@@ -313,49 +154,26 @@ func (u *TransactionUsecase) UpdateTransaction(userID, businessID, transactionID
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to update transaction")
 	}
 
-	// Create new items
 	if err := tx.Create(&transactionItems).Error; err != nil {
 		tx.Rollback()
 		logger.Log.Error("Failed to create new items", zap.Error(err))
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to create transaction items")
 	}
 
-	// Commit transaction
 	if err := tx.Commit().Error; err != nil {
 		logger.Log.Error("Failed to commit transaction", zap.Error(err))
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to update transaction")
 	}
 
-	// Load items for response
-	transaction.Items = make([]model.TransactionItem, len(transactionItems))
-	for i, item := range transactionItems {
-		transaction.Items[i] = *item
-	}
-
+	transaction.Items = convertToTransactionItems(transactionItems)
 	return util.ToPointer(buildTransactionRes(util.ToValue(transaction))), nil
 }
 
 // PayTransaction finalizes a transaction with cash payment
 func (u *TransactionUsecase) PayTransaction(userID, businessID, transactionID string, req *contract.PayTransactionReq) (*contract.TransactionRes, error) {
-	// Get transaction
-	transaction, err := u.transactionRepo.GetTransactionByIDAndBusinessID(transactionID, businessID)
+	transaction, err := u.getAndValidatePendingTransaction(nil, transactionID, businessID)
 	if err != nil {
-		logger.Log.Error("Failed to get transaction", zap.Error(err))
-		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to get transaction")
-	}
-
-	if transaction == nil {
-		return nil, fiber.NewError(fiber.StatusNotFound, "Transaction not found")
-	}
-
-	// Validate transaction status
-	if transaction.Status != "pending" {
-		return nil, fiber.NewError(fiber.StatusBadRequest, "Transaction is not pending")
-	}
-
-	// Check if expired
-	if time.Now().After(transaction.ExpiredAt) {
-		return nil, fiber.NewError(fiber.StatusBadRequest, "Transaction has expired")
+		return nil, err
 	}
 
 	// Validate amount received
@@ -363,14 +181,11 @@ func (u *TransactionUsecase) PayTransaction(userID, businessID, transactionID st
 		return nil, fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Insufficient payment. Required: %.2f, Received: %.2f", transaction.TotalAmount, req.ReceivedAmount))
 	}
 
-	// Calculate change
-	change := req.ReceivedAmount - transaction.TotalAmount
-
 	// Update transaction
 	now := time.Now()
 	transaction.ReceivedAmount = req.ReceivedAmount
-	transaction.ChangeAmount = change
-	transaction.Status = "paid"
+	transaction.ChangeAmount = req.ReceivedAmount - transaction.TotalAmount
+	transaction.Status = model.TRANSACTION_STATUS_PAID
 	transaction.PaidAt = &now
 
 	if err := u.transactionRepo.UpdateTransaction(transaction); err != nil {
@@ -396,7 +211,203 @@ func (u *TransactionUsecase) GetTransaction(userID, businessID, transactionID st
 	return util.ToPointer(buildTransactionRes(util.ToValue(transaction))), nil
 }
 
-// Helper method to build transaction response
+// ListTransactions lists transactions with pagination
+func (u *TransactionUsecase) ListTransactions(businessID string, page, pageSize int) ([]contract.TransactionRes, int64, error) {
+	transactions, total, err := u.transactionRepo.ListTransactionsByBusinessID(businessID, page, pageSize)
+	if err != nil {
+		logger.Log.Error("Failed to list transactions", zap.Error(err))
+		return nil, 0, fiber.NewError(fiber.StatusInternalServerError, "Failed to list transactions")
+	}
+
+	results := make([]contract.TransactionRes, len(transactions))
+	for i, transaction := range transactions {
+		results[i] = buildTransactionRes(transaction)
+	}
+
+	return results, total, nil
+}
+
+// IsAllowedToAccessTransaction checks if a user has access to a transaction
+func (u *TransactionUsecase) IsAllowedToAccessTransaction(userID string, transactionID string) error {
+	business, err := u.businessRepo.GetBusinessByUserID(userID)
+	if err != nil {
+		logger.Log.Error("Failed to get user business", zap.Error(err), zap.String("userID", userID))
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get user business")
+	}
+
+	if business == nil {
+		logger.Log.Warn("Business not found for user", zap.String("userID", userID))
+		return fiber.NewError(fiber.StatusNotFound, "Business not found. Please create a business first.")
+	}
+
+	transaction, err := u.transactionRepo.GetTransactionByIDAndBusinessID(transactionID, business.ID)
+	if err != nil {
+		logger.Log.Error("Failed to get transaction", zap.Error(err), zap.String("transactionID", transactionID))
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get transaction")
+	}
+
+	if transaction == nil {
+		logger.Log.Warn("Transaction not found", zap.String("transactionID", transactionID))
+		return fiber.NewError(fiber.StatusNotFound, "You don't have permission to access this transaction")
+	}
+
+	return nil
+}
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+// handlePanic recovers from panics and rolls back the transaction
+func handlePanic(tx *gorm.DB) {
+	if r := recover(); r != nil {
+		tx.Rollback()
+	}
+}
+
+// fetchAndValidateProducts fetches products and validates them
+func (u *TransactionUsecase) fetchAndValidateProducts(tx *gorm.DB, items []contract.TransactionItemReq, businessID string) (map[string]*model.Product, error) {
+	// Get product IDs
+	productIDs := make([]string, len(items))
+	for i, item := range items {
+		productIDs[i] = item.ProductID
+	}
+
+	// Fetch products
+	products, err := u.productRepo.GetProductsByIDs(productIDs)
+	if err != nil {
+		logger.Log.Error("Failed to fetch products", zap.Error(err))
+		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch products")
+	}
+
+	// Create product map
+	productMap := make(map[string]*model.Product)
+	for _, p := range products {
+		productMap[p.ID] = p
+	}
+
+	// Validate products
+	for _, item := range items {
+		product, exists := productMap[item.ProductID]
+		if !exists {
+			return nil, fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Product %s not found", item.ProductID))
+		}
+		if !product.IsActive {
+			return nil, fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Product %s is not active", product.Name))
+		}
+		if product.BusinessID != businessID {
+			return nil, fiber.NewError(fiber.StatusForbidden, "You don't have permission to sell this product")
+		}
+
+		// Check stock if enabled
+		if product.EnableStock && product.StockQty != nil && util.ToValue(product.StockQty) < item.Quantity {
+			return nil, fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Insufficient stock for product %s. Available: %d, Requested: %d", product.Name, *product.StockQty, item.Quantity))
+		}
+	}
+
+	return productMap, nil
+}
+
+// buildTransactionItems creates transaction items and calculates total
+func (u *TransactionUsecase) buildTransactionItems(items []contract.TransactionItemReq, productMap map[string]*model.Product, transactionID string) (float64, []*model.TransactionItem) {
+	var totalAmount float64
+	transactionItems := make([]*model.TransactionItem, len(items))
+
+	for i, item := range items {
+		product := productMap[item.ProductID]
+		subtotal := product.Price * float64(item.Quantity)
+		totalAmount += subtotal
+
+		transactionItems[i] = &model.TransactionItem{
+			TransactionID: transactionID,
+			ProductID:     &item.ProductID,
+			ProductName:   product.Name,
+			Price:         product.Price,
+			Quantity:      item.Quantity,
+			Subtotal:      subtotal,
+		}
+	}
+
+	return totalAmount, transactionItems
+}
+
+// updateStock updates product stock quantities
+func (u *TransactionUsecase) updateStock(tx *gorm.DB, items []contract.TransactionItemReq, productMap map[string]*model.Product, increase bool) error {
+	for _, item := range items {
+		product := productMap[item.ProductID]
+		if !product.EnableStock {
+			continue
+		}
+
+		var err error
+		if increase {
+			err = u.productRepo.IncreaseStock(item.ProductID, item.Quantity)
+		} else {
+			err = u.productRepo.DecreaseStock(item.ProductID, item.Quantity)
+		}
+
+		if err != nil {
+			logger.Log.Error("Failed to update stock", zap.Error(err), zap.String("productID", item.ProductID))
+			return fiber.NewError(fiber.StatusInternalServerError, "Failed to update stock")
+		}
+	}
+	return nil
+}
+
+// restoreStock restores stock from transaction items
+func (u *TransactionUsecase) restoreStock(tx *gorm.DB, items []model.TransactionItem) error {
+	for _, item := range items {
+		if item.ProductID == nil {
+			continue
+		}
+
+		// Get product to check if stock management is enabled
+		product, err := u.productRepo.GetProductByID(*item.ProductID)
+		if err != nil || product == nil || !product.EnableStock {
+			continue
+		}
+
+		if err := u.productRepo.IncreaseStock(*item.ProductID, item.Quantity); err != nil {
+			logger.Log.Error("Failed to restore stock", zap.Error(err))
+			return fiber.NewError(fiber.StatusInternalServerError, "Failed to restore stock")
+		}
+	}
+	return nil
+}
+
+// getAndValidatePendingTransaction retrieves and validates a pending transaction
+func (u *TransactionUsecase) getAndValidatePendingTransaction(tx *gorm.DB, transactionID, businessID string) (*model.Transaction, error) {
+	transaction, err := u.transactionRepo.GetTransactionByIDAndBusinessID(transactionID, businessID)
+	if err != nil {
+		logger.Log.Error("Failed to get transaction", zap.Error(err))
+		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to get transaction")
+	}
+
+	if transaction == nil {
+		return nil, fiber.NewError(fiber.StatusNotFound, "Transaction not found")
+	}
+
+	if transaction.Status != model.TRANSACTION_STATUS_PENDING {
+		return nil, fiber.NewError(fiber.StatusBadRequest, "Can only modify pending transactions")
+	}
+
+	if time.Now().After(transaction.ExpiredAt) {
+		return nil, fiber.NewError(fiber.StatusBadRequest, "Transaction has expired")
+	}
+
+	return transaction, nil
+}
+
+// convertToTransactionItems converts pointer slice to value slice
+func convertToTransactionItems(items []*model.TransactionItem) []model.TransactionItem {
+	result := make([]model.TransactionItem, len(items))
+	for i, item := range items {
+		result[i] = *item
+	}
+	return result
+}
+
+// buildTransactionRes builds transaction response
 func buildTransactionRes(transaction model.Transaction) contract.TransactionRes {
 	items := make([]contract.TransactionItemRes, len(transaction.Items))
 	for i, item := range transaction.Items {
@@ -430,47 +441,4 @@ func buildTransactionRes(transaction model.Transaction) contract.TransactionRes 
 		CreatedAt:      transaction.CreatedAt.Format(time.RFC3339),
 		Items:          items,
 	}
-}
-
-// IsAllowedToAccessTransaction checks if a user has access to a transaction
-func (u *TransactionUsecase) IsAllowedToAccessTransaction(userID string, transactionID string) error {
-	business, err := u.businessRepo.GetBusinessByUserID(userID)
-	if err != nil {
-		logger.Log.Error("Failed to get user business", zap.Error(err), zap.String("userID", userID))
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get user business")
-	}
-
-	if business == nil {
-		logger.Log.Warn("Business not found for user", zap.String("userID", userID))
-		return fiber.NewError(fiber.StatusNotFound, "Business not found. Please create a business first.")
-	}
-
-	transaction, err := u.transactionRepo.GetTransactionByIDAndBusinessID(transactionID, business.ID)
-	if err != nil {
-		logger.Log.Error("Failed to get transaction", zap.Error(err), zap.String("transactionID", transactionID))
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get transaction")
-	}
-
-	if transaction == nil {
-		logger.Log.Warn("Transaction not found", zap.String("transactionID", transactionID))
-		return fiber.NewError(fiber.StatusNotFound, "You don't have permission to access this transaction")
-	}
-
-	return nil
-}
-
-// ListTransactions lists transactions with pagination
-func (u *TransactionUsecase) ListTransactions(businessID string, page, pageSize int) ([]contract.TransactionRes, int64, error) {
-	transactions, total, err := u.transactionRepo.ListTransactionsByBusinessID(businessID, page, pageSize)
-	if err != nil {
-		logger.Log.Error("Failed to list transactions", zap.Error(err))
-		return nil, 0, fiber.NewError(fiber.StatusInternalServerError, "Failed to list transactions")
-	}
-
-	results := make([]contract.TransactionRes, len(transactions))
-	for i, transaction := range transactions {
-		results[i] = buildTransactionRes(transaction)
-	}
-
-	return results, total, nil
 }

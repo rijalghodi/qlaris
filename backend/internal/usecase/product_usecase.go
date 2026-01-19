@@ -58,13 +58,6 @@ func (u *ProductUsecase) UpdateProduct(productID string, req *contract.UpdatePro
 		IgnoreEmpty: true,
 	})
 
-	if req.EnableBarcode != product.EnableBarcode {
-		product.EnableBarcode = req.EnableBarcode
-	}
-	if req.EnableStock != product.EnableStock {
-		product.EnableStock = req.EnableStock
-	}
-
 	if err := u.productRepo.UpdateProduct(product); err != nil {
 		logger.Log.Error("Failed to update product", zap.Error(err), zap.String("productID", productID))
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to update product")
