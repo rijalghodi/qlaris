@@ -20,9 +20,11 @@ CREATE TABLE users (
     role USER_ROLE NOT NULL DEFAULT 'owner',
     google_image TEXT,
     is_verified BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP NOT NULL DEFAULT now(),
-    updated_at TIMESTAMP NOT NULL DEFAULT now(),
-    deleted_at TIMESTAMP
+    request_verification_at TIMESTAMPTZ,
+    request_reset_password_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMPTZ
 );
 
 -- Unique email where deleted_at IS NULL (enforce unique among active users)
@@ -36,8 +38,8 @@ CREATE TABLE businesses (
   owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   address TEXT,
-  created_at TIMESTAMP NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP NOT NULL DEFAULT now()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE UNIQUE INDEX unique_owner_id ON businesses(owner_id);
@@ -53,8 +55,8 @@ CREATE TABLE products (
   image TEXT,
   stock_qty INTEGER NOT NULL DEFAULT 0 CHECK (stock_qty >= 0),
   is_active BOOLEAN NOT NULL DEFAULT true,
-  created_at TIMESTAMP NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP NOT NULL DEFAULT now()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- =========================================
@@ -71,9 +73,9 @@ CREATE TABLE transactions (
   amount_received NUMERIC(12,2) NOT NULL DEFAULT 0 CHECK (amount_received >= 0),
   change_amount NUMERIC(12,2) NOT NULL DEFAULT 0 CHECK (change_amount >= 0),
   status TRANSACTION_STATUS NOT NULL DEFAULT 'pending',
-  paid_at TIMESTAMP,
-  expired_at TIMESTAMP NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT now()
+  paid_at TIMESTAMPTZ,
+  expired_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- =========================================

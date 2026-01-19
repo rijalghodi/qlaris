@@ -215,11 +215,12 @@ func (h *AuthHandler) SendVerificationEmail(c *fiber.Ctx) error {
 		return err
 	}
 
-	if err := h.authUsecase.SendVerificationEmail(req.Email); err != nil {
+	res, err := h.authUsecase.SendVerificationEmail(req.Email)
+	if err != nil {
 		logger.Log.Warn("Failed to send verification email: %v", err)
 		return err
 	}
-	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(nil))
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
 }
 
 // @Tags Auth
@@ -268,7 +269,12 @@ func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
 		return err
 	}
 
-	return h.authUsecase.ForgotPassword(&req)
+	res, err := h.authUsecase.ForgotPassword(&req)
+	if err != nil {
+		logger.Log.Warn("Failed to forgot password: %v", err)
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
 }
 
 // @Tags Auth

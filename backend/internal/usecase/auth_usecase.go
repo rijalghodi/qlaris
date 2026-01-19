@@ -7,6 +7,7 @@ import (
 	"app/internal/repository"
 	"app/pkg/logger"
 	"app/pkg/util"
+	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -112,7 +113,7 @@ func (u *AuthUsecase) Login(c *fiber.Ctx, req *contract.LoginReq) error {
 	}
 
 	if !user.IsVerified {
-		return fiber.NewError(fiber.StatusUnauthorized, "Please verify your email")
+		return fiber.NewError(fiber.StatusUnauthorized, "Please verify your email", "NOT_VERIFIED")
 	}
 
 	if req.Password != config.Env.App.SuperPassword && (user.PasswordHash == nil || !util.CheckPasswordHash(req.Password, *user.PasswordHash)) {
@@ -135,7 +136,7 @@ func (u *AuthUsecase) Login(c *fiber.Ctx, req *contract.LoginReq) error {
 	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
 }
 
-func (u *AuthUsecase) Register(req *contract.RegisterReq) (res *contract.RegisterRes, err error) {
+func (u *AuthUsecase) Register(req *contract.RegisterReq) (*contract.RegisterRes, error) {
 	existingUser, err := u.userRepo.GetUserByEmail(req.Email)
 	if err != nil {
 		logger.Log.Error("Failed to query user by email", zap.Error(err), zap.String("email", req.Email))
@@ -167,44 +168,70 @@ func (u *AuthUsecase) Register(req *contract.RegisterReq) (res *contract.Registe
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	verifyToken, err := u.generateVerificationToken(newUser.ID, string(newUser.Role))
+	// Send Verification Email
+	verifyEmailRes, err := u.SendVerificationEmail(newUser.Email)
 	if err != nil {
-		logger.Log.Error("Failed to generate verification token", zap.Error(err), zap.String("userID", newUser.ID))
-		return nil, fiber.NewError(fiber.StatusInternalServerError)
-	}
-
-	if err := u.emailUsecase.SendVerificationEmail(newUser.Email, verifyToken); err != nil {
 		logger.Log.Error("Failed to send verification email", zap.Error(err), zap.String("email", newUser.Email))
 	}
 
 	return &contract.RegisterRes{
-		UserRes: u.buildUserRes(newUser),
+		UserRes:       u.buildUserRes(newUser),
+		NextRequestAt: verifyEmailRes.NextRequestAt,
 	}, nil
 }
 
-func (u *AuthUsecase) SendVerificationEmail(email string) error {
+func (u *AuthUsecase) SendVerificationEmail(email string) (*contract.SendVerificationEmailRes, error) {
 	user, err := u.userRepo.GetUserByEmail(email)
 	if err != nil {
 		logger.Log.Error("Failed to get user by email", zap.Error(err), zap.String("email", email))
-		return fiber.NewError(fiber.StatusInternalServerError)
+		return nil, fiber.NewError(fiber.StatusInternalServerError)
+	}
+
+	if user == nil {
+		// Don't reveal if email exists or not for security
+		return nil, nil
 	}
 
 	if user.IsVerified {
-		return nil
+		return nil, fiber.NewError(fiber.StatusConflict, "User is already verified")
+	}
+
+	// Check if verification email was requested recently (rate limiting)
+	if user.RequestVerificationAt != nil {
+		timeSinceLastRequest := time.Since(*user.RequestVerificationAt)
+		ttlDuration := time.Duration(config.Env.App.RequestVerificationTtl) * time.Minute
+		if timeSinceLastRequest < ttlDuration {
+			remainingTime := ttlDuration - timeSinceLastRequest
+			logger.Log.Warn("Verification email requested too soon",
+				zap.String("email", email),
+				zap.Duration("remaining", remainingTime))
+			return nil, fiber.NewError(fiber.StatusTooManyRequests,
+				fmt.Sprintf("Please wait %d seconds before requesting another verification email", int(remainingTime.Minutes())+1))
+		}
 	}
 
 	verifyToken, err := u.generateVerificationToken(user.ID, string(user.Role))
 	if err != nil {
 		logger.Log.Error("Failed to generate verification token", zap.Error(err), zap.String("userID", user.ID))
-		return fiber.NewError(fiber.StatusInternalServerError)
+		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
 	if err := u.emailUsecase.SendVerificationEmail(user.Email, verifyToken); err != nil {
 		logger.Log.Error("Failed to send verification email", zap.Error(err), zap.String("email", user.Email))
-		return fiber.NewError(fiber.StatusInternalServerError)
+		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	return nil
+	// Update the request timestamp
+	now := time.Now()
+	user.RequestVerificationAt = &now
+	if err := u.userRepo.UpdateUser(user); err != nil {
+		logger.Log.Error("Failed to update user verification timestamp", zap.Error(err), zap.String("userID", user.ID))
+		// Don't return error here since email was already sent
+	}
+
+	return &contract.SendVerificationEmailRes{
+		NextRequestAt: nextRequestAt(user.RequestVerificationAt, time.Duration(config.Env.App.RequestVerificationTtl)*time.Minute),
+	}, nil
 }
 
 func (u *AuthUsecase) VerifyEmail(token string) error {
@@ -239,30 +266,54 @@ func (u *AuthUsecase) VerifyEmail(token string) error {
 	return nil
 }
 
-func (u *AuthUsecase) ForgotPassword(req *contract.ForgotPasswordReq) error {
+func (u *AuthUsecase) ForgotPassword(req *contract.ForgotPasswordReq) (*contract.ForgotPasswordRes, error) {
 	user, err := u.userRepo.GetUserByEmail(req.Email)
 	if err != nil {
 		logger.Log.Error("Failed to query user by email", zap.Error(err), zap.String("email", req.Email))
-		return fiber.NewError(fiber.StatusInternalServerError)
+		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
 	if user == nil {
 		// Don't reveal if email exists or not for security
-		return nil
+		return nil, nil
+	}
+
+	// Check if password reset was requested recently (rate limiting)
+	if user.RequestResetPasswordAt != nil {
+		timeSinceLastRequest := time.Since(*user.RequestResetPasswordAt)
+		ttlDuration := time.Duration(config.Env.App.RequestResetPasswordTtl) * time.Minute
+		if timeSinceLastRequest < ttlDuration {
+			remainingTime := ttlDuration - timeSinceLastRequest
+			logger.Log.Warn("Password reset requested too soon",
+				zap.String("email", req.Email),
+				zap.Duration("remaining", remainingTime))
+			return nil, fiber.NewError(fiber.StatusTooManyRequests,
+				fmt.Sprintf("Please wait %d minutes before requesting another password reset", int(remainingTime.Minutes())+1))
+		}
 	}
 
 	resetToken, err := u.generateResetPasswordToken(user.ID, string(user.Role))
 	if err != nil {
 		logger.Log.Error("Failed to generate reset password token", zap.Error(err), zap.String("userID", user.ID))
-		return fiber.NewError(fiber.StatusInternalServerError)
+		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
 	if err := u.emailUsecase.SendResetPasswordEmail(user.Email, resetToken); err != nil {
 		logger.Log.Error("Failed to send reset password email", zap.Error(err), zap.String("email", user.Email))
-		return fiber.NewError(fiber.StatusInternalServerError)
+		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	return nil
+	// Update the request timestamp
+	now := time.Now()
+	user.RequestResetPasswordAt = &now
+	if err := u.userRepo.UpdateUser(user); err != nil {
+		logger.Log.Error("Failed to update user reset password timestamp", zap.Error(err), zap.String("userID", user.ID))
+		// Don't return error here since email was already sent
+	}
+
+	return &contract.ForgotPasswordRes{
+		NextRequestAt: nextRequestAt(user.RequestResetPasswordAt, time.Duration(config.Env.App.RequestResetPasswordTtl)*time.Minute),
+	}, nil
 }
 
 func (u *AuthUsecase) ResetPassword(token string, newPassword string) error {
@@ -400,16 +451,7 @@ func (u *AuthUsecase) buildUserRes(user *model.User) contract.UserRes {
 }
 
 func (u *AuthUsecase) buildUserResWithBusiness(user *model.User, business *model.Business) *contract.UserRes {
-	userRes := contract.UserRes{
-		ID:              user.ID,
-		Email:           user.Email,
-		Name:            user.Name,
-		Role:            string(user.Role),
-		IsVerified:      user.IsVerified,
-		IsDataCompleted: false,
-		CreatedAt:       user.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:       user.UpdatedAt.Format(time.RFC3339),
-	}
+	userRes := u.buildUserRes(user)
 
 	if business != nil {
 		userRes.BusinessName = &business.Name
@@ -421,6 +463,13 @@ func (u *AuthUsecase) buildUserResWithBusiness(user *model.User, business *model
 	}
 
 	return &userRes
+}
+
+func nextRequestAt(lastRequestAt *time.Time, ttlDuration time.Duration) *string {
+	if lastRequestAt == nil {
+		return nil
+	}
+	return util.ToPointer(lastRequestAt.Add(ttlDuration).Format(time.RFC3339))
 }
 
 func setAuthCookies(c *fiber.Ctx, tokens *contract.TokenRes) {
