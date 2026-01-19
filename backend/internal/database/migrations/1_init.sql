@@ -7,6 +7,18 @@
 -- Enable UUID generation
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+
+-- =========================================
+-- Business (single business for MVP)
+-- =========================================
+CREATE TABLE businesses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  address TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- =========================================
 -- USERS (Owner only - email/password)
 -- =========================================
@@ -33,16 +45,6 @@ CREATE TABLE users (
 CREATE UNIQUE INDEX unique_email_active ON users(email) WHERE deleted_at IS NULL;
 CREATE UNIQUE INDEX unique_owner_id ON users(business_id) WHERE role = 'owner';
 
--- =========================================
--- Business (single business for MVP)
--- =========================================
-CREATE TABLE businesses (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  address TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
 
 
 -- =========================================
@@ -96,7 +98,7 @@ CREATE TABLE transactions (
   invoice_number VARCHAR(36),
   paid_at TIMESTAMPTZ,
   expired_at TIMESTAMPTZ NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -113,7 +115,7 @@ CREATE TABLE transaction_items (
   price NUMERIC(12,2) NOT NULL CHECK (price >= 0),
   quantity INTEGER NOT NULL CHECK (quantity > 0),
   subtotal NUMERIC(12,2) NOT NULL CHECK (subtotal >= 0),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
