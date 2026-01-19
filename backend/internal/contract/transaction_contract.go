@@ -16,14 +16,14 @@ type UpdateTransactionReq struct {
 }
 
 type PayTransactionReq struct {
-	AmountReceived float64 `json:"amount_received" validate:"required,min=0"`
+	ReceivedAmount float64 `json:"received_amount" validate:"required,min=0"`
 }
 
 // Response contracts
 
 type TransactionItemRes struct {
 	ID          string  `json:"id"`
-	ProductID   string  `json:"product_id"`
+	ProductID   *string `json:"product_id"`
 	ProductName string  `json:"product_name"`
 	Price       float64 `json:"price"`
 	Quantity    int     `json:"quantity"`
@@ -33,10 +33,10 @@ type TransactionItemRes struct {
 type TransactionRes struct {
 	ID             string               `json:"id"`
 	BusinessID     string               `json:"business_id"`
-	StaffID        string               `json:"staff_id"`
+	CreatedBy      string               `json:"created_by"`
+	Creator        UserRes              `json:"creator"`
 	TotalAmount    float64              `json:"total_amount"`
-	PaymentMethod  string               `json:"payment_method"`
-	AmountReceived float64              `json:"amount_received"`
+	ReceivedAmount float64              `json:"received_amount"`
 	ChangeAmount   float64              `json:"change_amount"`
 	Status         string               `json:"status"`
 	PaidAt         *string              `json:"paid_at,omitempty"`

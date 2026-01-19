@@ -64,8 +64,8 @@ func (r *TransactionRepository) UpdateTransactionStatus(id, status string) error
 		Update("status", status).Error
 }
 
-func (r *TransactionRepository) ListTransactionsByBusinessID(businessID string, page, pageSize int) ([]*model.Transaction, int64, error) {
-	var transactions []*model.Transaction
+func (r *TransactionRepository) ListTransactionsByBusinessID(businessID string, page, pageSize int) ([]model.Transaction, int64, error) {
+	var transactions []model.Transaction
 	var total int64
 
 	offset := (page - 1) * pageSize

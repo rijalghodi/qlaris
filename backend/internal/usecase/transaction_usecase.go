@@ -5,6 +5,7 @@ import (
 	"app/internal/model"
 	"app/internal/repository"
 	"app/pkg/logger"
+	"app/pkg/util"
 	"fmt"
 	"time"
 
@@ -101,7 +102,7 @@ func (u *TransactionUsecase) CreateTransaction(userID, businessID string, req *c
 		totalAmount += subtotal
 
 		transactionItems[i] = &model.TransactionItem{
-			ProductID:   item.ProductID,
+			ProductID:   &item.ProductID,
 			ProductName: product.Name,
 			Price:       product.Price,
 			Quantity:    item.Quantity,
@@ -115,10 +116,9 @@ func (u *TransactionUsecase) CreateTransaction(userID, businessID string, req *c
 
 	transaction := &model.Transaction{
 		BusinessID:     businessID,
-		StaffID:        userID,
+		CreatedBy:      userID,
 		TotalAmount:    totalAmount,
-		PaymentMethod:  "cash",
-		AmountReceived: 0,
+		ReceivedAmount: 0,
 		ChangeAmount:   0,
 		Status:         "pending",
 		ExpiredAt:      expiredAt,
@@ -163,7 +163,7 @@ func (u *TransactionUsecase) CreateTransaction(userID, businessID string, req *c
 		transaction.Items[i] = *item
 	}
 
-	return u.buildTransactionRes(transaction), nil
+	return util.ToPointer(buildTransactionRes(util.ToValue(transaction))), nil
 }
 
 // UpdateTransaction updates a pending transaction
@@ -246,7 +246,7 @@ func (u *TransactionUsecase) UpdateTransaction(userID, businessID, transactionID
 
 	// Restore stock from old items
 	for _, oldItem := range oldItems {
-		if err := u.productRepo.IncreaseStock(oldItem.ProductID, oldItem.Quantity); err != nil {
+		if err := u.productRepo.IncreaseStock(*oldItem.ProductID, oldItem.Quantity); err != nil {
 			tx.Rollback()
 			logger.Log.Error("Failed to restore stock", zap.Error(err))
 			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to restore stock")
@@ -286,7 +286,7 @@ func (u *TransactionUsecase) UpdateTransaction(userID, businessID, transactionID
 
 		transactionItems[i] = &model.TransactionItem{
 			TransactionID: transactionID,
-			ProductID:     item.ProductID,
+			ProductID:     &item.ProductID,
 			ProductName:   product.Name,
 			Price:         product.Price,
 			Quantity:      item.Quantity,
@@ -322,7 +322,7 @@ func (u *TransactionUsecase) UpdateTransaction(userID, businessID, transactionID
 		transaction.Items[i] = *item
 	}
 
-	return u.buildTransactionRes(transaction), nil
+	return util.ToPointer(buildTransactionRes(util.ToValue(transaction))), nil
 }
 
 // PayTransaction finalizes a transaction with cash payment
@@ -349,16 +349,16 @@ func (u *TransactionUsecase) PayTransaction(userID, businessID, transactionID st
 	}
 
 	// Validate amount received
-	if req.AmountReceived < transaction.TotalAmount {
-		return nil, fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Insufficient payment. Required: %.2f, Received: %.2f", transaction.TotalAmount, req.AmountReceived))
+	if req.ReceivedAmount < transaction.TotalAmount {
+		return nil, fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Insufficient payment. Required: %.2f, Received: %.2f", transaction.TotalAmount, req.ReceivedAmount))
 	}
 
 	// Calculate change
-	change := req.AmountReceived - transaction.TotalAmount
+	change := req.ReceivedAmount - transaction.TotalAmount
 
 	// Update transaction
 	now := time.Now()
-	transaction.AmountReceived = req.AmountReceived
+	transaction.ReceivedAmount = req.ReceivedAmount
 	transaction.ChangeAmount = change
 	transaction.Status = "paid"
 	transaction.PaidAt = &now
@@ -368,7 +368,7 @@ func (u *TransactionUsecase) PayTransaction(userID, businessID, transactionID st
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to finalize payment")
 	}
 
-	return u.buildTransactionRes(transaction), nil
+	return util.ToPointer(buildTransactionRes(util.ToValue(transaction))), nil
 }
 
 // GetTransaction gets a transaction by ID
@@ -383,11 +383,11 @@ func (u *TransactionUsecase) GetTransaction(userID, businessID, transactionID st
 		return nil, fiber.NewError(fiber.StatusNotFound, "Transaction not found")
 	}
 
-	return u.buildTransactionRes(transaction), nil
+	return util.ToPointer(buildTransactionRes(util.ToValue(transaction))), nil
 }
 
 // Helper method to build transaction response
-func (u *TransactionUsecase) buildTransactionRes(transaction *model.Transaction) *contract.TransactionRes {
+func buildTransactionRes(transaction model.Transaction) contract.TransactionRes {
 	items := make([]contract.TransactionItemRes, len(transaction.Items))
 	for i, item := range transaction.Items {
 		items[i] = contract.TransactionItemRes{
@@ -406,15 +406,15 @@ func (u *TransactionUsecase) buildTransactionRes(transaction *model.Transaction)
 		paidAtStr = &str
 	}
 
-	return &contract.TransactionRes{
+	return contract.TransactionRes{
 		ID:             transaction.ID,
 		BusinessID:     transaction.BusinessID,
-		StaffID:        transaction.StaffID,
+		CreatedBy:      transaction.CreatedBy,
+		Creator:        BuildUserRes(transaction.Creator),
 		TotalAmount:    transaction.TotalAmount,
-		PaymentMethod:  transaction.PaymentMethod,
-		AmountReceived: transaction.AmountReceived,
+		ReceivedAmount: transaction.ReceivedAmount,
 		ChangeAmount:   transaction.ChangeAmount,
-		Status:         transaction.Status,
+		Status:         string(transaction.Status),
 		PaidAt:         paidAtStr,
 		ExpiredAt:      transaction.ExpiredAt.Format(time.RFC3339),
 		CreatedAt:      transaction.CreatedAt.Format(time.RFC3339),
@@ -450,16 +450,16 @@ func (u *TransactionUsecase) IsAllowedToAccessTransaction(userID string, transac
 }
 
 // ListTransactions lists transactions with pagination
-func (u *TransactionUsecase) ListTransactions(businessID string, page, pageSize int) ([]*contract.TransactionRes, int64, error) {
+func (u *TransactionUsecase) ListTransactions(businessID string, page, pageSize int) ([]contract.TransactionRes, int64, error) {
 	transactions, total, err := u.transactionRepo.ListTransactionsByBusinessID(businessID, page, pageSize)
 	if err != nil {
 		logger.Log.Error("Failed to list transactions", zap.Error(err))
 		return nil, 0, fiber.NewError(fiber.StatusInternalServerError, "Failed to list transactions")
 	}
 
-	results := make([]*contract.TransactionRes, len(transactions))
+	results := make([]contract.TransactionRes, len(transactions))
 	for i, transaction := range transactions {
-		results[i] = u.buildTransactionRes(transaction)
+		results[i] = buildTransactionRes(transaction)
 	}
 
 	return results, total, nil

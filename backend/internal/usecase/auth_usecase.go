@@ -59,7 +59,7 @@ func (u *AuthUsecase) LoginGoogleUser(c *fiber.Ctx, req *contract.GoogleLoginReq
 
 		return &contract.GoogleLoginRes{
 			TokenRes: tokens,
-			UserRes:  u.buildUserRes(user),
+			UserRes:  BuildUserRes(util.ToValue(user)),
 		}, nil
 	}
 
@@ -82,7 +82,7 @@ func (u *AuthUsecase) LoginGoogleUser(c *fiber.Ctx, req *contract.GoogleLoginReq
 
 	return &contract.GoogleLoginRes{
 		TokenRes: tokens,
-		UserRes:  u.buildUserRes(userFromDB),
+		UserRes:  BuildUserRes(util.ToValue(userFromDB)),
 	}, nil
 }
 
@@ -98,7 +98,7 @@ func (u *AuthUsecase) GetCurrentUser(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(u.buildUserRes(user)))
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(BuildUserRes(util.ToValue(user))))
 }
 
 func (u *AuthUsecase) Login(c *fiber.Ctx, req *contract.LoginReq) error {
@@ -129,7 +129,7 @@ func (u *AuthUsecase) Login(c *fiber.Ctx, req *contract.LoginReq) error {
 	setAuthCookies(c, tokens)
 
 	res := contract.LoginRes{
-		UserRes: u.buildUserRes(user),
+		UserRes: BuildUserRes(util.ToValue(user)),
 	}
 
 	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
@@ -174,7 +174,7 @@ func (u *AuthUsecase) Register(req *contract.RegisterReq) (*contract.RegisterRes
 	}
 
 	return &contract.RegisterRes{
-		UserRes:       u.buildUserRes(newUser),
+		UserRes:       BuildUserRes(util.ToValue(newUser)),
 		NextRequestAt: verifyEmailRes.NextRequestAt,
 	}, nil
 }
@@ -272,7 +272,7 @@ func (u *AuthUsecase) VerifyEmail(c *fiber.Ctx, token string) (*contract.VerifyE
 	setAuthCookies(c, tokens)
 
 	return &contract.VerifyEmailRes{
-		UserRes: u.buildUserRes(user),
+		UserRes: BuildUserRes(util.ToValue(user)),
 	}, nil
 }
 
@@ -395,7 +395,7 @@ func (u *AuthUsecase) RefreshToken(c *fiber.Ctx, req *contract.RefreshTokenReq) 
 	setAuthCookies(c, tokens)
 
 	res := contract.RefreshTokenRes{
-		UserRes: u.buildUserRes(user),
+		UserRes: BuildUserRes(util.ToValue(user)),
 	}
 
 	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
@@ -408,12 +408,8 @@ func (u *AuthUsecase) GetUserByID(id string) (*contract.UserRes, error) {
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	business, err := u.businessRepo.GetBusinessByUserID(id)
-	if err != nil {
-		logger.Log.Error("Failed to get business", zap.Error(err), zap.String("userID", id))
-	}
-
-	return u.buildUserResWithBusiness(user, business), nil
+	return util.ToPointer(BuildUserRes(util.ToValue(user))),
+		nil
 }
 
 func (u *AuthUsecase) generateTokenPair(userID, role string) (*contract.TokenRes, error) {
@@ -445,33 +441,6 @@ func (u *AuthUsecase) generateVerificationToken(userID, role string) (string, er
 func (u *AuthUsecase) generateResetPasswordToken(userID, role string) (string, error) {
 	expiresAt := time.Now().Add(time.Duration(config.Env.JWT.ResetPasswordExpMinutes) * time.Minute)
 	return util.GenerateToken(userID, role, config.TokenTypeResetPassword, config.Env.JWT.Secret, expiresAt)
-}
-
-func (u *AuthUsecase) buildUserRes(user *model.User) contract.UserRes {
-	return contract.UserRes{
-		ID:         user.ID,
-		Email:      user.Email,
-		Name:       user.Name,
-		Role:       string(user.Role),
-		IsVerified: user.IsVerified,
-		CreatedAt:  user.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:  user.UpdatedAt.Format(time.RFC3339),
-	}
-}
-
-func (u *AuthUsecase) buildUserResWithBusiness(user *model.User, business *model.Business) *contract.UserRes {
-	userRes := u.buildUserRes(user)
-
-	if business != nil {
-		userRes.BusinessName = &business.Name
-		userRes.BusinessAddress = business.Address
-		// Check if data is completed (business name is not empty)
-		if business.Name != "" {
-			userRes.IsDataCompleted = true
-		}
-	}
-
-	return &userRes
 }
 
 func nextRequestAt(lastRequestAt *time.Time, ttlDuration time.Duration) *string {

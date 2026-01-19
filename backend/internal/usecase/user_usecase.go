@@ -25,7 +25,7 @@ func NewUserUsecase(userRepo *repository.UserRepository, businessRepo *repositor
 	}
 }
 
-func (u *UserUsecase) GetCurrentUserWithBusiness(userID string) (*contract.UserRes, error) {
+func (u *UserUsecase) GetCurrentUser(userID string) (*contract.UserRes, error) {
 	user, err := u.userRepo.GetUserByID(userID)
 	if err != nil {
 		logger.Log.Error("Failed to get user by ID", zap.Error(err), zap.String("userID", userID))
@@ -37,14 +37,7 @@ func (u *UserUsecase) GetCurrentUserWithBusiness(userID string) (*contract.UserR
 		return nil, fiber.NewError(fiber.StatusNotFound, "User not found")
 	}
 
-	// Get business data
-	business, err := u.businessRepo.GetBusinessByUserID(userID)
-	if err != nil {
-		logger.Log.Error("Failed to get business", zap.Error(err), zap.String("userID", userID))
-		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to get business data")
-	}
-
-	return u.buildUserResWithBusiness(user, business), nil
+	return util.ToPointer(BuildUserRes(*user)), nil
 }
 
 func (u *UserUsecase) EditCurrentUser(userID string, req *contract.EditCurrentUserReq) (*contract.UserRes, error) {
@@ -60,16 +53,6 @@ func (u *UserUsecase) EditCurrentUser(userID string, req *contract.EditCurrentUs
 		return nil, fiber.NewError(fiber.StatusNotFound, "User not found")
 	}
 
-	// Update user fields if provided
-	if req.Name != nil {
-		user.Name = *req.Name
-	}
-
-	if err := u.userRepo.UpdateUser(user); err != nil {
-		logger.Log.Error("Failed to update user", zap.Error(err), zap.String("userID", userID))
-		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to update user")
-	}
-
 	// Handle business data
 	var business *model.Business
 	if req.BusinessName != nil || req.BusinessAddress != nil {
@@ -81,9 +64,6 @@ func (u *UserUsecase) EditCurrentUser(userID string, req *contract.EditCurrentUs
 
 		if business == nil {
 			// Create new business
-			business = &model.Business{
-				OwnerID: userID,
-			}
 			if req.BusinessName != nil {
 				business.Name = *req.BusinessName
 			}
@@ -118,7 +98,22 @@ func (u *UserUsecase) EditCurrentUser(userID string, req *contract.EditCurrentUs
 		}
 	}
 
-	return u.buildUserResWithBusiness(user, business), nil
+	// Update user fields if provided
+	if req.Name != nil {
+		user.Name = *req.Name
+	}
+
+	if business != nil {
+		user.Business = business
+		user.BusinessID = &business.ID
+	}
+
+	if err := u.userRepo.UpdateUser(user); err != nil {
+		logger.Log.Error("Failed to update user", zap.Error(err), zap.String("userID", userID))
+		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to update user")
+	}
+
+	return util.ToPointer(BuildUserRes(*user)), nil
 }
 
 func (u *UserUsecase) EditPassword(userID string, req *contract.EditPasswordReq) error {
@@ -161,26 +156,26 @@ func (u *UserUsecase) EditPassword(userID string, req *contract.EditPasswordReq)
 	return nil
 }
 
-func (u *UserUsecase) buildUserResWithBusiness(user *model.User, business *model.Business) *contract.UserRes {
+func BuildUserRes(user model.User) contract.UserRes {
 	userRes := contract.UserRes{
-		ID:              user.ID,
-		Email:           user.Email,
-		Name:            user.Name,
-		Role:            string(user.Role),
-		IsVerified:      user.IsVerified,
-		IsDataCompleted: false,
-		CreatedAt:       user.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:       user.UpdatedAt.Format(time.RFC3339),
+		ID:         user.ID,
+		Email:      user.Email,
+		Name:       user.Name,
+		Role:       string(user.Role),
+		IsVerified: user.IsVerified,
+		CreatedAt:  user.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:  user.UpdatedAt.Format(time.RFC3339),
 	}
 
-	if business != nil {
-		userRes.BusinessName = &business.Name
-		userRes.BusinessAddress = business.Address
-		// Check if data is completed (business name is not empty)
-		if business.Name != "" {
-			userRes.IsDataCompleted = true
+	if user.Business != nil {
+		userRes.BusinessName = &user.Business.Name
+		userRes.BusinessAddress = user.Business.Address
+		if user.Business.Name != "" {
+			userRes.IsDataCompleted = util.ToPointer(true)
+		} else {
+			userRes.IsDataCompleted = util.ToPointer(false)
 		}
 	}
 
-	return &userRes
+	return userRes
 }

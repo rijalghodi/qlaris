@@ -9,7 +9,7 @@ type UserRes struct {
 	IsVerified      bool    `json:"isVerified"`
 	BusinessName    *string `json:"businessName" validate:"omitempty"`
 	BusinessAddress *string `json:"businessAddress" validate:"omitempty"`
-	IsDataCompleted bool    `json:"isDataCompleted"`
+	IsDataCompleted *bool   `json:"isDataCompleted" validate:"omitempty"`
 	CreatedAt       string  `json:"createdAt"`
 	UpdatedAt       string  `json:"updatedAt"`
 }

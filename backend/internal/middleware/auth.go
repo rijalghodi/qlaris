@@ -40,12 +40,14 @@ func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 		}
 
 		// get user from DB
-		business := &model.Business{}
-		if err := db.First(business, "owner_id = ?", claims.ID).Error; err != nil {
-			logger.Log.Warn("Business not found", "error", err)
+		user := &model.User{}
+		if err := db.Preload("Business").First(user, "id = ?", claims.ID).Error; err != nil {
+			logger.Log.Warn("User not found", "error", err)
 		}
 
-		claims.BusinessID = business.ID
+		if user.Business != nil {
+			claims.BusinessID = user.Business.ID
+		}
 
 		c.Locals("user", claims)
 		return c.Next()

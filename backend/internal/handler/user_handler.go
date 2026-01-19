@@ -41,7 +41,7 @@ func (h *UserHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 // @Router /users/current [get]
 func (h *UserHandler) GetCurrentUser(c *fiber.Ctx) error {
 	claims := middleware.GetAuthClaims(c)
-	user, err := h.userUsecase.GetCurrentUserWithBusiness(claims.ID)
+	user, err := h.userUsecase.GetCurrentUser(claims.ID)
 	if err != nil {
 		return err
 	}

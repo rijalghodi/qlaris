@@ -3,20 +3,21 @@ package model
 import "time"
 
 type Transaction struct {
-	ID             string     `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
-	BusinessID     string     `gorm:"type:uuid;not null;index:idx_transactions_business_id" json:"business_id"`
-	StaffID        string     `gorm:"type:uuid;not null" json:"staff_id"`
-	TotalAmount    float64    `gorm:"type:numeric(12,2);not null;check:total_amount >= 0" json:"total_amount"`
-	PaymentMethod  string     `gorm:"type:text;not null;check:payment_method = 'cash'" json:"payment_method"`
-	AmountReceived float64    `gorm:"type:numeric(12,2);not null;default:0;check:amount_received >= 0" json:"amount_received"`
-	ChangeAmount   float64    `gorm:"type:numeric(12,2);not null;default:0;check:change_amount >= 0" json:"change_amount"`
-	Status         string     `gorm:"type:transaction_status;not null;default:'pending'" json:"status"`
-	PaidAt         *time.Time `gorm:"type:timestamp" json:"paid_at,omitempty"`
-	ExpiredAt      time.Time  `gorm:"type:timestamp;not null" json:"expired_at"`
-	CreatedAt      time.Time  `gorm:"not null;default:now()" json:"created_at"`
-	UpdatedAt      time.Time  `gorm:"not null;default:now()" json:"updated_at"`
+	ID             string             `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	BusinessID     string             `gorm:"type:uuid;not null;index:idx_transactions_business_id" json:"business_id"`
+	CreatedBy      string             `gorm:"type:uuid;not null" json:"created_by"`
+	TotalAmount    float64            `gorm:"type:numeric(12,2);not null;check:total_amount >= 0" json:"total_amount"`
+	ReceivedAmount float64            `gorm:"type:numeric(12,2);not null;default:0;check:received_amount >= 0" json:"received_amount"`
+	ChangeAmount   float64            `gorm:"type:numeric(12,2);not null;default:0;check:change_amount >= 0" json:"change_amount"`
+	Status         TRANSACTION_STATUS `gorm:"type:transaction_status;not null;default:'pending'" json:"status"`
+	InvoiceNumber  *string            `gorm:"type:varchar(36)" json:"invoice_number,omitempty"`
+	PaidAt         *time.Time         `gorm:"type:timestamp" json:"paid_at,omitempty"`
+	ExpiredAt      time.Time          `gorm:"type:timestamp;not null" json:"expired_at"`
+	CreatedAt      time.Time          `gorm:"not null;default:now()" json:"created_at"`
+	UpdatedAt      time.Time          `gorm:"not null;default:now()" json:"updated_at"`
 
 	// Relations
 	Business Business          `gorm:"foreignKey:BusinessID" json:"-"`
+	Creator  User              `gorm:"foreignKey:CreatedBy" json:"-"`
 	Items    []TransactionItem `gorm:"foreignKey:TransactionID;constraint:OnDelete:CASCADE" json:"items,omitempty"`
 }
