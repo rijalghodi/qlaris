@@ -5,6 +5,7 @@ type UserRes struct {
 	Email           string  `json:"email"`
 	Name            string  `json:"name"`
 	Role            string  `json:"role"`
+	GoogleImage     *string `json:"googleImage,omitempty"`
 	IsVerified      bool    `json:"isVerified"`
 	BusinessName    *string `json:"businessName,omitempty"`
 	BusinessAddress *string `json:"businessAddress,omitempty"`

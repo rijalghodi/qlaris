@@ -12,6 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useLogin } from "@/services/api-auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ROUTES } from "@/lib/route";
 
 const loginSchema = z.object({
   email: z.email("Please enter a valid email address"),
@@ -36,7 +37,7 @@ export function LoginForm() {
     onSuccess: (data) => {
       console.log("Login successful:", data);
       // Redirect to home page after successful login
-      router.push("/");
+      router.push(ROUTES.DASHBOARD);
     },
     onError: (errorMessage) => {
       console.error("Login error:", errorMessage);
@@ -73,7 +74,13 @@ export function LoginForm() {
 
       {/* Form */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit(onSubmit);
+          }}
+          className="space-y-4"
+        >
           <FormField
             control={form.control}
             name="email"

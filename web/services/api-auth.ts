@@ -130,7 +130,7 @@ export const authApi = {
   },
 
   getCurrentUser: async (): Promise<GetCurrentUserRes> => {
-    const response = await apiClient.get("/auth/me");
+    const response = await apiClient.get("/users/current");
     return response.data;
   },
 };

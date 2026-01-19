@@ -125,27 +125,7 @@ func (u *AuthUsecase) Login(c *fiber.Ctx, req *contract.LoginReq) error {
 		return fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	// Set access token cookie
-	c.Cookie(&fiber.Cookie{
-		Name:     "qlaris.access-token",
-		Value:    tokens.AccessToken,
-		HTTPOnly: true,
-		Secure:   false, // Set to true in production with HTTPS
-		SameSite: "Lax",
-		MaxAge:   config.Env.JWT.AccessExpMinutes * 60,
-		Path:     "/",
-	})
-
-	// Set refresh token cookie
-	c.Cookie(&fiber.Cookie{
-		Name:     "qlaris.refresh-token",
-		Value:    tokens.RefreshToken,
-		HTTPOnly: true,
-		Secure:   false, // Set to true in production with HTTPS
-		SameSite: "Lax",
-		MaxAge:   config.Env.JWT.RefreshExpDays * 24 * 60 * 60,
-		Path:     "/",
-	})
+	setAuthCookies(c, tokens)
 
 	res := contract.LoginRes{
 		TokenRes: *tokens,
@@ -351,27 +331,7 @@ func (u *AuthUsecase) RefreshToken(c *fiber.Ctx, req *contract.RefreshTokenReq) 
 		return fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	// Set refresh token cookie
-	c.Cookie(&fiber.Cookie{
-		Name:     "qlaris.refresh-token",
-		Value:    tokens.RefreshToken,
-		HTTPOnly: true,
-		Secure:   false, // Set to true in production with HTTPS
-		SameSite: "Lax",
-		MaxAge:   config.Env.JWT.RefreshExpDays * 24 * 60 * 60,
-		Path:     "/",
-	})
-
-	// Set access token cookie
-	c.Cookie(&fiber.Cookie{
-		Name:     "qlaris.access-token",
-		Value:    tokens.AccessToken,
-		HTTPOnly: true,
-		Secure:   false, // Set to true in production with HTTPS
-		SameSite: "Lax",
-		MaxAge:   config.Env.JWT.AccessExpMinutes * 60,
-		Path:     "/",
-	})
+	setAuthCookies(c, tokens)
 
 	res := contract.RefreshTokenRes{
 		TokenRes: *tokens,
@@ -461,4 +421,28 @@ func (u *AuthUsecase) buildUserResWithBusiness(user *model.User, business *model
 	}
 
 	return &userRes
+}
+
+func setAuthCookies(c *fiber.Ctx, tokens *contract.TokenRes) {
+	// Set access token cookie
+	c.Cookie(&fiber.Cookie{
+		Name:     config.AccessTokenCookieName,
+		Value:    tokens.AccessToken,
+		HTTPOnly: true,
+		Secure:   false, // Set to true in production with HTTPS
+		SameSite: "Lax",
+		MaxAge:   config.Env.JWT.AccessExpMinutes * 60,
+		Path:     "/",
+	})
+
+	// Set refresh token cookie
+	c.Cookie(&fiber.Cookie{
+		Name:     config.RefreshTokenCookieName,
+		Value:    tokens.RefreshToken,
+		HTTPOnly: true,
+		Secure:   false, // Set to true in production with HTTPS
+		SameSite: "Lax",
+		MaxAge:   config.Env.JWT.RefreshExpDays * 24 * 60 * 60,
+		Path:     "/",
+	})
 }

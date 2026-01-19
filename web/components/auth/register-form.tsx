@@ -12,6 +12,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useRegister } from "@/services/api-auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Check } from "lucide-react";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "../ui/empty";
 
 const registerSchema = z
   .object({
@@ -29,6 +31,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export function RegisterForm() {
   const router = useRouter();
   const [error, setError] = useState<string>("");
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema as any),
@@ -43,7 +46,7 @@ export function RegisterForm() {
     onSuccess: (data) => {
       console.log("Registration successful:", data);
       // Redirect to home page after successful registration
-      router.push("/");
+      setIsSuccess(true);
     },
     onError: (errorMessage) => {
       console.error("Registration error:", errorMessage);
@@ -60,6 +63,24 @@ export function RegisterForm() {
     // TODO: Implement Google OAuth logic
     console.log("Sign in with Google");
   };
+
+  if (isSuccess) {
+    return (
+      <Empty>
+        <EmptyHeader className="max-w-md">
+          <EmptyMedia variant="icon" className="text-primary">
+            <Check strokeWidth={3} />
+          </EmptyMedia>
+          <EmptyTitle>Registration Successful</EmptyTitle>
+          <EmptyDescription>
+            We have sent a verification email to your email address{" "}
+            <span className="font-semibold text-foreground">{form.getValues("email")}</span>. Please
+            click on the link in the email to verify your account.
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    );
+  }
 
   return (
     <div className="w-full max-w-sm space-y-6">

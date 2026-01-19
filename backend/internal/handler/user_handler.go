@@ -23,9 +23,9 @@ func NewUserHandler(userUsecase *usecase.UserUsecase) *UserHandler {
 }
 
 func (h *UserHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
-	userGroup := app.Group("/user", middleware.AuthGuard(db))
-	userGroup.Get("/me", h.GetCurrentUser)
-	userGroup.Put("/me", h.EditCurrentUser)
+	userGroup := app.Group("/users", middleware.AuthGuard(db))
+	userGroup.Get("/current", h.GetCurrentUser)
+	userGroup.Put("/current", h.EditCurrentUser)
 	userGroup.Put("/password", h.EditPassword)
 }
 
@@ -38,7 +38,7 @@ func (h *UserHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 // @Success 200 {object} util.BaseResponse{data=contract.UserRes}
 // @Failure 401 {object} util.BaseResponse
 // @Failure 500 {object} util.BaseResponse
-// @Router /user/me [get]
+// @Router /users/current [get]
 func (h *UserHandler) GetCurrentUser(c *fiber.Ctx) error {
 	claims := middleware.GetAuthClaims(c)
 	user, err := h.userUsecase.GetCurrentUserWithBusiness(claims.ID)
@@ -59,7 +59,7 @@ func (h *UserHandler) GetCurrentUser(c *fiber.Ctx) error {
 // @Failure 400 {object} util.BaseResponse
 // @Failure 401 {object} util.BaseResponse
 // @Failure 500 {object} util.BaseResponse
-// @Router /user/me [put]
+// @Router /users/current [put]
 func (h *UserHandler) EditCurrentUser(c *fiber.Ctx) error {
 	var req contract.EditCurrentUserReq
 	if err := c.BodyParser(&req); err != nil {
@@ -92,7 +92,7 @@ func (h *UserHandler) EditCurrentUser(c *fiber.Ctx) error {
 // @Failure 400 {object} util.BaseResponse
 // @Failure 401 {object} util.BaseResponse
 // @Failure 500 {object} util.BaseResponse
-// @Router /user/password [put]
+// @Router /users/password [put]
 func (h *UserHandler) EditPassword(c *fiber.Ctx) error {
 	var req contract.EditPasswordReq
 	if err := c.BodyParser(&req); err != nil {

@@ -3,7 +3,6 @@ package handler
 import (
 	"app/internal/config"
 	"app/internal/contract"
-	"app/internal/middleware"
 	"app/internal/usecase"
 	"app/pkg/logger"
 	"app/pkg/util"
@@ -34,7 +33,6 @@ func NewAuthHandler(authUsecase *usecase.AuthUsecase) *AuthHandler {
 func (h *AuthHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	authGroup := app.Group("/auth")
 	authGroup.Post("/google/login", h.GoogleLogin)
-	authGroup.Get("/me", middleware.AuthGuard(db), h.GetCurrentUser)
 	authGroup.Post("/login", h.Login)
 	authGroup.Post("/register", h.Register)
 	authGroup.Post("/send-verification", h.SendVerificationEmail)
@@ -138,26 +136,6 @@ func (h *AuthHandler) GoogleCallback(c *fiber.Ctx) error {
 		config.Env.GoogleOAuth.ClientCallbackURI, res.TokenRes.AccessToken, res.TokenRes.RefreshToken)
 
 	return c.Status(fiber.StatusSeeOther).Redirect(googleLoginURL)
-}
-
-// @Tags Auth
-// @Summary Get current user
-// @Description Get authenticated user information
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Success 200 {object} util.BaseResponse{data=contract.UserRes}
-// @Failure 401 {object} util.BaseResponse
-// @Failure 500 {object} util.BaseResponse
-// @Router /auth/me [get]
-func (h *AuthHandler) GetCurrentUser(c *fiber.Ctx) error {
-	claims := middleware.GetAuthClaims(c)
-	user, err := h.authUsecase.GetUserByID(claims.ID)
-	if err != nil {
-		logger.Log.Error("Failed to get user", zap.Error(err))
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get user")
-	}
-	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(user))
 }
 
 // @Tags Auth

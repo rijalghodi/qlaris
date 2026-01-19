@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowDown, ArrowUp, ChevronDown, ChevronUp } from "lucide-react";
 import { Input, type InputProps } from "./input";
 import { forwardRef, useEffect, useState } from "react";
 
@@ -7,6 +8,9 @@ export type NumberInputProps = Omit<InputProps, "value" | "onChange" | "type"> &
   value?: number;
   onChange?: (value: number | undefined) => void;
   withDelimiter?: boolean;
+  step?: number;
+  min?: number;
+  max?: number;
 };
 
 function formatNumberWithDelimiter(value: number): string {
@@ -21,46 +25,82 @@ function parseNumberFromDelimiter(value: string): number | undefined {
 }
 
 export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
-  ({ name, value, onChange, withDelimiter = true, ...props }, ref) => {
+  ({ name, value, onChange, withDelimiter = true, step = 1, min, max, ...props }, ref) => {
     const [display, setDisplay] = useState("");
 
-    // keep display synced with external value
-    useEffect(() => {
-      if (value === undefined) {
+    const handleChange = (value: string) => {
+      let parsed: number | undefined;
+      if (withDelimiter) {
+        parsed = parseNumberFromDelimiter(value);
+      } else {
+        parsed = value === "" ? undefined : Number(value);
+      }
+
+      if (parsed !== undefined && min !== undefined && parsed < min) {
+        return;
+      }
+
+      if (parsed !== undefined && max !== undefined && parsed > max) {
+        return;
+      }
+
+      onChange?.(parsed);
+
+      if (parsed === undefined) {
         setDisplay("");
       } else {
-        setDisplay(withDelimiter ? formatNumberWithDelimiter(value) : String(value));
+        setDisplay(withDelimiter ? formatNumberWithDelimiter(parsed) : String(parsed));
       }
-    }, [value, withDelimiter]);
+    };
+
+    const handleIncrement = () => {
+      if (value === undefined) {
+        handleChange?.(String(step));
+      } else {
+        handleChange?.(String(value + step));
+      }
+    };
+
+    const handleDecrement = () => {
+      if (value === undefined) {
+        handleChange?.(String(-step));
+      } else {
+        handleChange?.(String(value - step));
+      }
+    };
 
     return (
       <Input
         ref={ref}
         id={name}
-        type={withDelimiter ? "text" : "number"}
+        type="text"
         name={name}
         value={display}
         onChange={(e) => {
           const str = e.target.value;
-          setDisplay(str); // always update input visually
-
-          let parsed: number | undefined;
-          if (withDelimiter) {
-            // For currency, parse the formatted string
-            parsed = parseNumberFromDelimiter(str);
-          } else {
-            // For regular numbers, parse directly
-            parsed = str === "" ? undefined : Number(str);
-          }
-
-          if (parsed !== undefined && parsed > Number.MAX_SAFE_INTEGER) {
-            return; // ignore too-big numbers
-          }
-
-          onChange?.(parsed);
+          handleChange(str);
         }}
-        // inputMode={isCurrency ? "numeric" : undefined}
         inputMode="numeric"
+        rightSection={
+          <div className="flex flex-col">
+            <button
+              className="flex-1 hover:bg-accent cursor-pointer flex justify-center items-center text-muted-foreground hover:text-foreground size-4"
+              type="button"
+              title="Increment"
+              onClick={handleIncrement}
+            >
+              <ChevronUp className="size-2" />
+            </button>
+            <button
+              className="flex-1 hover:bg-accent cursor-pointer flex justify-center items-center text-muted-foreground hover:text-foreground size-4"
+              type="button"
+              title="Decrement"
+              onClick={handleDecrement}
+            >
+              <ChevronDown className="size-2" />
+            </button>
+          </div>
+        }
         {...props}
       />
     );

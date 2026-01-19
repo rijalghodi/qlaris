@@ -54,7 +54,7 @@ func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 
 func extractToken(c *fiber.Ctx) string {
 	// Read token from cookie
-	return c.Cookies("qlaris.access-token")
+	return c.Cookies(config.AccessTokenCookieName)
 }
 
 // GetAuthClaims retrieves authenticated user claims from context

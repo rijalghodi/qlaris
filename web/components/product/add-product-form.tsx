@@ -110,9 +110,10 @@ export function AddProductForm() {
                   <FormControl>
                     <NumberInput
                       leftSection="Rp"
-                      step="1000"
+                      step={1000}
                       placeholder="Example: 20000"
                       min={0}
+                      max={1_000_000_000_000}
                       withDelimiter
                       {...field}
                     />
@@ -131,7 +132,7 @@ export function AddProductForm() {
                     Stock Quantity <span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <NumberInput placeholder="0" min={0} {...field} />
+                    <NumberInput placeholder="0" min={0} max={1_000_000} withDelimiter {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
