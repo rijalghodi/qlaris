@@ -36,13 +36,11 @@ export function LoginForm() {
   const { mutate: login, isPending } = useLogin({
     onSuccess: (data) => {
       console.log("Login successful:", data);
-      // Redirect to home page after successful login
-      // router.push(ROUTES.DASHBOARD);
+      router.push(ROUTES.DASHBOARD);
     },
     onError: (errorMessage) => {
       console.error("Login error:", errorMessage);
       if (/(verify|verification|verified)/i.test(errorMessage)) {
-        // router.push(ROUTES.SEND_VERIFICATION);
         setError(
           <>
             Please verify your email address in{" "}

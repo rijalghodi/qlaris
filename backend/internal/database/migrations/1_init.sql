@@ -59,6 +59,9 @@ CREATE TABLE categories (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE UNIQUE INDEX unique_category_name ON categories(name, business_id);
+CREATE UNIQUE INDEX unique_category_sort_order ON categories(sort_order, business_id);
+
 CREATE TYPE BARCODE_TYPE AS ENUM ('ean13', 'ean8', 'upc');
 
 CREATE TABLE products (
