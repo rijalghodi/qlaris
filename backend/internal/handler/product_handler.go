@@ -26,11 +26,11 @@ func NewProductHandler(productUsecase *usecase.ProductUsecase) *ProductHandler {
 func (h *ProductHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	productGroup := app.Group("/products", middleware.AuthGuard(db))
 	productGroup.Post("/", h.CreateProduct)
-	productGroup.Put("/:id", h.UpdateProduct)
+	productGroup.Patch("/:id", h.UpdateProduct)
 	productGroup.Get("/:id", h.GetProduct)
 	productGroup.Get("/", h.ListProducts)
 	productGroup.Delete("/:id", h.DeleteProduct)
-	productGroup.Post("/:id/status", h.ToggleProductStatus)
+	// productGroup.Post("/:id/status", h.ToggleProductStatus)
 }
 
 // @Tags Products
@@ -61,6 +61,11 @@ func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 	if claims.BusinessID == nil {
 		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
 	}
+
+	if err := h.productUsecase.IsAllowedToAccess(claims.Role, []config.Permission{config.CREATE_PRODUCT_ANY, config.CREATE_PRODUCT_ORG}, claims.BusinessID, nil); err != nil {
+		return err
+	}
+
 	product, err := h.productUsecase.CreateProduct(*claims.BusinessID, &req)
 	if err != nil {
 		return err

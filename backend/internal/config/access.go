@@ -14,6 +14,16 @@ const (
 	READ_PRODUCT_ANY   Permission = "read_product:any"
 	UPDATE_PRODUCT_ANY Permission = "update_product:any"
 	DELETE_PRODUCT_ANY Permission = "delete_product:any"
+
+	CREATE_TRANSACTION_ORG Permission = "create_transaction:org"
+	READ_TRANSACTION_ORG   Permission = "read_transaction:org"
+	UPDATE_TRANSACTION_ORG Permission = "update_transaction:org"
+	PAY_TRANSACTION_ORG    Permission = "pay_transaction:org"
+
+	CREATE_TRANSACTION_ANY Permission = "create_transaction:any"
+	READ_TRANSACTION_ANY   Permission = "read_transaction:any"
+	UPDATE_TRANSACTION_ANY Permission = "update_transaction:any"
+	PAY_TRANSACTION_ANY    Permission = "pay_transaction:any"
 )
 
 var RolePermissionMap = map[UserRole][]Permission{
@@ -22,21 +32,36 @@ var RolePermissionMap = map[UserRole][]Permission{
 		READ_PRODUCT_ANY,
 		UPDATE_PRODUCT_ANY,
 		DELETE_PRODUCT_ANY,
+		CREATE_TRANSACTION_ANY,
+		READ_TRANSACTION_ANY,
+		UPDATE_TRANSACTION_ANY,
+		PAY_TRANSACTION_ANY,
 	},
 	USER_ROLE_OWNER: {
 		CREATE_PRODUCT_ORG,
 		READ_PRODUCT_ORG,
 		UPDATE_PRODUCT_ORG,
 		DELETE_PRODUCT_ORG,
+		CREATE_TRANSACTION_ORG,
+		READ_TRANSACTION_ORG,
+		UPDATE_TRANSACTION_ORG,
+		PAY_TRANSACTION_ORG,
 	},
 	USER_ROLE_MANAGER: {
 		CREATE_PRODUCT_ORG,
 		READ_PRODUCT_ORG,
 		UPDATE_PRODUCT_ORG,
 		DELETE_PRODUCT_ORG,
+		CREATE_TRANSACTION_ORG,
+		READ_TRANSACTION_ORG,
+		UPDATE_TRANSACTION_ORG,
+		PAY_TRANSACTION_ORG,
 	},
 	USER_ROLE_CASHIER: {
 		READ_PRODUCT_ORG,
+		CREATE_TRANSACTION_ORG,
+		READ_TRANSACTION_ORG,
+		PAY_TRANSACTION_ORG,
 	},
 }
 
@@ -52,4 +77,15 @@ func (p Permission) Scope() PermissionScope {
 		return PermissionScope(string(p)[idx+1:])
 	}
 	return ""
+}
+
+func DoesRoleAllowedToAccess(role UserRole, permissions []Permission) (bool, *Permission) {
+	for _, p := range RolePermissionMap[role] {
+		for _, permission := range permissions {
+			if p == permission {
+				return true, &p
+			}
+		}
+	}
+	return false, nil
 }

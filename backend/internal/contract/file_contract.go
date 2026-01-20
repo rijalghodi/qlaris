@@ -1,6 +1,6 @@
 package contract
 
-type FileUploadResponse struct {
+type FileRes struct {
 	Key string `json:"key"`
 	URL string `json:"url"`
 }

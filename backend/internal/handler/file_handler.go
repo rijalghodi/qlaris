@@ -86,7 +86,7 @@ func (h FileHandler) UploadFile(c *fiber.Ctx) error {
 		}
 	}
 
-	res := contract.FileUploadResponse{
+	res := contract.FileRes{
 		Key: key,
 		URL: url,
 	}

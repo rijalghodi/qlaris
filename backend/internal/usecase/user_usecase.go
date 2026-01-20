@@ -6,6 +6,7 @@ import (
 	"app/internal/model"
 	"app/internal/repository"
 	"app/pkg/logger"
+	"app/pkg/storage"
 	"app/pkg/util"
 	"time"
 
@@ -16,12 +17,14 @@ import (
 type UserUsecase struct {
 	userRepo     *repository.UserRepository
 	businessRepo *repository.BusinessRepository
+	storage      *storage.R2Storage
 }
 
-func NewUserUsecase(userRepo *repository.UserRepository, businessRepo *repository.BusinessRepository) *UserUsecase {
+func NewUserUsecase(userRepo *repository.UserRepository, businessRepo *repository.BusinessRepository, storage *storage.R2Storage) *UserUsecase {
 	return &UserUsecase{
 		userRepo:     userRepo,
 		businessRepo: businessRepo,
+		storage:      storage,
 	}
 }
 
@@ -37,83 +40,65 @@ func (u *UserUsecase) GetCurrentUser(userID string) (*contract.UserRes, error) {
 		return nil, fiber.NewError(fiber.StatusNotFound, "User not found")
 	}
 
-	return util.ToPointer(BuildUserRes(*user)), nil
+	return util.ToPointer(BuildUserRes(*user, u.storage)), nil
 }
 
-func (u *UserUsecase) EditCurrentUser(userID string, req *contract.EditCurrentUserReq) (*contract.UserRes, error) {
-	// Get current user
+func (u *UserUsecase) EditCurrentUser(
+	userID string,
+	req *contract.EditCurrentUserReq,
+) (*contract.UserRes, error) {
+
 	user, err := u.userRepo.GetUserByID(userID)
 	if err != nil {
-		logger.Log.Error("Failed to get user by ID", zap.Error(err), zap.String("userID", userID))
+		logger.Log.Error("Get user failed", zap.Error(err), zap.String("userID", userID))
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to get user")
 	}
-
 	if user == nil {
-		logger.Log.Warn("User not found", zap.String("userID", userID))
 		return nil, fiber.NewError(fiber.StatusNotFound, "User not found")
 	}
 
-	// Handle business data
-	var business *model.Business
+	// ---- Business upsert (only if provided) ----
 	if req.BusinessName != nil || req.BusinessAddress != nil {
-		business = user.Business
+		business := user.Business
 		if business == nil {
-			logger.Log.Error("Failed to get business", zap.String("userID", userID))
-			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to get business data")
+			business = &model.Business{}
+		}
+
+		if req.BusinessName != nil {
+			business.Name = *req.BusinessName
+		}
+		if req.BusinessAddress != nil {
+			business.Address = req.BusinessAddress
 		}
 
 		if business == nil {
-			// Create new business
-			if req.BusinessName != nil {
-				business.Name = *req.BusinessName
-			}
-			if req.BusinessAddress != nil {
-				business.Address = req.BusinessAddress
-			}
-
-			if err := u.businessRepo.CreateBusiness(business); err != nil {
-				logger.Log.Error("Failed to create business", zap.Error(err), zap.String("userID", userID))
-				return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to create business")
-			}
+			err = u.businessRepo.CreateBusiness(business)
 		} else {
-			// Update existing business
-			if req.BusinessName != nil {
-				business.Name = *req.BusinessName
-			}
-			if req.BusinessAddress != nil {
-				business.Address = req.BusinessAddress
-			}
-
-			if err := u.businessRepo.UpdateBusiness(business); err != nil {
-				logger.Log.Error("Failed to update business", zap.Error(err), zap.String("userID", userID))
-				return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to update business")
-			}
+			err = u.businessRepo.UpdateBusiness(business)
 		}
-	} else {
-		// Just fetch existing business for response
-		business = user.Business
-		if business == nil {
-			logger.Log.Error("Failed to get business", zap.String("userID", userID))
-			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to get business data")
+		if err != nil {
+			logger.Log.Error("Upsert business failed", zap.Error(err), zap.String("userID", userID))
+			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to save business")
 		}
-	}
 
-	// Update user fields if provided
-	if req.Name != nil {
-		user.Name = *req.Name
-	}
-
-	if business != nil {
 		user.Business = business
 		user.BusinessID = &business.ID
 	}
 
+	// ---- User update ----
+	if req.Name != nil {
+		user.Name = *req.Name
+	}
+	if req.Image != nil {
+		user.Image = req.Image
+	}
+
 	if err := u.userRepo.UpdateUser(user); err != nil {
-		logger.Log.Error("Failed to update user", zap.Error(err), zap.String("userID", userID))
+		logger.Log.Error("Update user failed", zap.Error(err), zap.String("userID", userID))
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to update user")
 	}
 
-	return util.ToPointer(BuildUserRes(*user)), nil
+	return util.ToPointer(BuildUserRes(*user, u.storage)), nil
 }
 
 func (u *UserUsecase) EditPassword(userID string, req *contract.EditPasswordReq) error {
@@ -156,15 +141,27 @@ func (u *UserUsecase) EditPassword(userID string, req *contract.EditPasswordReq)
 	return nil
 }
 
-func BuildUserRes(user model.User) contract.UserRes {
+func BuildUserRes(user model.User, storage *storage.R2Storage) contract.UserRes {
+
+	var image *contract.FileRes
+	if user.Image != nil && storage != nil {
+		imageURL, _ := storage.PresignGet(*user.Image, 0)
+		image = &contract.FileRes{
+			Key: *user.Image,
+			URL: imageURL,
+		}
+	}
+
 	userRes := contract.UserRes{
-		ID:         user.ID,
-		Email:      user.Email,
-		Name:       user.Name,
-		Role:       string(user.Role),
-		IsVerified: user.IsVerified,
-		CreatedAt:  user.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:  user.UpdatedAt.Format(time.RFC3339),
+		ID:          user.ID,
+		Email:       user.Email,
+		Name:        user.Name,
+		Role:        string(user.Role),
+		GoogleImage: user.GoogleImage,
+		Image:       image,
+		IsVerified:  user.IsVerified,
+		CreatedAt:   user.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:   user.UpdatedAt.Format(time.RFC3339),
 	}
 
 	if user.Business != nil {

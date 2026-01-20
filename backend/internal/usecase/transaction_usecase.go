@@ -6,6 +6,7 @@ import (
 	"app/internal/model"
 	"app/internal/repository"
 	"app/pkg/logger"
+	"app/pkg/storage"
 	"app/pkg/util"
 	"fmt"
 	"time"
@@ -29,6 +30,7 @@ func NewTransactionUsecase(
 	productRepo *repository.ProductRepository,
 	businessRepo *repository.BusinessRepository,
 	db *gorm.DB,
+	storage *storage.R2Storage,
 ) *TransactionUsecase {
 	return &TransactionUsecase{
 		transactionRepo:     transactionRepo,
@@ -228,29 +230,33 @@ func (u *TransactionUsecase) ListTransactions(businessID string, page, pageSize 
 	return results, total, nil
 }
 
-// IsAllowedToAccessTransaction checks if a user has access to a transaction
-func (u *TransactionUsecase) IsAllowedToAccessTransaction(userID string, transactionID string) error {
-	// business, err := u.businessRepo.GetBusinessByUserID(userID)
-	// if err != nil {
-	// 	logger.Log.Error("Failed to get user business", zap.Error(err), zap.String("userID", userID))
-	// 	return fiber.NewError(fiber.StatusInternalServerError, "Failed to get user business")
-	// }
+// IsAllowedToAccess checks if user has permission to access transactions
+func (u *TransactionUsecase) IsAllowedToAccess(role config.UserRole, allowedPermissions []config.Permission, businessID *string, transactionID *string) error {
+	allowed, permission := config.DoesRoleAllowedToAccess(role, allowedPermissions)
 
-	// if business == nil {
-	// 	logger.Log.Warn("Business not found for user", zap.String("userID", userID))
-	// 	return fiber.NewError(fiber.StatusNotFound, "Business not found. Please create a business first.")
-	// }
+	if !allowed || permission == nil {
+		return fiber.NewError(fiber.StatusForbidden, "You don't have permission to perform this action")
+	}
+	scope := permission.Scope()
 
-	// transaction, err := u.transactionRepo.GetTransactionByIDAndBusinessID(transactionID, business.ID)
-	// if err != nil {
-	// 	logger.Log.Error("Failed to get transaction", zap.Error(err), zap.String("transactionID", transactionID))
-	// 	return fiber.NewError(fiber.StatusInternalServerError, "Failed to get transaction")
-	// }
+	if scope == config.PERMISSION_SCOPE_ORG {
+		if businessID == nil {
+			return fiber.NewError(fiber.StatusNotFound, "Need businessID to access transaction")
+		}
 
-	// if transaction == nil {
-	// 	logger.Log.Warn("Transaction not found", zap.String("transactionID", transactionID))
-	// 	return fiber.NewError(fiber.StatusNotFound, "You don't have permission to access this transaction")
-	// }
+		if transactionID != nil {
+			transaction, err := u.transactionRepo.GetTransactionByIDAndBusinessID(*transactionID, *businessID)
+			if err != nil {
+				logger.Log.Error("Failed to get transaction", zap.Error(err), zap.String("transactionID", *transactionID))
+				return fiber.NewError(fiber.StatusInternalServerError, "Failed to get transaction")
+			}
+
+			if transaction == nil {
+				logger.Log.Warn("Transaction not found", zap.String("transactionID", *transactionID))
+				return fiber.NewError(fiber.StatusNotFound, "You don't have permission to perform this action")
+			}
+		}
+	}
 
 	return nil
 }
@@ -432,7 +438,7 @@ func buildTransactionRes(transaction model.Transaction) contract.TransactionRes 
 		ID:             transaction.ID,
 		BusinessID:     transaction.BusinessID,
 		CreatedBy:      transaction.CreatedBy,
-		Creator:        BuildUserRes(transaction.Creator),
+		CreatorName:    transaction.Creator.Name,
 		TotalAmount:    transaction.TotalAmount,
 		ReceivedAmount: transaction.ReceivedAmount,
 		ChangeAmount:   transaction.ChangeAmount,

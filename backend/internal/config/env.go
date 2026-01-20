@@ -27,10 +27,6 @@ type App struct {
 	Port          int    `env:"APP_PORT"`
 	BaseURL       string `env:"APP_BASE_URL"`
 	SuperPassword string `env:"APP_SUPER_PASSWORD"`
-	// RequestResetPasswordTtl int    `env:"REQUEST_RESET_PASSWORD_TTL" envDefault:"5"`
-	// RequestVerificationTtl  int    `env:"REQUEST_VERIFICATION_TTL" envDefault:"5"`
-	// AccessTokenCookieName   string `env:"ACCESS_TOKEN_COOKIE_NAME" envDefault:"qlaris.access-token"`
-	// RefreshTokenCookieName  string `env:"REFRESH_TOKEN_COOKIE_NAME" envDefault:"qlaris.refresh-token"`
 }
 
 type Logger struct {

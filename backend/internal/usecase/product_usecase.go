@@ -6,7 +6,6 @@ import (
 	"app/internal/model"
 	"app/internal/repository"
 	"app/pkg/logger"
-	"slices"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -130,70 +129,10 @@ func (u *ProductUsecase) buildProductRes(product *model.Product) *contract.Produ
 	}
 }
 
-// func (u *ProductUsecase) IsAllowedToAccessProduct(role model.USER_ROLE, businessID *string, productID *string) error {
-// 	if role != model.USER_ROLE_SUPERADMIN && businessID == nil {
-// 		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
-// 	}
-
-// 	if role != model.USER_ROLE_OWNER && productID == nil {
-// 		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
-// 	}
-
-// 	product, err := u.productRepo.GetProductByIDAndBusinessID(productID, *businessID)
-// 	if err != nil {
-// 		logger.Log.Error("Failed to get product", zap.Error(err), zap.String("productID", productID))
-// 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get product")
-// 	}
-
-// 	if product == nil {
-// 		logger.Log.Warn("Product not found", zap.String("productID", productID))
-// 		return fiber.NewError(fiber.StatusNotFound, "You don't have permission to modify this product")
-// 	}
-
-// 	return nil
-// }
-
-// type RoleAccess struct {
-// 	Role     model.USER_ROLE
-// 	Access   string
-// 	IsInself string
-// }
-
-// type PRODUCT_RIGHT_ACCESS string
-
-// const (
-// 	CREATE_PRODUCT_OWNED PRODUCT_RIGHT_ACCESS = "create_product_owned"
-// 	READ_PRODUCT_OWNED   PRODUCT_RIGHT_ACCESS = "read_product_owned"
-// 	UPDATE_PRODUCT_OWNED PRODUCT_RIGHT_ACCESS = "update_product_owned"
-// 	DELETE_PRODUCT_OWNED PRODUCT_RIGHT_ACCESS = "delete_product_owned"
-// 	CREATE_PRODUCT       PRODUCT_RIGHT_ACCESS = "create_product"
-// 	READ_PRODUCT         PRODUCT_RIGHT_ACCESS = "read_product"
-// 	UPDATE_PRODUCT       PRODUCT_RIGHT_ACCESS = "update_product"
-// 	DELETE_PRODUCT       PRODUCT_RIGHT_ACCESS = "delete_product"
-// )
-
-// var RoleAccessMap = map[model.USER_ROLE][]PRODUCT_RIGHT_ACCESS{
-// 	model.USER_ROLE_SUPERADMIN: {CREATE_PRODUCT, READ_PRODUCT, UPDATE_PRODUCT, DELETE_PRODUCT},
-// 	model.USER_ROLE_OWNER:      {CREATE_PRODUCT_OWNED, READ_PRODUCT_OWNED, UPDATE_PRODUCT_OWNED, DELETE_PRODUCT_OWNED},
-// 	model.USER_ROLE_MANAGER:    {CREATE_PRODUCT, READ_PRODUCT, UPDATE_PRODUCT, DELETE_PRODUCT},
-// 	model.USER_ROLE_CASHIER:    {CREATE_PRODUCT, READ_PRODUCT, UPDATE_PRODUCT, DELETE_PRODUCT},
-// }
-
 func (u *ProductUsecase) IsAllowedToAccess(role config.UserRole, allowedPermissions []config.Permission, businessID *string, productID *string) error {
-	rolePermissions := config.RolePermissionMap[role]
+	allowed, permission := config.DoesRoleAllowedToAccess(role, allowedPermissions)
 
-	var permission *config.Permission
-	for _, p := range rolePermissions {
-		idx, found := slices.BinarySearch(allowedPermissions, p)
-		if !found {
-			continue
-		}
-
-		permission = &allowedPermissions[idx]
-		break
-	}
-
-	if permission == nil {
+	if !allowed || permission == nil {
 		return fiber.NewError(fiber.StatusForbidden, "You don't have permission to perform this action")
 	}
 

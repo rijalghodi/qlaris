@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"app/internal/config"
 	"app/internal/contract"
 	"app/internal/middleware"
 	"app/internal/usecase"
@@ -56,7 +57,15 @@ func (h *TransactionHandler) CreateTransaction(c *fiber.Ctx) error {
 	}
 
 	claims := middleware.GetAuthClaims(c)
-	transaction, err := h.transactionUsecase.CreateTransaction(claims.ID, claims.BusinessID, &req)
+	if claims.BusinessID == nil {
+		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
+	}
+
+	if err := h.transactionUsecase.IsAllowedToAccess(claims.Role, []config.Permission{config.CREATE_TRANSACTION_ANY, config.CREATE_TRANSACTION_ORG}, claims.BusinessID, nil); err != nil {
+		return err
+	}
+
+	transaction, err := h.transactionUsecase.CreateTransaction(claims.ID, *claims.BusinessID, &req)
 	if err != nil {
 		return err
 	}
@@ -79,12 +88,20 @@ func (h *TransactionHandler) CreateTransaction(c *fiber.Ctx) error {
 func (h *TransactionHandler) ListTransactions(c *fiber.Ctx) error {
 	claims := middleware.GetAuthClaims(c)
 
+	if claims.BusinessID == nil {
+		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
+	}
+
 	queries, err := util.ParsePaginationQueries(c)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	transactions, total, err := h.transactionUsecase.ListTransactions(claims.BusinessID, queries.Page, queries.PageSize)
+	if err := h.transactionUsecase.IsAllowedToAccess(claims.Role, []config.Permission{config.READ_TRANSACTION_ANY, config.READ_TRANSACTION_ORG}, claims.BusinessID, nil); err != nil {
+		return err
+	}
+
+	transactions, total, err := h.transactionUsecase.ListTransactions(*claims.BusinessID, queries.Page, queries.PageSize)
 	if err != nil {
 		return err
 	}
@@ -112,11 +129,15 @@ func (h *TransactionHandler) GetTransaction(c *fiber.Ctx) error {
 
 	claims := middleware.GetAuthClaims(c)
 
-	if err := h.transactionUsecase.IsAllowedToAccessTransaction(claims.ID, transactionID); err != nil {
+	if err := h.transactionUsecase.IsAllowedToAccess(claims.Role, []config.Permission{config.READ_TRANSACTION_ANY, config.READ_TRANSACTION_ORG}, claims.BusinessID, &transactionID); err != nil {
 		return err
 	}
 
-	transaction, err := h.transactionUsecase.GetTransaction(claims.ID, claims.BusinessID, transactionID)
+	if claims.BusinessID == nil {
+		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
+	}
+
+	transaction, err := h.transactionUsecase.GetTransaction(claims.ID, *claims.BusinessID, transactionID)
 	if err != nil {
 		return err
 	}
@@ -157,11 +178,15 @@ func (h *TransactionHandler) UpdateTransaction(c *fiber.Ctx) error {
 
 	claims := middleware.GetAuthClaims(c)
 
-	if err := h.transactionUsecase.IsAllowedToAccessTransaction(claims.ID, transactionID); err != nil {
+	if err := h.transactionUsecase.IsAllowedToAccess(claims.Role, []config.Permission{config.UPDATE_TRANSACTION_ANY, config.UPDATE_TRANSACTION_ORG}, claims.BusinessID, &transactionID); err != nil {
 		return err
 	}
 
-	transaction, err := h.transactionUsecase.UpdateTransaction(claims.ID, claims.BusinessID, transactionID, &req)
+	if claims.BusinessID == nil {
+		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
+	}
+
+	transaction, err := h.transactionUsecase.UpdateTransaction(claims.ID, *claims.BusinessID, transactionID, &req)
 	if err != nil {
 		return err
 	}
@@ -202,11 +227,15 @@ func (h *TransactionHandler) PayTransaction(c *fiber.Ctx) error {
 
 	claims := middleware.GetAuthClaims(c)
 
-	if err := h.transactionUsecase.IsAllowedToAccessTransaction(claims.ID, transactionID); err != nil {
+	if err := h.transactionUsecase.IsAllowedToAccess(claims.Role, []config.Permission{config.PAY_TRANSACTION_ANY, config.PAY_TRANSACTION_ORG}, claims.BusinessID, &transactionID); err != nil {
 		return err
 	}
 
-	transaction, err := h.transactionUsecase.PayTransaction(claims.ID, claims.BusinessID, transactionID, &req)
+	if claims.BusinessID == nil {
+		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
+	}
+
+	transaction, err := h.transactionUsecase.PayTransaction(claims.ID, *claims.BusinessID, transactionID, &req)
 	if err != nil {
 		return err
 	}

@@ -160,7 +160,12 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return err
 	}
 
-	return h.authUsecase.Login(c, &req)
+	res, err := h.authUsecase.Login(c, &req)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
 }
 
 // @Tags Auth
@@ -329,10 +334,10 @@ func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
 		return err
 	}
 
-	err := h.authUsecase.RefreshToken(c, &req)
+	res, err := h.authUsecase.RefreshToken(c, &req)
 	if err != nil {
 		logger.Log.Warn("Failed to refresh token: %v", err)
 		return err
 	}
-	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse("Token refreshed successfully"))
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
 }
