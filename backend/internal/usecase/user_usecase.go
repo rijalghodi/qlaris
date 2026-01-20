@@ -3,6 +3,7 @@ package usecase
 import (
 	"app/internal/config"
 	"app/internal/contract"
+	"app/internal/middleware"
 	"app/internal/model"
 	"app/internal/repository"
 	"app/pkg/logger"
@@ -175,4 +176,197 @@ func BuildUserRes(user model.User, storage *storage.R2Storage) contract.UserRes 
 	}
 
 	return userRes
+}
+
+func (u *UserUsecase) IsAllowedToAccess(claims middleware.Claims, allowedPermissions []config.Permission, targetUserID *string) error {
+	allowed, permission := config.DoesRoleAllowedToAccess(claims.Role, allowedPermissions)
+
+	if !allowed || permission == nil {
+		return fiber.NewError(fiber.StatusForbidden, "You don't have permission to perform this action")
+	}
+
+	scope := permission.Scope()
+
+	if scope == config.PERMISSION_SCOPE_ORG {
+		if claims.BusinessID == nil {
+			return fiber.NewError(fiber.StatusNotFound, "Need businessID to access user")
+		}
+
+		if targetUserID != nil {
+			user, err := u.userRepo.GetUserByIDAndBusinessID(*targetUserID, *claims.BusinessID)
+			if err != nil {
+				logger.Log.Error("Failed to get user", zap.Error(err), zap.String("userID", *targetUserID))
+				return fiber.NewError(fiber.StatusInternalServerError, "Failed to get user")
+			}
+
+			if user == nil || user.BusinessID == nil || *user.BusinessID != *claims.BusinessID {
+				logger.Log.Warn("User not found or doesn't belong to business", zap.String("userID", *targetUserID))
+				return fiber.NewError(fiber.StatusNotFound, "You don't have permission to perform this action")
+			}
+		}
+	}
+
+	if scope == config.PERMISSION_SCOPE_SELF {
+		if targetUserID == nil {
+			return fiber.NewError(fiber.StatusNotFound, "Need targetUserID to access user")
+		}
+
+		if *targetUserID != claims.ID {
+			return fiber.NewError(fiber.StatusNotFound, "You don't have permission to perform this action")
+		}
+	}
+
+	return nil
+}
+
+func (u *UserUsecase) CreateUser(businessID *string, req *contract.CreateUserReq) (*contract.UserRes, error) {
+	// Check if email already exists
+	existingUser, err := u.userRepo.GetUserByEmail(req.Email)
+	if err != nil {
+		logger.Log.Error("Failed to check existing user", zap.Error(err))
+		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to create user")
+	}
+	if existingUser != nil {
+		return nil, fiber.NewError(fiber.StatusBadRequest, "Email already exists")
+	}
+
+	// Hash password
+	hashedPassword, err := util.HashPassword(req.Password)
+	if err != nil {
+		logger.Log.Error("Failed to hash password", zap.Error(err))
+		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to create user")
+	}
+
+	// Create user
+	user := &model.User{
+		Email:        req.Email,
+		PasswordHash: &hashedPassword,
+		Name:         req.Name,
+		Role:         config.UserRole(req.Role),
+		BusinessID:   businessID,
+		Image:        req.Image,
+		IsVerified:   true,
+	}
+
+	// Handle business if provided
+	if req.BusinessName != nil || req.BusinessAddress != nil {
+		business := &model.Business{}
+		if req.BusinessName != nil {
+			business.Name = *req.BusinessName
+		}
+		if req.BusinessAddress != nil {
+			business.Address = req.BusinessAddress
+		}
+
+		if err := u.businessRepo.CreateBusiness(business); err != nil {
+			logger.Log.Error("Failed to create business", zap.Error(err))
+			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to create business")
+		}
+
+		user.Business = business
+		user.BusinessID = &business.ID
+	}
+
+	if err := u.userRepo.CreateUser(user); err != nil {
+		logger.Log.Error("Failed to create user", zap.Error(err))
+		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to create user")
+	}
+
+	return util.ToPointer(BuildUserRes(*user, u.storage)), nil
+}
+
+func (u *UserUsecase) UpdateUser(userID string, req *contract.UpdateUserReq) (*contract.UserRes, error) {
+	user, err := u.userRepo.GetUserByID(userID)
+	if err != nil {
+		logger.Log.Error("Failed to get user", zap.Error(err), zap.String("userID", userID))
+		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to get user")
+	}
+
+	if user == nil {
+		return nil, fiber.NewError(fiber.StatusNotFound, "User not found")
+	}
+
+	// Update user fields
+	if req.Name != nil {
+		user.Name = *req.Name
+	}
+	if req.Role != nil {
+		user.Role = config.UserRole(*req.Role)
+	}
+	if req.Image != nil {
+		user.Image = req.Image
+	}
+
+	// Handle business updates
+	if req.BusinessName != nil || req.BusinessAddress != nil {
+		business := user.Business
+		if business == nil {
+			business = &model.Business{}
+		}
+
+		if req.BusinessName != nil {
+			business.Name = *req.BusinessName
+		}
+		if req.BusinessAddress != nil {
+			business.Address = req.BusinessAddress
+		}
+
+		if user.Business == nil {
+			err = u.businessRepo.CreateBusiness(business)
+		} else {
+			err = u.businessRepo.UpdateBusiness(business)
+		}
+		if err != nil {
+			logger.Log.Error("Upsert business failed", zap.Error(err), zap.String("userID", userID))
+			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to save business")
+		}
+
+		user.Business = business
+		user.BusinessID = &business.ID
+	}
+
+	if err := u.userRepo.UpdateUser(user); err != nil {
+		logger.Log.Error("Failed to update user", zap.Error(err), zap.String("userID", userID))
+		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to update user")
+	}
+
+	return util.ToPointer(BuildUserRes(*user, u.storage)), nil
+}
+
+func (u *UserUsecase) GetUser(userID string) (*contract.UserRes, error) {
+	user, err := u.userRepo.GetUserByID(userID)
+	if err != nil {
+		logger.Log.Error("Failed to get user", zap.Error(err), zap.String("userID", userID))
+		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to get user")
+	}
+
+	if user == nil {
+		return nil, fiber.NewError(fiber.StatusNotFound, "User not found")
+	}
+
+	return util.ToPointer(BuildUserRes(*user, u.storage)), nil
+}
+
+func (u *UserUsecase) ListUsers(businessID *string, page, pageSize int) ([]contract.UserRes, int64, error) {
+	users, total, err := u.userRepo.ListUsers(businessID, page, pageSize)
+	if err != nil {
+		logger.Log.Error("Failed to list users", zap.Error(err))
+		return nil, 0, fiber.NewError(fiber.StatusInternalServerError, "Failed to list users")
+	}
+
+	userResList := make([]contract.UserRes, 0, len(users))
+	for _, user := range users {
+		userResList = append(userResList, BuildUserRes(*user, u.storage))
+	}
+
+	return userResList, total, nil
+}
+
+func (u *UserUsecase) DeleteUser(userID string) error {
+	if err := u.userRepo.DeleteUser(userID); err != nil {
+		logger.Log.Error("Failed to delete user", zap.Error(err), zap.String("userID", userID))
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to delete user")
+	}
+
+	return nil
 }

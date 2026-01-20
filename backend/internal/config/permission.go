@@ -5,6 +5,21 @@ import "strings"
 type Permission string
 
 const (
+	CREATE_USER_SELF Permission = "create_user:self"
+	READ_USER_SELF   Permission = "read_user:self"
+	EDIT_USER_SELF   Permission = "edit_user:self"
+	DELETE_USER_SELF Permission = "delete_user:self"
+
+	CREATE_USER_ORG Permission = "create_user:org"
+	READ_USER_ORG   Permission = "read_user:org"
+	EDIT_USER_ORG   Permission = "edit_user:org"
+	DELETE_USER_ORG Permission = "delete_user:org"
+
+	CREATE_USER_ANY Permission = "create_user:any"
+	READ_USER_ANY   Permission = "read_user:any"
+	EDIT_USER_ANY   Permission = "edit_user:any"
+	DELETE_USER_ANY Permission = "delete_user:any"
+
 	CREATE_PRODUCT_ORG Permission = "create_product:org"
 	READ_PRODUCT_ORG   Permission = "read_product:org"
 	UPDATE_PRODUCT_ORG Permission = "update_product:org"
@@ -28,6 +43,10 @@ const (
 
 var RolePermissionMap = map[UserRole][]Permission{
 	USER_ROLE_SUPERADMIN: {
+		CREATE_USER_ANY,
+		READ_USER_ANY,
+		EDIT_USER_ANY,
+		DELETE_USER_ANY,
 		CREATE_PRODUCT_ANY,
 		READ_PRODUCT_ANY,
 		UPDATE_PRODUCT_ANY,
@@ -38,6 +57,10 @@ var RolePermissionMap = map[UserRole][]Permission{
 		PAY_TRANSACTION_ANY,
 	},
 	USER_ROLE_OWNER: {
+		CREATE_USER_ORG,
+		READ_USER_ORG,
+		EDIT_USER_ORG,
+		DELETE_USER_ORG,
 		CREATE_PRODUCT_ORG,
 		READ_PRODUCT_ORG,
 		UPDATE_PRODUCT_ORG,
@@ -48,6 +71,8 @@ var RolePermissionMap = map[UserRole][]Permission{
 		PAY_TRANSACTION_ORG,
 	},
 	USER_ROLE_MANAGER: {
+		READ_USER_SELF,
+		EDIT_USER_SELF,
 		CREATE_PRODUCT_ORG,
 		READ_PRODUCT_ORG,
 		UPDATE_PRODUCT_ORG,
@@ -58,6 +83,8 @@ var RolePermissionMap = map[UserRole][]Permission{
 		PAY_TRANSACTION_ORG,
 	},
 	USER_ROLE_CASHIER: {
+		READ_USER_SELF,
+		EDIT_USER_SELF,
 		READ_PRODUCT_ORG,
 		CREATE_TRANSACTION_ORG,
 		READ_TRANSACTION_ORG,
@@ -68,8 +95,9 @@ var RolePermissionMap = map[UserRole][]Permission{
 type PermissionScope string
 
 const (
-	PERMISSION_SCOPE_ORG PermissionScope = "org"
-	PERMISSION_SCOPE_ANY PermissionScope = "any"
+	PERMISSION_SCOPE_SELF PermissionScope = "self"
+	PERMISSION_SCOPE_ORG  PermissionScope = "org"
+	PERMISSION_SCOPE_ANY  PermissionScope = "any"
 )
 
 func (p Permission) Scope() PermissionScope {

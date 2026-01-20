@@ -62,7 +62,7 @@ func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
 	}
 
-	if err := h.productUsecase.IsAllowedToAccess(claims.Role, []config.Permission{config.CREATE_PRODUCT_ANY, config.CREATE_PRODUCT_ORG}, claims.BusinessID, nil); err != nil {
+	if err := h.productUsecase.IsAllowedToAccess(claims, []config.Permission{config.CREATE_PRODUCT_ANY, config.CREATE_PRODUCT_ORG}, nil); err != nil {
 		return err
 	}
 
@@ -106,7 +106,7 @@ func (h *ProductHandler) UpdateProduct(c *fiber.Ctx) error {
 	}
 
 	claims := middleware.GetAuthClaims(c)
-	if err := h.productUsecase.IsAllowedToAccess(claims.Role, []config.Permission{config.UPDATE_PRODUCT_ANY, config.UPDATE_PRODUCT_ORG}, claims.BusinessID, &productID); err != nil {
+	if err := h.productUsecase.IsAllowedToAccess(claims, []config.Permission{config.UPDATE_PRODUCT_ANY, config.UPDATE_PRODUCT_ORG}, &productID); err != nil {
 		return err
 	}
 	product, err := h.productUsecase.UpdateProduct(productID, &req)
@@ -137,7 +137,7 @@ func (h *ProductHandler) GetProduct(c *fiber.Ctx) error {
 
 	claims := middleware.GetAuthClaims(c)
 
-	if err := h.productUsecase.IsAllowedToAccess(claims.Role, []config.Permission{config.READ_PRODUCT_ANY, config.READ_PRODUCT_ORG}, claims.BusinessID, &productID); err != nil {
+	if err := h.productUsecase.IsAllowedToAccess(claims, []config.Permission{config.READ_PRODUCT_ANY, config.READ_PRODUCT_ORG}, &productID); err != nil {
 		return err
 	}
 
@@ -174,7 +174,7 @@ func (h *ProductHandler) ListProducts(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	if err := h.productUsecase.IsAllowedToAccess(claims.Role, []config.Permission{config.READ_PRODUCT_ANY, config.READ_PRODUCT_ORG}, claims.BusinessID, nil); err != nil {
+	if err := h.productUsecase.IsAllowedToAccess(claims, []config.Permission{config.READ_PRODUCT_ANY, config.READ_PRODUCT_ORG}, nil); err != nil {
 		return err
 	}
 
@@ -205,7 +205,7 @@ func (h *ProductHandler) DeleteProduct(c *fiber.Ctx) error {
 	}
 
 	claims := middleware.GetAuthClaims(c)
-	if err := h.productUsecase.IsAllowedToAccess(claims.Role, []config.Permission{config.DELETE_PRODUCT_ANY, config.DELETE_PRODUCT_ORG}, claims.BusinessID, &productID); err != nil {
+	if err := h.productUsecase.IsAllowedToAccess(claims, []config.Permission{config.DELETE_PRODUCT_ANY, config.DELETE_PRODUCT_ORG}, &productID); err != nil {
 		return err
 	}
 

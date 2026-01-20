@@ -26,3 +26,22 @@ type EditPasswordReq struct {
 	CurrentPassword string `json:"currentPassword" validate:"required,min=8,max=50"`
 	NewPassword     string `json:"newPassword" validate:"required,min=8,max=50"`
 }
+
+type CreateUserReq struct {
+	Email           string  `json:"email" validate:"required,email,max=255"`
+	Password        string  `json:"password" validate:"required,min=8,max=50"`
+	Name            string  `json:"name" validate:"required,max=255"`
+	Role            string  `json:"role" validate:"required,oneof=owner manager cashier"`
+	BusinessID      *string `json:"businessId"`
+	Image           *string `json:"image" validate:"max=255"`
+	BusinessName    *string `json:"businessName" validate:"max=255"`
+	BusinessAddress *string `json:"businessAddress"`
+}
+
+type UpdateUserReq struct {
+	Name            *string `json:"name" validate:"max=255"`
+	Role            *string `json:"role" validate:"oneof=owner manager cashier"`
+	Image           *string `json:"image" validate:"max=255"`
+	BusinessName    *string `json:"businessName" validate:"max=255"`
+	BusinessAddress *string `json:"businessAddress"`
+}

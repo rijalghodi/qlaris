@@ -3,6 +3,7 @@ package usecase
 import (
 	"app/internal/config"
 	"app/internal/contract"
+	"app/internal/middleware"
 	"app/internal/model"
 	"app/internal/repository"
 	"app/pkg/logger"
@@ -129,8 +130,8 @@ func (u *ProductUsecase) buildProductRes(product *model.Product) *contract.Produ
 	}
 }
 
-func (u *ProductUsecase) IsAllowedToAccess(role config.UserRole, allowedPermissions []config.Permission, businessID *string, productID *string) error {
-	allowed, permission := config.DoesRoleAllowedToAccess(role, allowedPermissions)
+func (u *ProductUsecase) IsAllowedToAccess(claims middleware.Claims, allowedPermissions []config.Permission, productID *string) error {
+	allowed, permission := config.DoesRoleAllowedToAccess(claims.Role, allowedPermissions)
 
 	if !allowed || permission == nil {
 		return fiber.NewError(fiber.StatusForbidden, "You don't have permission to perform this action")
@@ -139,12 +140,12 @@ func (u *ProductUsecase) IsAllowedToAccess(role config.UserRole, allowedPermissi
 	scope := permission.Scope()
 
 	if scope == config.PERMISSION_SCOPE_ORG {
-		if businessID == nil {
+		if claims.BusinessID == nil {
 			return fiber.NewError(fiber.StatusNotFound, "Need businessID to access product")
 		}
 
 		if productID != nil {
-			product, err := u.productRepo.GetProductByIDAndBusinessID(*productID, *businessID)
+			product, err := u.productRepo.GetProductByIDAndBusinessID(*productID, *claims.BusinessID)
 			if err != nil {
 				logger.Log.Error("Failed to get product", zap.Error(err), zap.String("productID", *productID))
 				return fiber.NewError(fiber.StatusInternalServerError, "Failed to get product")
