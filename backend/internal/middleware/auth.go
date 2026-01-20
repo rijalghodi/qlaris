@@ -12,7 +12,6 @@ import (
 )
 
 type Claims struct {
-	// util.JWTClaims
 	ID         string          `json:"id"`
 	Role       config.UserRole `json:"role"`
 	Type       string          `json:"type"`
@@ -35,7 +34,6 @@ func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 
 		claims := Claims{
 			ID:   jwtClaims.ID,
-			Role: config.UserRole(jwtClaims.Role),
 			Type: jwtClaims.Type,
 		}
 
@@ -49,6 +47,8 @@ func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 		if err := db.Preload("Business").First(user, "id = ?", claims.ID).Error; err != nil {
 			logger.Log.Warn("User not found", "error", err)
 		}
+
+		claims.Role = user.Role
 
 		if user.Business != nil {
 			claims.BusinessID = &user.Business.ID

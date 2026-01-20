@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiClient } from "./api-client";
 import type { GErrorResponse, GResponse, MResponse } from "./type";
+import { FileRes } from "./api-user";
+import { Category } from "./api-category";
 
 // --- TYPES ---
 
@@ -11,7 +13,9 @@ export type Product = {
   name: string;
   price: number;
   isActive: boolean;
-  image?: string;
+  image?: FileRes;
+  categoryId?: string;
+  category?: Category;
   enableStock: boolean;
   stockQty?: number;
   unit?: string;

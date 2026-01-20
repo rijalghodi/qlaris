@@ -8,7 +8,7 @@ export default function RowsPerPage({}: Props) {
     <div className="text-xs text-muted-foreground flex items-center gap-1">
       <span>Items per page</span>{" "}
       <Select>
-        <SelectTrigger className="w-16 inline-flex text-xs">
+        <SelectTrigger className="w-15 h-8 inline-flex text-xs font-medium text-foreground px-3">
           <SelectValue placeholder="10" />
         </SelectTrigger>
         <SelectContent className="w-10">

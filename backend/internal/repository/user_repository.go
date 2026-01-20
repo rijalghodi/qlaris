@@ -64,6 +64,10 @@ func (r *UserRepository) GetUserByIDAndBusinessID(id string, businessID string) 
 }
 
 func (r *UserRepository) CreateUser(user *model.User) error {
+	// create user with the business
+	var business model.Business
+	r.db.Create(&business)
+	user.BusinessID = &business.ID
 	return r.db.Create(user).Error
 }
 

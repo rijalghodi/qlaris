@@ -7,6 +7,7 @@ import (
 	"app/internal/model"
 	"app/internal/repository"
 	"app/pkg/logger"
+	"app/pkg/storage"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,24 +18,24 @@ import (
 type ProductUsecase struct {
 	productRepo  *repository.ProductRepository
 	businessRepo *repository.BusinessRepository
+	storage      *storage.R2Storage
 }
 
-func NewProductUsecase(productRepo *repository.ProductRepository, businessRepo *repository.BusinessRepository) *ProductUsecase {
+func NewProductUsecase(productRepo *repository.ProductRepository, businessRepo *repository.BusinessRepository, storage *storage.R2Storage) *ProductUsecase {
 	return &ProductUsecase{
 		productRepo:  productRepo,
 		businessRepo: businessRepo,
+		storage:      storage,
 	}
 }
 
 func (u *ProductUsecase) CreateProduct(businessID string, req *contract.CreateProductReq) (*contract.ProductRes, error) {
-	product := &model.Product{
-		BusinessID: businessID,
-		Name:       req.Name,
-		Price:      req.Price,
-		Image:      req.Image,
-		StockQty:   req.StockQty,
-		IsActive:   true,
-	}
+
+	product := &model.Product{}
+	copier.Copy(product, req)
+
+	product.BusinessID = businessID
+	product.IsActive = true
 
 	if err := u.productRepo.CreateProduct(product); err != nil {
 		logger.Log.Error("Failed to create product", zap.Error(err), zap.String("businessID", businessID))
@@ -117,12 +118,33 @@ func (u *ProductUsecase) ToggleProductStatus(userID, productID string, isActive 
 
 // Helper methods
 func (u *ProductUsecase) buildProductRes(product *model.Product) *contract.ProductRes {
+	// image
+	var imageRes *contract.FileRes
+	if product.Image != nil {
+		URL, _ := u.storage.PresignGet(*product.Image, 0)
+		imageRes = &contract.FileRes{
+			Key: *product.Image,
+			URL: URL,
+		}
+	}
+
+	// category
+	var categoryRes *contract.CategoryRes
+	if product.Category != nil {
+		categoryRes = &contract.CategoryRes{
+			ID:   product.Category.ID,
+			Name: product.Category.Name,
+		}
+	}
+
 	return &contract.ProductRes{
 		ID:         product.ID,
 		BusinessID: product.BusinessID,
 		Name:       product.Name,
 		Price:      product.Price,
-		Image:      product.Image,
+		Image:      imageRes,
+		CategoryID: product.CategoryID,
+		Category:   categoryRes,
 		StockQty:   product.StockQty,
 		IsActive:   product.IsActive,
 		CreatedAt:  product.CreatedAt.Format(time.RFC3339),

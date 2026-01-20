@@ -71,7 +71,7 @@ CREATE TABLE products (
   price NUMERIC(12,2) NOT NULL CHECK (price >= 0),
   image TEXT,
   enable_stock BOOLEAN NOT NULL DEFAULT false,
-  stock_qty INTEGER DEFAULT 0 CHECK (stock_qty >= 0),
+  stock_qty INTEGER CHECK (stock_qty >= 0),
   unit VARCHAR(36),
   is_active BOOLEAN NOT NULL DEFAULT true,
   category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
@@ -141,8 +141,8 @@ DROP TABLE IF EXISTS transaction_items;
 DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS categories;
-DROP TABLE IF EXISTS businesses;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS businesses;
 
 -- Drop type
 DROP TYPE IF EXISTS TRANSACTION_STATUS;

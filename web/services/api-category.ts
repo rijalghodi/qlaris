@@ -79,7 +79,7 @@ export const useCategories = (params?: { page?: number; pageSize?: number }) => 
 
 export const useCategory = (id: string) => {
   return useQuery({
-    queryKey: ["categories", id],
+    queryKey: ["category", id],
     queryFn: () => categoryApi.get(id),
     enabled: !!id,
   });
@@ -97,7 +97,10 @@ export const useCreateCategory = ({
   return useMutation({
     mutationFn: (data: CreateCategoryReq) => categoryApi.create(data),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({
+        queryKey: ["categories"],
+        predicate: (query) => query.queryKey.includes("categories"),
+      });
       onSuccess?.(data);
     },
     onError: (error: GErrorResponse) => {

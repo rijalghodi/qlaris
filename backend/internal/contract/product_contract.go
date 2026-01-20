@@ -3,7 +3,7 @@ package contract
 type CreateProductReq struct {
 	Name          string   `json:"name" validate:"required,max=255"`
 	Price         float64  `json:"price" validate:"required,gte=0"`
-	Image         *string  `json:"image" validate:"omitempty,url"`
+	Image         *string  `json:"image"`
 	CategoryID    *string  `json:"categoryId" validate:"omitempty"`
 	IsFavorite    bool     `json:"isFavorite"`
 	EnableStock   bool     `json:"enableStock"`
@@ -18,7 +18,7 @@ type CreateProductReq struct {
 type UpdateProductReq struct {
 	Name          *string  `json:"name" validate:"omitempty,max=255"`
 	Price         *float64 `json:"price" validate:"omitempty,gte=0"`
-	Image         *string  `json:"image" validate:"omitempty,url"`
+	Image         *string  `json:"image"`
 	CategoryID    *string  `json:"categoryId" validate:"omitempty"`
 	IsFavorite    *bool    `json:"isFavorite"`
 	IsActive      *bool    `json:"isActive"`
@@ -32,21 +32,23 @@ type UpdateProductReq struct {
 }
 
 type ProductRes struct {
-	ID            string   `json:"id"`
-	BusinessID    string   `json:"businessId"`
-	Name          string   `json:"name"`
-	Price         float64  `json:"price"`
-	IsActive      bool     `json:"isActive"`
-	Image         *string  `json:"image,omitempty"`
-	EnableStock   bool     `json:"enableStock"`
-	StockQty      *int     `json:"stockQty"`
-	Unit          *string  `json:"unit,omitempty"`
-	EnableBarcode bool     `json:"enableBarcode"`
-	BarcodeValue  *string  `json:"barcodeValue,omitempty"`
-	BarcodeType   *string  `json:"barcodeType,omitempty"`
-	Cost          *float64 `json:"cost,omitempty"`
-	CreatedAt     string   `json:"createdAt"`
-	UpdatedAt     string   `json:"updatedAt"`
+	ID            string       `json:"id"`
+	BusinessID    string       `json:"businessId"`
+	Name          string       `json:"name"`
+	Price         float64      `json:"price"`
+	IsActive      bool         `json:"isActive"`
+	Image         *FileRes     `json:"image"`
+	CategoryID    *string      `json:"categoryId"`
+	Category      *CategoryRes `json:"category,omitempty"`
+	EnableStock   bool         `json:"enableStock"`
+	StockQty      *int         `json:"stockQty"`
+	Unit          *string      `json:"unit"`
+	EnableBarcode bool         `json:"enableBarcode"`
+	BarcodeValue  *string      `json:"barcodeValue"`
+	BarcodeType   *string      `json:"barcodeType"`
+	Cost          *float64     `json:"cost"`
+	CreatedAt     string       `json:"createdAt"`
+	UpdatedAt     string       `json:"updatedAt"`
 }
 
 type ListProductsRes struct {

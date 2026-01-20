@@ -24,7 +24,7 @@ func (r *ProductRepository) UpdateProduct(product *model.Product) error {
 
 func (r *ProductRepository) GetProductByID(id string) (*model.Product, error) {
 	var product model.Product
-	err := r.db.Where("id = ?", id).First(&product).Error
+	err := r.db.Preload("Category").Where("id = ?", id).First(&product).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -63,6 +63,7 @@ func (r *ProductRepository) ListProducts(businessID string, page, pageSize int) 
 
 	// Fetch paginated records
 	err = r.db.Model(&model.Product{}).
+		Preload("Category").
 		Where("business_id = ? AND is_active = ?", businessID, true).
 		Order("created_at DESC").
 		Limit(pageSize).

@@ -3,14 +3,14 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useCreateCategory } from "@/services/api-category";
+import { CategoryRes, useCreateCategory } from "@/services/api-category";
 import { Button } from "../ui/button";
 import { DialogFooter } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { ContextDialogProps } from "../ui/dialog-manager";
 
 type AddCategoryInnerProps = {
-  onSuccess?: () => void;
+  onSuccess?: (newCategory: CategoryRes) => void;
 };
 
 type FormData = {
@@ -30,11 +30,11 @@ export function AddCategoryDialog({
   } = useForm<FormData>();
 
   const createCategory = useCreateCategory({
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Category created successfully");
       reset();
       context.closeDialog(id);
-      innerProps.onSuccess?.();
+      innerProps.onSuccess?.(data);
     },
     onError: (error) => {
       toast.error(error);

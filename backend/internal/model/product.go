@@ -14,7 +14,7 @@ type Product struct {
 	IsActive      bool                `gorm:"not null;default:true" json:"is_active"`
 	CategoryID    *string             `gorm:"type:uuid" json:"category_id,omitempty"`
 	EnableStock   bool                `gorm:"not null;default:false" json:"enable_stock"`
-	StockQty      *int                `gorm:"not null;default:0;check:stock_qty >= 0" json:"stock_qty"`
+	StockQty      *int                `gorm:"check:stock_qty >= 0" json:"stock_qty"`
 	Unit          *string             `gorm:"type:varchar(36)" json:"unit,omitempty"`
 	EnableBarcode bool                `gorm:"not null;default:false" json:"enable_barcode"`
 	Cost          *float64            `gorm:"type:numeric(12,2);not null;check:cost >= 0" json:"cost"`

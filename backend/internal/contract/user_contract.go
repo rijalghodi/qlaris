@@ -18,7 +18,7 @@ type UserRes struct {
 
 type EditCurrentUserReq struct {
 	Name            *string `json:"name" validate:"max=255"`
-	Image           *string `json:"image" validate:"max=255"`
+	Image           *string `json:"image"`
 	BusinessName    *string `json:"businessName" validate:"max=255"`
 	BusinessAddress *string `json:"businessAddress"`
 }
@@ -34,7 +34,7 @@ type CreateUserReq struct {
 	Name            string  `json:"name" validate:"required,max=255"`
 	Role            string  `json:"role" validate:"required,oneof=owner manager cashier"`
 	BusinessID      *string `json:"businessId"`
-	Image           *string `json:"image" validate:"max=255"`
+	Image           *string `json:"image"`
 	BusinessName    *string `json:"businessName" validate:"max=255"`
 	BusinessAddress *string `json:"businessAddress"`
 }
@@ -42,7 +42,7 @@ type CreateUserReq struct {
 type UpdateUserReq struct {
 	Name            *string `json:"name" validate:"max=255"`
 	Role            *string `json:"role" validate:"oneof=owner manager cashier"`
-	Image           *string `json:"image" validate:"max=255"`
+	Image           *string `json:"image"`
 	BusinessName    *string `json:"businessName" validate:"max=255"`
 	BusinessAddress *string `json:"businessAddress"`
 }

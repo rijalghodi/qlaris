@@ -28,15 +28,16 @@ export function ProductDashboard() {
   const columns: ColumnDef<Product>[] = [
     {
       id: "product",
-      header: () => <div className="text-sm font-semibold">Product Name</div>,
+      header: () => <div className="text-sm font-semibold">Product</div>,
+      size: 300,
       cell: ({ row }) => {
         const product = row.original;
         return (
           <div className="flex items-center gap-2.5">
             <div className="size-8 rounded-md bg-muted flex items-center justify-center shrink-0">
               {product.image ? (
-                <Avatar size="sm" className="rounded-md size-8">
-                  <AvatarImage src={product.image} alt={product.name} />
+                <Avatar size="default" className="rounded-md">
+                  <AvatarImage src={product.image.url} alt={product.name} />
                 </Avatar>
               ) : (
                 <Box className="size-4" />
@@ -52,7 +53,15 @@ export function ProductDashboard() {
       header: () => <div className="text-sm font-semibold">Price</div>,
       cell: ({ row }) => {
         const price = row.original.price;
-        return <div className="text-sm font-normal">${price.toFixed(0)}</div>;
+        return <div className="text-sm font-normal">Rp{price.toFixed(0)}</div>;
+      },
+    },
+    {
+      id: "category",
+      header: () => <div className="text-sm font-semibold">Category</div>,
+      cell: ({ row }) => {
+        const category = row.original.category?.name;
+        return <div className="text-sm font-normal">{category}</div>;
       },
     },
     {
@@ -72,21 +81,14 @@ export function ProductDashboard() {
             <Button
               variant="ghost"
               size="icon"
-              className="size-8 text-muted-foreground hover:text-foreground"
-            >
-              <Eye className="size-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8 text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground"
             >
               <Pencil className="size-4" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="size-8 text-muted-foreground hover:text-destructive"
+              className="text-muted-foreground hover:text-destructive"
             >
               <Trash2 className="size-4" />
             </Button>

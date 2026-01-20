@@ -61,12 +61,12 @@ export function AddProductForm() {
       image: "",
       categoryId: "",
       enableStock: false,
-      stockQty: 0,
+      stockQty: undefined,
       unit: "",
       enableBarcode: false,
       barcodeValue: "",
       barcodeType: "",
-      cost: 0,
+      cost: undefined,
     },
   });
 
@@ -120,7 +120,7 @@ export function AddProductForm() {
                     Product Name <span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Example: Nasi Padang" {...field} />
+                    <Input placeholder="e.g., Noodle" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -139,7 +139,7 @@ export function AddProductForm() {
                     <NumberInput
                       leftSection="Rp"
                       step={1000}
-                      placeholder="Example: 20000"
+                      placeholder="e.g., 20000"
                       min={0}
                       max={1_000_000_000_000}
                       withDelimiter
@@ -181,7 +181,7 @@ export function AddProductForm() {
                     <NumberInput
                       leftSection="Rp"
                       step={1000}
-                      placeholder="Example: 15000"
+                      placeholder="e.g., 15000"
                       min={0}
                       max={1_000_000_000_000}
                       withDelimiter
@@ -249,7 +249,7 @@ export function AddProductForm() {
                       </FormDescription>
                       <FormControl>
                         <Input
-                          placeholder="Enter barcode value"
+                          placeholder="e.g., 1234567890"
                           {...field}
                           rightSection={
                             <BarcodeDialogInput

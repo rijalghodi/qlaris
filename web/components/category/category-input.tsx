@@ -2,7 +2,7 @@
 
 import React from "react";
 import { SelectInput, SelectInputProps } from "../ui/select-input";
-import { useCategories } from "@/services/api-category";
+import { CategoryRes, useCategories } from "@/services/api-category";
 import { dialogs } from "../ui/dialog-manager";
 
 type Props = {
@@ -14,8 +14,6 @@ export function CategoryInput({ value, onChange, ...props }: Props) {
   // Fetch categories
   const { data: categoriesData, refetch } = useCategories({ pageSize: 100 });
 
-  console.log(categoriesData);
-
   // Transform categories to options format
   const options = React.useMemo(() => {
     return (
@@ -26,8 +24,6 @@ export function CategoryInput({ value, onChange, ...props }: Props) {
     );
   }, [categoriesData]);
 
-  console.log(options);
-
   const handleCreate = () => {
     dialogs.openContextDialog({
       modal: "addCategory",
@@ -35,7 +31,12 @@ export function CategoryInput({ value, onChange, ...props }: Props) {
       description: "Add a new category for organizing your products.",
       size: "sm",
       innerProps: {
-        onSuccess: () => refetch(),
+        onSuccess: (data: CategoryRes) => {
+          refetch();
+          console.log(data);
+          // select created one
+          onChange?.(data.data?.id);
+        },
       },
     });
   };
