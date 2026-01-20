@@ -45,6 +45,7 @@ func (u *AuthUsecase) LoginGoogleUser(c *fiber.Ctx, req *contract.GoogleLoginReq
 		user := &model.User{
 			Name:        req.Name,
 			Email:       req.Email,
+			Role:        config.USER_ROLE_OWNER,
 			IsVerified:  req.VerifiedEmail,
 			GoogleImage: googleImage,
 		}

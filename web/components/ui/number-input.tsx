@@ -82,22 +82,22 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
         }}
         inputMode="numeric"
         rightSection={
-          <div className="flex flex-col">
+          <div className="flex flex-col w-full max-w-5">
             <button
-              className="flex-1 hover:bg-accent cursor-pointer flex justify-center items-center text-muted-foreground hover:text-foreground size-4"
+              className="flex-1 hover:bg-accent cursor-pointer flex justify-center items-center text-muted-foreground hover:text-foreground size-4 w-full"
               type="button"
               title="Increment"
               onClick={handleIncrement}
             >
-              <ChevronUp className="size-2" />
+              <ChevronUp className="size-3!" />
             </button>
             <button
-              className="flex-1 hover:bg-accent cursor-pointer flex justify-center items-center text-muted-foreground hover:text-foreground size-4"
+              className="flex-1 hover:bg-accent cursor-pointer flex justify-center items-center text-muted-foreground hover:text-foreground size-4 w-full"
               type="button"
               title="Decrement"
               onClick={handleDecrement}
             >
-              <ChevronDown className="size-2" />
+              <ChevronDown className="size-3!" />
             </button>
           </div>
         }

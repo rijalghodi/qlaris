@@ -99,7 +99,7 @@ export function BarcodeDialogInput({ value, onChange, className, children }: Pro
       variant="secondary"
       onClick={open}
       className={cn(
-        "w-full h-full min-h-[100px] rounded-xl bg-input hover:bg-primary/5 border-2 hover:border-2 hover:border-ring hover:border-dashed text-muted-foreground",
+        "w-full h-full min-h-[100px] rounded-md bg-input hover:bg-primary/5 border-2 hover:border-2 hover:border-ring hover:border-dashed text-muted-foreground",
         className
       )}
     >

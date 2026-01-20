@@ -31,7 +31,8 @@ function DialogOverlay({
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
       className={cn(
-        "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs fixed inset-0 isolate z-50",
+        "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/40 duration-100 fixed inset-0 isolate z-50",
+        "supports-backdrop-filter:backdrop-blur-xs",
         className
       )}
       {...props}
@@ -39,14 +40,41 @@ function DialogOverlay({
   );
 }
 
+// Size mapping
+const sizeClasses = {
+  sm: "sm:max-w-sm",
+  md: "sm:max-w-md",
+  lg: "sm:max-w-lg",
+  xl: "sm:max-w-xl",
+  full: "sm:max-w-full",
+};
+
 function DialogContent({
   className,
   children,
   showCloseButton = true,
+  closeOnEscape = true,
+  closeOnClickOutside = true,
+  onEscapeKeyDown,
+  onPointerDownOutside,
+  size,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
+  closeOnEscape?: boolean;
+  closeOnClickOutside?: boolean;
+  size?: keyof typeof sizeClasses;
 }) {
+  const handleEscapeKeyDown = (e: KeyboardEvent) => {
+    if (!closeOnEscape) {
+      e.preventDefault();
+    }
+  };
+  const handlePointerDownOutside = (e: any) => {
+    if (!closeOnClickOutside) {
+      e.preventDefault();
+    }
+  };
   return (
     <DialogPortal>
       <DialogOverlay />
@@ -54,8 +82,11 @@ function DialogContent({
         data-slot="dialog-content"
         className={cn(
           "bg-background data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 ring-foreground/10 flex flex-col gap-0 max-w-[calc(100%-2rem)] rounded-xl p-6 text-sm ring-1 duration-100 fixed top-1/2 left-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2",
+          sizeClasses[size || "md"],
           className
         )}
+        onEscapeKeyDown={handleEscapeKeyDown}
+        onPointerDownOutside={handlePointerDownOutside}
         {...props}
       >
         {children}

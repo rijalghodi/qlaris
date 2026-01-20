@@ -31,6 +31,7 @@ import { Switch } from "../ui/switch";
 import { SelectInput } from "../ui/select-input";
 import { BarcodeDialogInput } from "../ui/barcode-scan-dialog";
 import { cn } from "@/lib/utils";
+import { CategoryInput } from "../category/category-input";
 
 const productSchema = z.object({
   name: z.string().min(1, "Product name is required").max(255, "Product name is too long"),
@@ -157,14 +158,12 @@ export function AddProductForm() {
                 <FormItem>
                   <FormLabel>Category</FormLabel>
                   <FormControl>
-                    <SelectInput
+                    <CategoryInput
                       placeholder="Select"
-                      options={[
-                        { label: "Category 1", value: "category-1" },
-                        { label: "Category 2", value: "category-2" },
-                        { label: "Category 3", value: "category-3" },
-                      ]}
+                      options={[]}
                       className="rounded-full"
+                      withCreate
+                      createLabel="Create New Category"
                       {...field}
                     />
                   </FormControl>

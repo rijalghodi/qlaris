@@ -1,7 +1,17 @@
 "use client";
 
+import { Plus } from "lucide-react";
+import { Button } from "./button";
 import { Input } from "./input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "./select";
 import { cn } from "@/lib/utils";
 import * as React from "react";
 
@@ -15,6 +25,9 @@ interface SelectInputProps {
   required?: boolean;
   className?: string;
   focusStyle?: "default" | "none";
+  withCreate?: boolean;
+  onCreate?: () => void;
+  createLabel?: string;
   container?: Element | DocumentFragment | null | undefined;
   error?: string;
 }
@@ -31,6 +44,9 @@ const SelectInput = React.forwardRef<HTMLButtonElement, SelectInputProps>(
       className,
       focusStyle,
       container,
+      withCreate,
+      onCreate,
+      createLabel,
       error,
       ...props
     },
@@ -144,31 +160,44 @@ const SelectInput = React.forwardRef<HTMLButtonElement, SelectInputProps>(
             </div>
           </SelectTrigger>
           <SelectContent className="max-h-[200px]">
-            {options.length > 0 ? (
-              options.map((option, index) => {
-                const label =
-                  typeof option === "string" || typeof option === "number"
-                    ? String(option)
-                    : option.label;
-                const value =
-                  typeof option === "string" || typeof option === "number"
-                    ? String(option)
-                    : String(option.value);
-                return (
-                  <SelectItem
-                    key={index}
-                    value={value}
-                    onClick={() => console.log("value123", value)}
-                  >
-                    {label}
-                  </SelectItem>
-                );
-              })
-            ) : (
-              <SelectItem disabled value="#">
-                No options available
-              </SelectItem>
-            )}
+            <SelectGroup>
+              {withCreate && (
+                <SelectLabel>
+                  <Button onClick={onCreate} variant="outline" className="w-full">
+                    <Plus /> {createLabel ?? "Create New"}
+                  </Button>
+                </SelectLabel>
+              )}
+              {options.length > 0 ? (
+                options.map((option, index) => {
+                  const label =
+                    typeof option === "string" || typeof option === "number"
+                      ? String(option)
+                      : option.label;
+                  const value =
+                    typeof option === "string" || typeof option === "number"
+                      ? String(option)
+                      : String(option.value);
+                  return (
+                    <SelectItem
+                      key={index}
+                      value={value}
+                      onClick={() => console.log("value123", value)}
+                    >
+                      {label}
+                    </SelectItem>
+                  );
+                })
+              ) : (
+                <SelectItem
+                  disabled
+                  value="#"
+                  className="text-center items-center justify-center h-16"
+                >
+                  No options available
+                </SelectItem>
+              )}
+            </SelectGroup>
           </SelectContent>
         </Select>
       </>
