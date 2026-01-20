@@ -8,6 +8,7 @@ type UserRes struct {
 	GoogleImage     *string  `json:"googleImage"`
 	Image           *FileRes `json:"image"`
 	IsVerified      bool     `json:"isVerified"`
+	HasPassword     bool     `json:"hasPassword"`
 	BusinessName    *string  `json:"businessName,omitempty"`
 	BusinessAddress *string  `json:"businessAddress,omitempty"`
 	IsDataCompleted *bool    `json:"isDataCompleted,omitempty"`
@@ -23,13 +24,13 @@ type EditCurrentUserReq struct {
 }
 
 type EditPasswordReq struct {
-	CurrentPassword string `json:"currentPassword" validate:"required,min=8,max=50"`
-	NewPassword     string `json:"newPassword" validate:"required,min=8,max=50"`
+	CurrentPassword *string `json:"currentPassword" validate:"password"`
+	NewPassword     string  `json:"newPassword" validate:"required,password"`
 }
 
 type CreateUserReq struct {
 	Email           string  `json:"email" validate:"required,email,max=255"`
-	Password        string  `json:"password" validate:"required,min=8,max=50"`
+	Password        string  `json:"password" validate:"required,password"`
 	Name            string  `json:"name" validate:"required,max=255"`
 	Role            string  `json:"role" validate:"required,oneof=owner manager cashier"`
 	BusinessID      *string `json:"businessId"`

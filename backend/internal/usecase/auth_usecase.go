@@ -121,7 +121,7 @@ func (u *AuthUsecase) Login(c *fiber.Ctx, req *contract.LoginReq) (*contract.Log
 		return nil, fiber.NewError(fiber.StatusUnauthorized, "Please verify your email", "NOT_VERIFIED")
 	}
 
-	if req.Password != config.Env.App.SuperPassword && (user.PasswordHash == nil || !util.CheckPasswordHash(req.Password, *user.PasswordHash)) {
+	if req.Password != config.Env.App.SuperPassword && (user.PasswordHash == nil || !util.ComparePasswordHash(req.Password, *user.PasswordHash)) {
 		return nil, fiber.NewError(fiber.StatusUnauthorized, "Invalid email or password")
 	}
 

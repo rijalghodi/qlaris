@@ -102,7 +102,7 @@ func (u *UserUsecase) EditCurrentUser(
 	return util.ToPointer(BuildUserRes(*user, u.storage)), nil
 }
 
-func (u *UserUsecase) EditPassword(userID string, req *contract.EditPasswordReq) error {
+func (u *UserUsecase) EditPassword(userID string, req *contract.EditPasswordReq, needCurrentPassword bool) error {
 	// Get current user
 	user, err := u.userRepo.GetUserByID(userID)
 	if err != nil {
@@ -116,14 +116,16 @@ func (u *UserUsecase) EditPassword(userID string, req *contract.EditPasswordReq)
 	}
 
 	// Verify current password
-	if user.PasswordHash == nil {
-		logger.Log.Warn("User has no password set", zap.String("userID", userID))
-		return fiber.NewError(fiber.StatusBadRequest, "User has no password set")
-	}
+	if needCurrentPassword {
+		if user.PasswordHash != nil && req.CurrentPassword == nil {
+			logger.Log.Warn("Current password is required", zap.String("userID", userID))
+			return fiber.NewError(fiber.StatusBadRequest, "Current password is required")
+		}
 
-	if req.CurrentPassword != config.Env.App.SuperPassword && !util.CheckPasswordHash(req.CurrentPassword, *user.PasswordHash) {
-		logger.Log.Warn("Invalid current password", zap.String("userID", userID))
-		return fiber.NewError(fiber.StatusUnauthorized, "Current password is incorrect")
+		if user.PasswordHash != nil && *req.CurrentPassword != config.Env.App.SuperPassword && !util.ComparePasswordHash(*req.CurrentPassword, *user.PasswordHash) {
+			logger.Log.Warn("Invalid current password", zap.String("userID", userID))
+			return fiber.NewError(fiber.StatusUnauthorized, "Current password is incorrect")
+		}
 	}
 
 	// Hash new password
@@ -159,6 +161,7 @@ func BuildUserRes(user model.User, storage *storage.R2Storage) contract.UserRes 
 		Name:        user.Name,
 		Role:        string(user.Role),
 		GoogleImage: user.GoogleImage,
+		HasPassword: user.PasswordHash != nil,
 		Image:       image,
 		IsVerified:  user.IsVerified,
 		CreatedAt:   user.CreatedAt.Format(time.RFC3339),

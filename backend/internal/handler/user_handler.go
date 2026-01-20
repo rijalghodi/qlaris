@@ -25,19 +25,19 @@ func NewUserHandler(userUsecase *usecase.UserUsecase) *UserHandler {
 
 func (h *UserHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	userGroup := app.Group("/users", middleware.AuthGuard(db))
+	// current
+	currentUserGroup := userGroup.Group("/current")
+	currentUserGroup.Get("", h.GetCurrentUser)
+	currentUserGroup.Put("", h.EditCurrentUser)
+	currentUserGroup.Put("/password", h.EditCurrentUserPassword)
+
 	// User
 	userGroup.Post("", h.CreateUser)
 	userGroup.Get("", h.ListUser)
 	userGroup.Put("/:id", h.UpdateUser)
 	userGroup.Get("/:id", h.GetUser)
 	userGroup.Delete("/:id", h.DeleteUser)
-	userGroup.Put("/:id/password", h.EditPassword)
-
-	// current
-	currentUserGroup := userGroup.Group("/current")
-	currentUserGroup.Get("", h.GetCurrentUser)
-	currentUserGroup.Put("", h.EditCurrentUser)
-	currentUserGroup.Put("/password", h.EditCurrentUserPassword)
+	userGroup.Put("/:id/", h.EditPassword)
 
 }
 
@@ -118,7 +118,7 @@ func (h *UserHandler) EditCurrentUserPassword(c *fiber.Ctx) error {
 	}
 
 	claims := middleware.GetAuthClaims(c)
-	if err := h.userUsecase.EditPassword(claims.ID, &req); err != nil {
+	if err := h.userUsecase.EditPassword(claims.ID, &req, true); err != nil {
 		return err
 	}
 
@@ -334,7 +334,7 @@ func (h *UserHandler) EditPassword(c *fiber.Ctx) error {
 		return err
 	}
 
-	if err := h.userUsecase.EditPassword(userID, &req); err != nil {
+	if err := h.userUsecase.EditPassword(userID, &req, false); err != nil {
 		return err
 	}
 
