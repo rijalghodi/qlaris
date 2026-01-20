@@ -4,14 +4,17 @@ import * as React from "react";
 
 import { QueryProvider } from "./query-provider";
 import { ConfirmationProvider } from "./ui/confirmation-dialog";
+import { BarcodeScanProvider } from "./ui/barcode-scan-dialog";
 import { Toaster } from "./ui/sonner";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryProvider>
       <ConfirmationProvider>
-        {children}
-        <Toaster />
+        <BarcodeScanProvider>
+          {children}
+          <Toaster />
+        </BarcodeScanProvider>
       </ConfirmationProvider>
       {/* <NextThemesProvider
         attribute="class"

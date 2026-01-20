@@ -10,9 +10,15 @@ export type Product = {
   businessId: string;
   name: string;
   price: number;
-  image?: string;
-  stockQty: number;
   isActive: boolean;
+  image?: string;
+  enableStock: boolean;
+  stockQty?: number;
+  unit?: string;
+  enableBarcode: boolean;
+  barcodeValue?: string;
+  barcodeType?: string;
+  cost?: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -21,14 +27,31 @@ export type CreateProductReq = {
   name: string;
   price: number;
   image?: string;
-  stockQty: number;
+  categoryId?: string;
+  isFavorite?: boolean;
+  enableStock?: boolean;
+  stockQty?: number;
+  unit?: string;
+  enableBarcode?: boolean;
+  barcodeValue?: string;
+  barcodeType?: string;
+  cost?: number;
 };
 
 export type UpdateProductReq = {
   name?: string;
   price?: number;
   image?: string;
+  categoryId?: string;
+  isFavorite?: boolean;
+  isActive?: boolean;
+  enableStock?: boolean;
   stockQty?: number;
+  unit?: string;
+  enableBarcode?: boolean;
+  barcodeValue?: string;
+  barcodeType?: string;
+  cost?: number;
 };
 
 export type ToggleProductStatusReq = {
@@ -61,7 +84,7 @@ export const productApi = {
   },
 
   update: async (id: string, data: UpdateProductReq): Promise<ProductRes> => {
-    const response = await apiClient.put(`/products/${id}`, data);
+    const response = await apiClient.patch(`/products/${id}`, data);
     return response.data;
   },
 

@@ -7,9 +7,11 @@ import * as z from "zod/v3";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -20,17 +22,28 @@ import { Textarea } from "@/components/ui/textarea";
 import { useCreateProduct } from "@/services/api-product";
 import { ROUTES } from "@/lib/routes";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // import { ImageInput } from "../ui/image-input";
-import { Info } from "lucide-react";
+import { Barcode, Box, Info, Layers, Scan, ScanBarcode, SquareStackIcon } from "lucide-react";
 import { NumberInput } from "../ui/number-input";
 import { ImageInput } from "../ui/image-input-2";
+import { Switch } from "../ui/switch";
+import { SelectInput } from "../ui/select-input";
+import { BarcodeDialogInput } from "../ui/barcode-scan-dialog";
+import { cn } from "@/lib/utils";
 
 const productSchema = z.object({
   name: z.string().min(1, "Product name is required").max(255, "Product name is too long"),
   price: z.number().min(0, "Price must be at least 0"),
-  stockQty: z.number().int().min(0, "Stock quantity must be at least 0"),
   image: z.string().optional().or(z.literal("")),
+  categoryId: z.string().optional().or(z.literal("")),
+  enableStock: z.boolean().optional(),
+  stockQty: z.number().int().min(0, "Stock quantity must be at least 0").optional(),
+  unit: z.string().optional().or(z.literal("")),
+  enableBarcode: z.boolean().optional(),
+  barcodeValue: z.string().optional().or(z.literal("")),
+  barcodeType: z.string().optional().or(z.literal("")),
+  cost: z.number().min(0, "Cost must be at least 0").optional(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -44,8 +57,15 @@ export function AddProductForm() {
     defaultValues: {
       name: "",
       price: 0,
-      stockQty: 0,
       image: "",
+      categoryId: "",
+      enableStock: false,
+      stockQty: 0,
+      unit: "",
+      enableBarcode: false,
+      barcodeValue: "",
+      barcodeType: "",
+      cost: 0,
     },
   });
 
@@ -65,8 +85,15 @@ export function AddProductForm() {
     const payload = {
       name: data.name,
       price: data.price,
-      stockQty: data.stockQty,
       image: data.image || undefined,
+      categoryId: data.categoryId || undefined,
+      enableStock: data.enableStock,
+      stockQty: data.stockQty,
+      unit: data.unit || undefined,
+      enableBarcode: data.enableBarcode,
+      barcodeValue: data.barcodeValue || undefined,
+      barcodeType: data.barcodeType || undefined,
+      cost: data.cost,
     };
     createProduct(payload);
   };
@@ -77,7 +104,7 @@ export function AddProductForm() {
         <Card className="">
           <CardHeader className="border-b pb-4!">
             <div className="flex items-center gap-2">
-              <Info className="size-4 text-orange-500" />
+              <Box className="size-4 text-primary" />
               <h2 className="text-base font-semibold">Product Information</h2>
             </div>
           </CardHeader>
@@ -125,14 +152,43 @@ export function AddProductForm() {
 
             <FormField
               control={form.control}
-              name="stockQty"
+              name="categoryId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    Stock Quantity <span className="text-destructive">*</span>
-                  </FormLabel>
+                  <FormLabel>Category</FormLabel>
                   <FormControl>
-                    <NumberInput placeholder="0" min={0} max={1_000_000} withDelimiter {...field} />
+                    <SelectInput
+                      placeholder="Select"
+                      options={[
+                        { label: "Category 1", value: "category-1" },
+                        { label: "Category 2", value: "category-2" },
+                        { label: "Category 3", value: "category-3" },
+                      ]}
+                      className="rounded-full"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="cost"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cost (Buying Price)</FormLabel>
+                  <FormControl>
+                    <NumberInput
+                      leftSection="Rp"
+                      step={1000}
+                      placeholder="Example: 15000"
+                      min={0}
+                      max={1_000_000_000_000}
+                      withDelimiter
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -153,6 +209,138 @@ export function AddProductForm() {
               )}
             />
           </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className={form.watch("enableBarcode") ? "border-b pb-4!" : ""}>
+            <CardTitle>
+              <ScanBarcode className="inline mr-2 size-4 text-primary" />
+              Barcode
+            </CardTitle>
+            <CardAction>
+              <FormField
+                control={form.control}
+                name="enableBarcode"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center gap-3">
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} size="lg" />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </CardAction>
+          </CardHeader>
+          {form.watch("enableBarcode") && (
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="col-span-1">
+                <BarcodeDialogInput
+                  value={form.watch("barcodeValue")}
+                  onChange={(value) => form.setValue("barcodeValue", value || "")}
+                />
+              </div>
+              <div className="col-span-1 space-y-4">
+                <FormField
+                  control={form.control}
+                  name="barcodeValue"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Barcode Value</FormLabel>
+                      <FormDescription>
+                        Must be unique. Can enter via barcode scanner or manually.
+                      </FormDescription>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter barcode value"
+                          {...field}
+                          rightSection={
+                            <BarcodeDialogInput
+                              value={form.watch("barcodeValue")}
+                              onChange={(value) => form.setValue("barcodeValue", value || "")}
+                            >
+                              {({ value, open }) => (
+                                <Button
+                                  variant="ghost"
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    open?.();
+                                  }}
+                                >
+                                  <ScanBarcode className="size-4" />
+                                </Button>
+                              )}
+                            </BarcodeDialogInput>
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          )}
+        </Card>
+
+        <Card>
+          <CardHeader className={form.watch("enableStock") ? "border-b pb-4!" : ""}>
+            <CardTitle>
+              <Layers className="inline mr-2 size-4 text-primary" />
+              Stock Management
+            </CardTitle>
+            <CardAction>
+              <FormField
+                control={form.control}
+                name="enableStock"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center gap-3">
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} size="lg" />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </CardAction>
+          </CardHeader>
+
+          {form.watch("enableStock") && (
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="stockQty"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Stock Quantity</FormLabel>
+                    <FormControl>
+                      <NumberInput
+                        placeholder="0"
+                        min={0}
+                        max={1_000_000}
+                        withDelimiter
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="unit"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Unit</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., pcs, kg, box" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          )}
         </Card>
 
         <Card className="sticky bottom-0">
