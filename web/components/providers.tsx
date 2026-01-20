@@ -8,6 +8,7 @@ import { BarcodeScanProvider } from "./ui/barcode-scan-dialog";
 import { Toaster } from "./ui/sonner";
 import { DialogManagerProvider } from "./ui/dialog-manager";
 import { AddCategoryDialog } from "./category/add-category-dialog";
+import { SetupMeDialog } from "./me/setup-me-dialog";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -15,6 +16,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <DialogManagerProvider
         dialogs={{
           addCategory: AddCategoryDialog,
+          setupMe: SetupMeDialog,
         }}
       >
         <ConfirmationProvider>

@@ -14,6 +14,8 @@ export function CategoryInput({ value, onChange, ...props }: Props) {
   // Fetch categories
   const { data: categoriesData, refetch } = useCategories({ pageSize: 100 });
 
+  console.log(categoriesData);
+
   // Transform categories to options format
   const options = React.useMemo(() => {
     return (
@@ -23,6 +25,8 @@ export function CategoryInput({ value, onChange, ...props }: Props) {
       })) || []
     );
   }, [categoriesData]);
+
+  console.log(options);
 
   const handleCreate = () => {
     dialogs.openContextDialog({

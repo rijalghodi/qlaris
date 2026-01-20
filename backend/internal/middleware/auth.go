@@ -12,8 +12,10 @@ import (
 )
 
 type Claims struct {
-	util.JWTClaims
+	// util.JWTClaims
+	ID         string          `json:"id"`
 	Role       config.UserRole `json:"role"`
+	Type       string          `json:"type"`
 	BusinessID *string         `json:"business_id"`
 }
 
@@ -32,7 +34,9 @@ func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 		}
 
 		claims := Claims{
-			JWTClaims: jwtClaims,
+			ID:   jwtClaims.ID,
+			Role: config.UserRole(jwtClaims.Role),
+			Type: jwtClaims.Type,
 		}
 
 		// Check role permissions if roles are specified

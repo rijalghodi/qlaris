@@ -1,42 +1,9 @@
-import {
-  ArrowRightLeftIcon,
-  CalendarClockIcon,
-  ChartNoAxesCombinedIcon,
-  ChartPieIcon,
-  ChartSplineIcon,
-  ClipboardListIcon,
-  Clock9Icon,
-  CrownIcon,
-  FacebookIcon,
-  HashIcon,
-  InstagramIcon,
-  LanguagesIcon,
-  LinkedinIcon,
-  SettingsIcon,
-  SquareActivityIcon,
-  TwitterIcon,
-  Undo2Icon,
-  UsersIcon,
-} from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 import { ProfileDropdown } from "./profile-dropdown";
 import { AppSidebar } from "./app-sidebar";
 import { BRAND } from "@/lib/brand";
+import { SetupMeTrigger } from "../me/setup-me-dialog";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -63,6 +30,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </p>
             </div>
           </footer>
+          <SetupMeTrigger />
         </div>
       </SidebarProvider>
     </div>

@@ -160,7 +160,6 @@ export function AddProductForm() {
                   <FormControl>
                     <CategoryInput
                       placeholder="Select"
-                      options={[]}
                       className="rounded-full"
                       withCreate
                       createLabel="Create New Category"
