@@ -18,6 +18,7 @@ import {
   ShoppingBagIcon,
   ShoppingBasket,
   SquareActivityIcon,
+  Tags,
   UsersIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -82,8 +83,16 @@ export function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
+                  <Link href={ROUTES.PRODUCTS}>
+                    <Tags />
+                    <span>Categories</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
                   <Link href={ROUTES.TRANSACTIONS}>
-                    <ShoppingBag />
+                    <ArrowRightLeftIcon />
                     <span>Transactions</span>
                   </Link>
                 </SidebarMenuButton>

@@ -40,7 +40,7 @@ const getCurrentUser = async (request: NextRequest) => {
       credentials: "include",
     });
 
-    console.log("Response:", response.ok);
+    console.log("Response.ok:", response.ok);
 
     if (!response.ok) {
       return null;
@@ -64,6 +64,7 @@ const getCurrentUser = async (request: NextRequest) => {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  console.log("Pathname:", pathname);
 
   // Check if current path is in any of the URL categories
   const isPublicUrl = matchesPattern(pathname, PUBLIC_URL);

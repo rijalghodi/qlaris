@@ -7,7 +7,6 @@ import * as z from "zod/v3";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -18,19 +17,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useCreateProduct } from "@/services/api-product";
+import { useUpdateProduct, type Product } from "@/services/api-product";
 import { ROUTES } from "@/lib/routes";
 import { toast } from "sonner";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { ImageInput } from "../ui/image-input";
-import { Barcode, Box, Info, Layers, Scan, ScanBarcode, SquareStackIcon } from "lucide-react";
+import { Box, Layers, ScanBarcode } from "lucide-react";
 import { NumberInput } from "../ui/number-input";
 import { ImageInput } from "../ui/image-input-2";
 import { Switch } from "../ui/switch";
-import { SelectInput } from "../ui/select-input";
 import { BarcodeDialogInput } from "../ui/barcode-scan-dialog";
-import { cn } from "@/lib/utils";
 import { CategoryInput } from "../category/category-input";
 
 const productSchema = z.object({
@@ -45,44 +40,52 @@ const productSchema = z.object({
   barcodeValue: z.string().optional().or(z.literal("")),
   barcodeType: z.string().optional().or(z.literal("")),
   cost: z.number().min(0, "Cost must be at least 0").optional(),
+  isActive: z.boolean().optional(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
 
-export function AddProductForm() {
+interface EditProductFormProps {
+  productId: string;
+  defaultValues?: Product;
+}
+
+export function EditProductForm({ productId, defaultValues }: EditProductFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: {
-      name: "",
-      price: undefined,
-      image: "",
-      categoryId: "",
-      enableStock: false,
-      stockQty: undefined,
-      unit: "",
-      enableBarcode: false,
-      barcodeValue: "",
-      barcodeType: "",
-      cost: undefined,
+      name: defaultValues?.name || "",
+      price: defaultValues?.price,
+      image: defaultValues?.image?.key || "",
+      categoryId: defaultValues?.categoryId || "",
+      enableStock: defaultValues?.enableStock,
+      stockQty: defaultValues?.stockQty,
+      unit: defaultValues?.unit || "",
+      enableBarcode: defaultValues?.enableBarcode,
+      barcodeValue: defaultValues?.barcodeValue || "",
+      barcodeType: defaultValues?.barcodeType || "",
+      cost: defaultValues?.cost,
+      isActive: defaultValues?.isActive,
     },
   });
 
-  const { mutate: createProduct } = useCreateProduct({
+  const { mutate: updateProduct } = useUpdateProduct({
     onSuccess: () => {
-      toast.success("Product created successfully!");
+      toast.success("Product updated successfully!");
       router.push(ROUTES.PRODUCTS);
     },
     onError: (error) => {
-      toast.error(error || "Failed to create product");
+      toast.error(error || "Failed to update product");
       setIsSubmitting(false);
     },
   });
 
   const onSubmit = (data: ProductFormData) => {
     setIsSubmitting(true);
+    console.log(data);
     const payload = {
       name: data.name,
       price: data.price,
@@ -95,8 +98,9 @@ export function AddProductForm() {
       barcodeValue: data.barcodeValue || undefined,
       barcodeType: data.barcodeType || undefined,
       cost: data.cost,
+      isActive: data.isActive,
     };
-    createProduct(payload);
+    updateProduct({ id: productId, data: payload });
   };
 
   return (
@@ -200,7 +204,7 @@ export function AddProductForm() {
                 <FormItem className="col-span-2">
                   <FormLabel>Image</FormLabel>
                   <FormControl>
-                    <ImageInput {...field} />
+                    <ImageInput {...field} defaultValue={defaultValues?.image?.url} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -358,7 +362,7 @@ export function AddProductForm() {
                 disabled={isSubmitting}
                 className="bg-orange-500 hover:bg-orange-600 rounded-full"
               >
-                {isSubmitting ? "Creating..." : "Create Product"}
+                {isSubmitting ? "Updating..." : "Update Product"}
               </Button>
             </div>
           </CardContent>

@@ -28,6 +28,14 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
   ({ name, value, onChange, withDelimiter = true, step = 1, min, max, ...props }, ref) => {
     const [display, setDisplay] = useState("");
 
+    useEffect(() => {
+      if (typeof value === "number") {
+        setDisplay(withDelimiter ? formatNumberWithDelimiter(value) : String(value));
+      } else {
+        setDisplay("");
+      }
+    }, [value, withDelimiter]);
+
     const handleChange = (value: string) => {
       let parsed: number | undefined;
       if (withDelimiter) {
@@ -46,11 +54,11 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
 
       onChange?.(parsed);
 
-      if (parsed === undefined) {
-        setDisplay("");
-      } else {
-        setDisplay(withDelimiter ? formatNumberWithDelimiter(parsed) : String(parsed));
-      }
+      // if (parsed === undefined) {
+      //   setDisplay("");
+      // } else {
+      //   setDisplay(withDelimiter ? formatNumberWithDelimiter(parsed) : String(parsed));
+      // }
     };
 
     const handleIncrement = () => {

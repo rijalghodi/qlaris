@@ -70,7 +70,7 @@ type ImageInputContextValue = {
   handleRemove: () => void;
   handleTriggerEdit: () => void;
   setIsDragging: (value: boolean) => void;
-  inputRef: React.RefObject<HTMLInputElement> | null;
+  inputRef: React.RefObject<HTMLInputElement | null> | null;
 };
 
 // ===== Context =====
@@ -196,7 +196,7 @@ const ImageInputRoot = React.forwardRef<ImageInputRef, ImageInputProps>(
       handleRemove,
       handleTriggerEdit,
       setIsDragging,
-      inputRef: null,
+      inputRef,
     };
 
     return <ImageInputContext.Provider value={contextValue}>{children}</ImageInputContext.Provider>;

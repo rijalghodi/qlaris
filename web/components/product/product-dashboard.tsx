@@ -14,6 +14,8 @@ import { useProducts, type Product } from "@/services/api-product";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import RowsPerPage from "../ui/rows-perpage";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
+import { ROUTES } from "@/lib/routes";
+import { delimitNumber } from "@/lib/number";
 
 export function ProductDashboard() {
   const [page, setPage] = useState(1);
@@ -53,7 +55,7 @@ export function ProductDashboard() {
       header: () => <div className="text-sm font-semibold">Price</div>,
       cell: ({ row }) => {
         const price = row.original.price;
-        return <div className="text-sm font-normal">Rp{price.toFixed(0)}</div>;
+        return <div className="text-sm font-normal">Rp{delimitNumber(price)}</div>;
       },
     },
     {
@@ -69,19 +71,25 @@ export function ProductDashboard() {
       header: () => <div className="text-sm font-semibold">Qty</div>,
       cell: ({ row }) => {
         const stock = row.original.stockQty;
-        return <div className="text-sm font-normal">{stock}</div>;
+        return (
+          <div className="text-sm font-normal">
+            {stock != undefined && stock != null ? delimitNumber(stock) : ""}
+          </div>
+        );
       },
     },
     {
       id: "actions",
       header: "",
       cell: ({ row }) => {
+        const product = row.original;
         return (
           <div className="flex items-center gap-1 justify-end">
             <Button
               variant="ghost"
               size="icon"
               className="text-muted-foreground hover:text-foreground"
+              onClick={() => (window.location.href = ROUTES.PRODUCT_EDIT(product.id))}
             >
               <Pencil className="size-4" />
             </Button>

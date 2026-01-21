@@ -127,10 +127,10 @@ export function SetupMeDialog({ context, id, innerProps }: ContextDialogProps<Se
 }
 
 export function SetupMeTrigger() {
-  const { data: userData } = useGetCurrentUser();
+  const { data: userData, isLoading, isFetching } = useGetCurrentUser();
 
   useEffect(() => {
-    if (!userData?.data?.isDataCompleted) {
+    if (!userData?.data?.isDataCompleted && !isLoading && !isFetching) {
       dialogs.openContextDialog({
         modal: "setupMe",
         title: "Setup Your Profile",
@@ -141,7 +141,7 @@ export function SetupMeTrigger() {
         },
       });
     }
-  }, [userData]);
+  }, [userData, isLoading, isFetching]);
 
   return null;
 }

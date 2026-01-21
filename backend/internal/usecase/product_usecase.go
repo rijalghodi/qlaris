@@ -8,6 +8,7 @@ import (
 	"app/internal/repository"
 	"app/pkg/logger"
 	"app/pkg/storage"
+	"app/pkg/util"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -137,18 +138,29 @@ func (u *ProductUsecase) buildProductRes(product *model.Product) *contract.Produ
 		}
 	}
 
+	var barcodeType *string
+	if product.BarcodeType != nil {
+		barcodeType = util.ToPointer(string(*product.BarcodeType))
+	}
+
 	return &contract.ProductRes{
-		ID:         product.ID,
-		BusinessID: product.BusinessID,
-		Name:       product.Name,
-		Price:      product.Price,
-		Image:      imageRes,
-		CategoryID: product.CategoryID,
-		Category:   categoryRes,
-		StockQty:   product.StockQty,
-		IsActive:   product.IsActive,
-		CreatedAt:  product.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:  product.UpdatedAt.Format(time.RFC3339),
+		ID:            product.ID,
+		BusinessID:    product.BusinessID,
+		Name:          product.Name,
+		Price:         product.Price,
+		Cost:          product.Cost,
+		Image:         imageRes,
+		CategoryID:    product.CategoryID,
+		Category:      categoryRes,
+		StockQty:      product.StockQty,
+		EnableStock:   product.EnableStock,
+		Unit:          product.Unit,
+		EnableBarcode: product.EnableBarcode,
+		BarcodeValue:  product.BarcodeValue,
+		BarcodeType:   barcodeType,
+		IsActive:      product.IsActive,
+		CreatedAt:     product.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:     product.UpdatedAt.Format(time.RFC3339),
 	}
 }
 

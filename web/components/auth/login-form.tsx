@@ -12,7 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useLogin } from "@/services/api-auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ROUTES } from "@/lib/route";
+import { ROUTES } from "@/lib/routes";
 
 const loginSchema = z.object({
   email: z.email("Please enter a valid email address"),
