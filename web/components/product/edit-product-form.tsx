@@ -58,17 +58,17 @@ export function EditProductForm({ productId, defaultValues }: EditProductFormPro
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: defaultValues?.name || "",
-      price: defaultValues?.price,
+      price: defaultValues?.price || undefined,
       image: defaultValues?.image?.key || "",
       categoryId: defaultValues?.categoryId || "",
-      enableStock: defaultValues?.enableStock,
-      stockQty: defaultValues?.stockQty,
+      enableStock: defaultValues?.enableStock || undefined,
+      stockQty: defaultValues?.stockQty || undefined,
       unit: defaultValues?.unit || "",
-      enableBarcode: defaultValues?.enableBarcode,
+      enableBarcode: defaultValues?.enableBarcode || undefined,
       barcodeValue: defaultValues?.barcodeValue || "",
       barcodeType: defaultValues?.barcodeType || "",
-      cost: defaultValues?.cost,
-      isActive: defaultValues?.isActive,
+      cost: defaultValues?.cost || undefined,
+      isActive: defaultValues?.isActive || undefined,
     },
   });
 

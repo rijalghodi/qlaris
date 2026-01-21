@@ -81,6 +81,10 @@ type SendVerificationEmailRes struct {
 	NextRequestAt *string `json:"nextRequestAt"`
 }
 
+type VerifyEmailReq struct {
+	Token string `json:"token" validate:"required"`
+}
+
 type VerifyEmailRes struct {
 	UserRes
 }

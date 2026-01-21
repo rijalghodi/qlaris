@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { Pagination } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
-import { useProducts, useDeleteProduct } from "@/services/api-product";
+import { useProducts, useDeleteProduct, LIST_PRODUCTS_KEY } from "@/services/api-product";
 import RowsPerPage from "../ui/rows-perpage";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -13,6 +13,8 @@ import { useRouter } from "next/navigation";
 import { ROUTES } from "@/lib/routes";
 import { dialogs } from "../ui/dialog-manager";
 import { toast } from "sonner";
+import { buildQueryKeyPredicate } from "@/services/util";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function ProductDashboard() {
   const router = useRouter();
@@ -34,6 +36,8 @@ export function ProductDashboard() {
 
   const products = data?.data || [];
   const totalPages = data?.pagination?.totalPages || 1;
+
+  const queryClient = useQueryClient();
 
   return (
     <Card className="flex flex-col gap-3 w-full">

@@ -14,7 +14,7 @@ type SortCategoryReq struct {
 }
 
 type SortCategoriesReq struct {
-	Categories []SortCategoryReq `json:"categories" validate:"required,min=1,dive"`
+	CategoryIDs []string `json:"categoryIds" validate:"required,min=1,dive"`
 }
 
 type CategoryRes struct {

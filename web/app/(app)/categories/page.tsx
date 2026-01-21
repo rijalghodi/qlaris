@@ -3,7 +3,7 @@
 import { CategoryDashboard } from "@/components/category/category-dashboard";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { ArrowUpDown, Plus } from "lucide-react";
 import { AddCategoryDialog } from "@/components/category/add-category-dialog";
 import { dialogs } from "@/components/ui/dialog-manager";
 import { ROUTES } from "@/lib/routes";
@@ -26,6 +26,22 @@ export default function CategoriesPage() {
         {/* Search and Actions */}
 
         <div className="flex items-center gap-2">
+          <Button
+            variant="default"
+            className="rounded-full"
+            onClick={() => {
+              dialogs.openContextDialog({
+                modal: "sortCategory",
+                title: "Sort Categories",
+                size: "lg",
+                innerProps: {},
+              });
+            }}
+          >
+            <ArrowUpDown />
+            Sort
+          </Button>
+
           <Button
             variant="default"
             className="rounded-full"

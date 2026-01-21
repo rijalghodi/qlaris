@@ -4,6 +4,7 @@ import { apiClient } from "./api-client";
 import type { GErrorResponse, GResponse, MResponse } from "./type";
 import { FileRes } from "./api-user";
 import { Category } from "./api-category";
+import { buildQueryKey, buildQueryKeyPredicate } from "./util";
 
 // --- TYPES ---
 
@@ -105,17 +106,19 @@ export const productApi = {
 
 // --- HOOKS ---
 
+export const LIST_PRODUCTS_KEY = "products";
 export const useProducts = (params?: { page?: number; pageSize?: number; search?: string }) => {
   return useQuery({
-    queryKey: ["products", params],
+    queryKey: buildQueryKey(LIST_PRODUCTS_KEY, params),
     queryFn: () => productApi.list(params),
     initialData: (data: any) => data,
   });
 };
 
+export const GET_PRODUCT_KEY = "product";
 export const useProduct = (id: string) => {
   return useQuery({
-    queryKey: ["products", id],
+    queryKey: buildQueryKey(GET_PRODUCT_KEY, { id }),
     queryFn: () => productApi.get(id),
     enabled: !!id,
   });
@@ -133,7 +136,9 @@ export const useCreateProduct = ({
   return useMutation({
     mutationFn: (data: CreateProductReq) => productApi.create(data),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({
+        predicate: buildQueryKeyPredicate([{ key: LIST_PRODUCTS_KEY }]),
+      });
       onSuccess?.(data);
     },
     onError: (error: GErrorResponse) => {
@@ -154,8 +159,13 @@ export const useUpdateProduct = ({
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateProductReq }) =>
       productApi.update(id, data),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        predicate: buildQueryKeyPredicate([
+          { key: LIST_PRODUCTS_KEY },
+          { key: GET_PRODUCT_KEY, data: { id: variables.id } },
+        ]),
+      });
       onSuccess?.(data);
     },
     onError: (error: GErrorResponse) => {
@@ -176,7 +186,9 @@ export const useDeleteProduct = ({
   return useMutation({
     mutationFn: (id: string) => productApi.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({
+        predicate: buildQueryKeyPredicate([{ key: LIST_PRODUCTS_KEY }]),
+      });
       onSuccess?.();
     },
     onError: (error: GErrorResponse) => {
@@ -197,8 +209,13 @@ export const useToggleProductStatus = ({
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: ToggleProductStatusReq }) =>
       productApi.toggleStatus(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        predicate: buildQueryKeyPredicate([
+          { key: LIST_PRODUCTS_KEY },
+          { key: GET_PRODUCT_KEY, data: { id: variables.id } },
+        ]),
+      });
       onSuccess?.();
     },
     onError: (error: GErrorResponse) => {

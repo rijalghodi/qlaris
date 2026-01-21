@@ -21,7 +21,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "../ui/empty";
-import { ROUTES } from "@/lib/route";
+import { ROUTES } from "@/lib/routes";
 
 const registerSchema = z
   .object({

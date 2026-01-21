@@ -240,7 +240,18 @@ func (h *AuthHandler) SendVerificationEmail(c *fiber.Ctx) error {
 // @Failure 401 {object} util.BaseResponse
 // @Router /auth/verify-email [post]
 func (h *AuthHandler) VerifyEmail(c *fiber.Ctx) error {
-	token := c.Query("token")
+	var req contract.VerifyEmailReq
+	if err := c.BodyParser(&req); err != nil {
+		logger.Log.Warn("Failed to parse request body: %v", err)
+		return err
+	}
+
+	if err := util.ValidateStruct(&req); err != nil {
+		logger.Log.Warn("Validation error: %v", err)
+		return err
+	}
+
+	token := req.Token
 	if token == "" {
 		logger.Log.Warn("Token is required")
 		return fiber.NewError(fiber.StatusBadRequest, "Token is required")

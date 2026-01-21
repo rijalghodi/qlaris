@@ -104,47 +104,48 @@ export type ResetPasswordRes = GResponse<Record<string, never>>;
 export const authApi = {
   register: async (credentials: RegisterReq): Promise<RegisterRes> => {
     const response = await apiClient.post("/auth/register", credentials);
-    return response.data;
+    return response?.data;
   },
 
   login: async (credentials: LoginReq): Promise<LoginRes> => {
     const response = await apiClient.post("/auth/login", credentials);
-    return response.data;
+    return response?.data;
   },
 
   forgotPassword: async (data: ForgotPasswordReq): Promise<ForgotPasswordRes> => {
     const response = await apiClient.post("/auth/forgot-password", data);
-    return response.data;
+    return response?.data;
   },
 
   resetPassword: async (data: ResetPasswordReq): Promise<ResetPasswordRes> => {
     const response = await apiClient.post("/auth/reset-password", data);
-    return response.data;
+    return response?.data;
   },
 
   setPassword: async (data: SetPasswordReq): Promise<SetPasswordRes> => {
     const response = await apiClient.post("/auth/set-password", data);
-    return response.data;
+    return response?.data;
   },
 
   sendVerification: async (data: ForgotPasswordReq): Promise<ForgotPasswordRes> => {
     const response = await apiClient.post("/auth/send-verification", data);
-    return response.data;
+    return response?.data;
   },
 
   verifyEmail: async (data: VerifyEmailReq): Promise<LoginRes> => {
     const response = await apiClient.post("/auth/verify-email", data);
-    return response.data;
+    if (!response) throw new Error("Failed to verify email");
+    return response?.data;
   },
 
   refreshToken: async (): Promise<RefreshTokenRes> => {
     const response = await apiClient.post("/auth/refresh-token");
-    return response.data;
+    return response?.data;
   },
 
   getCurrentUser: async (): Promise<GetCurrentUserRes> => {
     const response = await apiClient.get("/users/current");
-    return response.data;
+    return response?.data;
   },
 };
 

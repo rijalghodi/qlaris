@@ -11,6 +11,7 @@ import { AddCategoryDialog } from "./category/add-category-dialog";
 import { SetupMeDialog } from "./me/setup-me-dialog";
 import { ConfirmDialog } from "./ui/dialog-confirm";
 import { EditCategoryDialog } from "./category/edit-category-dialog";
+import { SortCategoryDialog } from "./category/sort-category-dialog";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -19,6 +20,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         dialogs={{
           addCategory: AddCategoryDialog,
           editCategory: EditCategoryDialog,
+          sortCategory: SortCategoryDialog,
           setupMe: SetupMeDialog,
         }}
       >

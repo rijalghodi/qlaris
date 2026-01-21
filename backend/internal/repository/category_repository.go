@@ -97,36 +97,74 @@ func (r *CategoryRepository) GetMaxSortOrder(businessID string) (int, error) {
 	return *result.MaxSortOrder, nil
 }
 
-// SortCategories updates categories' sort_order in a single transaction with atomic shifting
-// It handles the reordering by temporarily setting affected categories to negative values
-// then updating them to their final positions
-func (r *CategoryRepository) SortCategories(businessID string, updates []struct {
-	CategoryID string
-	SortOrder  int
-}) error {
-	return r.db.Transaction(func(tx *gorm.DB) error {
-		// Step 1: Set all affected categories to negative values temporarily
-		// This prevents unique constraint violations during the update
-		for i, update := range updates {
-			tempValue := -(i + 1)
-			err := tx.Model(&model.Category{}).
-				Where("id = ? AND business_id = ?", update.CategoryID, businessID).
-				Update("sort_order", tempValue).Error
-			if err != nil {
-				return err
-			}
-		}
+func (r *CategoryRepository) GetMinSortOrder(businessID string) (int, error) {
+	var result struct {
+		MinSortOrder *int
+	}
+	err := r.db.Model(&model.Category{}).
+		Select("MIN(sort_order) as min_sort_order").
+		Where("business_id = ?", businessID).
+		Scan(&result).Error
+	if err != nil {
+		return 0, err
+	}
+	if result.MinSortOrder == nil {
+		return 0, nil
+	}
+	return *result.MinSortOrder, nil
+}
 
-		// Step 2: Update all categories to their final sort_order values
-		for _, update := range updates {
-			err := tx.Model(&model.Category{}).
-				Where("id = ? AND business_id = ?", update.CategoryID, businessID).
-				Update("sort_order", update.SortOrder).Error
-			if err != nil {
-				return err
-			}
-		}
-
+func (r *CategoryRepository) SortCategories(
+	businessID string,
+	updates []struct {
+		CategoryID string
+		SortOrder  int
+	},
+) error {
+	if len(updates) == 0 {
 		return nil
+	}
+
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		ids := make([]string, 0, len(updates))
+		args := make([]any, 0, len(updates)*2)
+
+		for _, u := range updates {
+			ids = append(ids, u.CategoryID)
+			args = append(args, u.CategoryID, u.SortOrder)
+		}
+
+		// 1. Lock rows
+		if err := tx.Exec(`
+			SELECT 1 FROM categories
+			WHERE business_id = ? AND id IN ?
+			FOR UPDATE
+		`, businessID, ids).Error; err != nil {
+			return err
+		}
+
+		// 2. Move to safe temp range
+		if err := tx.Exec(`
+			UPDATE categories
+			SET sort_order = sort_order - 1000000
+			WHERE business_id = ? AND id IN ?
+		`, businessID, ids).Error; err != nil {
+			return err
+		}
+
+		// 3. Final update (single statement)
+		caseSQL := "CASE id"
+		for range updates {
+			caseSQL += " WHEN ? THEN ?::INTEGER"
+		}
+		caseSQL += " END"
+
+		args = append(args, businessID, ids)
+
+		return tx.Exec(`
+			UPDATE categories
+			SET sort_order = `+caseSQL+`
+			WHERE business_id = ? AND id IN ?
+		`, args...).Error
 	})
 }

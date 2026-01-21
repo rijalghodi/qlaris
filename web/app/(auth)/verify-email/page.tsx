@@ -12,8 +12,9 @@ import {
 import { useVerifyEmail } from "@/services/api-auth";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ROUTES } from "@/lib/route";
+import { ROUTES } from "@/lib/routes";
 import { Loader2, CheckCircle2, X } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function VerifyEmailPage() {
   const router = useRouter();
@@ -55,7 +56,7 @@ export default function VerifyEmailPage() {
     return (
       <Empty>
         <EmptyMedia>
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <Spinner size="lg" className="text-primary" />
         </EmptyMedia>
         <EmptyHeader>
           <EmptyTitle>Email Verification</EmptyTitle>

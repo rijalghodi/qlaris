@@ -27,10 +27,10 @@ func NewCategoryUsecase(categoryRepo *repository.CategoryRepository, businessRep
 }
 
 func (u *CategoryUsecase) CreateCategory(businessID string, req *contract.CreateCategoryReq) (*contract.CategoryRes, error) {
-	// Get max sort_order and add 1
+	// Get min sort_order and decrement by 1
 	maxSortOrder, err := u.categoryRepo.GetMaxSortOrder(businessID)
 	if err != nil {
-		logger.Log.Error("Failed to get max sort_order", zap.Error(err), zap.String("businessID", businessID))
+		logger.Log.Error("Failed to get min sort_order", zap.Error(err), zap.String("businessID", businessID))
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to create category")
 	}
 
@@ -111,14 +111,15 @@ func (u *CategoryUsecase) DeleteCategory(categoryID string) error {
 
 func (u *CategoryUsecase) SortCategories(businessID string, req *contract.SortCategoriesReq) error {
 	// Prepare updates for repository
+	// Use the index in the array as the sort order
 	updates := make([]struct {
 		CategoryID string
 		SortOrder  int
-	}, len(req.Categories))
+	}, len(req.CategoryIDs))
 
-	for i, cat := range req.Categories {
-		updates[i].CategoryID = cat.CategoryID
-		updates[i].SortOrder = cat.SortOrder
+	for i, categoryID := range req.CategoryIDs {
+		updates[i].CategoryID = categoryID
+		updates[i].SortOrder = i
 	}
 
 	if err := u.categoryRepo.SortCategories(businessID, updates); err != nil {

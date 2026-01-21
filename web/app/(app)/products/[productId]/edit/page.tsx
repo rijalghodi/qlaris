@@ -55,7 +55,7 @@ export default function EditProductPage() {
         <div className="flex items-center gap-2">
           <Button asChild variant="secondary" className="shrink-0 rounded-full">
             <Link href={ROUTES.PRODUCTS}>
-              <ArrowLeft className="size-4" /> Back to Products
+              <ArrowLeft /> Back to Products
             </Link>
           </Button>
         </div>

@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiClient } from "./api-client";
 import type { GErrorResponse, GResponse, MResponse } from "./type";
+import { GET_PRODUCT_KEY, LIST_PRODUCTS_KEY } from "./api-product";
+import { buildQueryKey, buildQueryKeyPredicate } from "./util";
 
 // --- TYPES ---
 
@@ -28,7 +30,7 @@ export type SortCategoryReq = {
 };
 
 export type SortCategoriesReq = {
-  categories: SortCategoryReq[];
+  categoryIds: string[];
 };
 
 export type CategoryRes = GResponse<Category>;
@@ -70,16 +72,18 @@ export const categoryApi = {
 
 // --- HOOKS ---
 
+export const LIST_CATEGORIES_KEY = "categories";
 export const useCategories = (params?: { page?: number; pageSize?: number }) => {
   return useQuery({
-    queryKey: ["categories", params],
+    queryKey: buildQueryKey(LIST_CATEGORIES_KEY, params),
     queryFn: () => categoryApi.list(params),
   });
 };
 
+export const GET_CATEGORY_KEY = "category";
 export const useCategory = (id: string) => {
   return useQuery({
-    queryKey: ["category", id],
+    queryKey: buildQueryKey(GET_CATEGORY_KEY, { id }),
     queryFn: () => categoryApi.get(id),
     enabled: !!id,
   });
@@ -98,8 +102,7 @@ export const useCreateCategory = ({
     mutationFn: (data: CreateCategoryReq) => categoryApi.create(data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
-        queryKey: ["categories"],
-        predicate: (query) => query.queryKey.includes("categories"),
+        predicate: buildQueryKeyPredicate([{ key: LIST_CATEGORIES_KEY }]),
       });
       onSuccess?.(data);
     },
@@ -121,8 +124,15 @@ export const useUpdateCategory = ({
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateCategoryReq }) =>
       categoryApi.update(id, data),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        predicate: buildQueryKeyPredicate([
+          { key: LIST_CATEGORIES_KEY },
+          { key: GET_CATEGORY_KEY, data: { id: variables.id } },
+          { key: LIST_PRODUCTS_KEY },
+          { key: GET_PRODUCT_KEY },
+        ]),
+      });
       onSuccess?.(data);
     },
     onError: (error: GErrorResponse) => {
@@ -143,7 +153,13 @@ export const useDeleteCategory = ({
   return useMutation({
     mutationFn: (id: string) => categoryApi.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({
+        predicate: buildQueryKeyPredicate([
+          { key: LIST_CATEGORIES_KEY },
+          { key: LIST_PRODUCTS_KEY },
+          { key: GET_PRODUCT_KEY },
+        ]),
+      });
       onSuccess?.();
     },
     onError: (error: GErrorResponse) => {
@@ -164,7 +180,12 @@ export const useSortCategories = ({
   return useMutation({
     mutationFn: (data: SortCategoriesReq) => categoryApi.sort(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({
+        predicate: buildQueryKeyPredicate([{ key: LIST_CATEGORIES_KEY }]),
+      });
+      // queryClient.refetchQueries({
+      //   predicate: buildQueryKeyPredicate([{ key: LIST_CATEGORIES_KEY }]),
+      // });
       onSuccess?.();
     },
     onError: (error: GErrorResponse) => {
