@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { Pagination } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
-import { useProducts } from "@/services/api-product";
+import { useProducts, useDeleteProduct } from "@/services/api-product";
 import RowsPerPage from "../ui/rows-perpage";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -12,6 +12,7 @@ import { ProductTable } from "./product-table";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/lib/routes";
 import { dialogs } from "../ui/dialog-manager";
+import { toast } from "sonner";
 
 export function ProductDashboard() {
   const router = useRouter();
@@ -21,6 +22,15 @@ export function ProductDashboard() {
   const debouncedSearch = useDebounce(search, 400);
 
   const { data, isLoading, isFetching } = useProducts({ page, pageSize, search: debouncedSearch });
+
+  const { mutate: deleteProduct } = useDeleteProduct({
+    onSuccess: () => {
+      toast.success("Product deleted successfully");
+    },
+    onError: (error) => {
+      toast.error(error || "Failed to delete product");
+    },
+  });
 
   const products = data?.data || [];
   const totalPages = data?.pagination?.totalPages || 1;
@@ -53,10 +63,10 @@ export function ProductDashboard() {
               size: "sm",
               innerProps: {
                 variant: "destructive",
-                confirmText: "Delete",
-                cancelText: "Cancel",
-                onConfirm: () => {
-                  console.log(product);
+                confirmLabel: "Delete",
+                cancelLabel: "Cancel",
+                onConfirm: async () => {
+                  deleteProduct(product.id);
                 },
               },
             });
