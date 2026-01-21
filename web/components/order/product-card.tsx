@@ -80,7 +80,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
       </CardHeader>
 
       {/* Product Info */}
-      <CardContent className="space-y-2 pb-4 px-6">
+      <CardContent className="space-y-3 pb-4 px-6">
         <h3 className="text-base font-medium line-clamp-1 leading-none">{product.name}</h3>
         <div className="flex items-center justify-between gap-2">
           <p className="text-base font-semibold text-primary leading-none">

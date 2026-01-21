@@ -87,12 +87,13 @@ export function OrderItemDialog() {
           <DialogTitle>{product.name}</DialogTitle>
         </DialogHeader>
 
+        <DialogClose asChild className="absolute top-7 right-7 z-10">
+          <Button variant="ghost" className="bg-background/70 backdrop-blur-lg" size="icon-lg">
+            <XIcon />
+          </Button>
+        </DialogClose>
+
         <div className="space-y-4 relative">
-          <DialogClose asChild className="absolute top-3 right-3 z-10">
-            <Button variant="ghost" className="bg-background/70 backdrop-blur-lg" size="icon-lg">
-              <XIcon />
-            </Button>
-          </DialogClose>
           {/* Product Image */}
           <div className="aspect-video bg-muted flex items-center justify-center relative overflow-hidden rounded-lg">
             {product.image ? (
@@ -108,7 +109,7 @@ export function OrderItemDialog() {
           </div>
 
           <div className="space-y-3">
-            <h2 className="text-xl font-semibold leading-none">{product.name}</h2>
+            <h2 className="text-2xl font-semibold leading-none">{product.name}</h2>
             <div className="flex items-center justify-between gap-2">
               <p className="text-lg font-semibold text-primary leading-none">
                 Rp{delimitNumber(product.price)}

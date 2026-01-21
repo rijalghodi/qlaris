@@ -34,7 +34,7 @@ export function ProductList() {
   }
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,240px))] gap-4 justify-start">
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 justify-start">
       {filteredProducts.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}
