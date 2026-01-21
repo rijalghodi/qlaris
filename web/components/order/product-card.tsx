@@ -3,7 +3,7 @@
 import { Product } from "@/services/api-product";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Avatar, AvatarImage } from "../ui/avatar";
-import { Box, Minus, Plus } from "lucide-react";
+import { Box, Check, Minus, Plus } from "lucide-react";
 import { delimitNumber } from "@/lib/number";
 import { useOrderStore } from "@/lib/stores/order-store";
 import { cn } from "@/lib/utils";
@@ -46,6 +46,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
     >
       {/* Add Button Overlay */}
       <div className="absolute top-4 right-4 z-10">
+        {isAdded && (
+          <div className="size-8 rounded-full flex items-center justify-center bg-primary/70 text-primary-foreground shadow-lg backdrop-blur-lg">
+            <Check className="size-4" strokeWidth={4} />
+          </div>
+        )}
+      </div>
+      {/* <div className="absolute top-4 right-4 z-10">
         <Button
           size="icon"
           className={cn(
@@ -61,7 +68,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         >
           {isAdded ? <Minus className="size-4" /> : <Plus className="size-4" />}
         </Button>
-      </div>
+      </div> */}
 
       {/* Product Image */}
       <CardHeader className="p-2">
