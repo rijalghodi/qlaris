@@ -97,7 +97,7 @@ export function OrderItem({ item, className }: { item: IOrderItem; className?: s
       key={item.product.id}
       className={cn(
         "flex items-center gap-3 p-2 rounded-md hover:bg-accent/50 transition-colors",
-        "animate-in fade-in slide-in-from-bottom-4 ease-in duration-300",
+        "animate-in fade-in slide-in-from-bottom-4 ease-in duration-300 cursor-pointer",
         className
       )}
       onClick={(e) => {

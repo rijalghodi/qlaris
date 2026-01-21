@@ -20,15 +20,16 @@ const inputVariants = cva("", {
 export type InputProps = React.ComponentProps<"input"> & {
   leftSection?: React.ReactNode;
   rightSection?: React.ReactNode;
+  inputClassName?: string;
 };
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, name, leftSection, rightSection, ...props }, ref) => {
+  ({ className, name, leftSection, rightSection, inputClassName, ...props }, ref) => {
     return (
       <div
         className={cn(
           // Base styles
-          "relative flex gap-1 items-stretch w-full h-9 rounded-full border px-0 py-0",
+          "relative flex gap-1 items-stretch w-full h-9 rounded-full border py-0",
           "dark:bg-input/30 bg-input border-input",
           "transition-[color,box-shadow,border-color] [&_svg]:size-4 overflow-clip",
           // Focus state (when input inside is focused)
@@ -49,12 +50,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           name={name}
           className={cn(
-            "flex-1 focus-visible:outline-none border-none text-base sm:text-sm px-4 py-1",
+            "flex-1 focus-visible:outline-none border-none text-base sm:text-sm px-3.5",
             "placeholder:text-muted-foreground",
             "disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground",
             "peer w-full",
             leftSection && "pl-10",
-            rightSection && "pr-10"
+            rightSection && "pr-10",
+            inputClassName
           )}
           ref={ref}
           {...props}

@@ -25,8 +25,7 @@ export function CategoryList() {
     <div className="flex items-center gap-2 overflow-x-auto pb-2">
       <Button
         variant={selectedCategoryId === null ? "default" : "outline"}
-        size="sm"
-        className="rounded-full shrink-0 px-3"
+        className="rounded-full shrink-0 px-4"
         onClick={() => setSelectedCategory(null)}
       >
         <Package className="size-4" />
@@ -36,8 +35,7 @@ export function CategoryList() {
         <Button
           key={category.id}
           variant={selectedCategoryId === category.id ? "default" : "outline"}
-          size="sm"
-          className="rounded-full shrink-0 px-3"
+          className="rounded-full shrink-0 px-4"
           onClick={() => setSelectedCategory(category.id)}
         >
           {category.name}

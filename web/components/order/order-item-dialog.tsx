@@ -10,13 +10,16 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Box, Minus, Plus, XIcon } from "lucide-react";
+import { Input } from "../ui/input";
+import { Box, Minus, Plus, XIcon, Trash2, ShoppingCart } from "lucide-react";
 import { delimitNumber } from "@/lib/number";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { NumberInput } from "../ui/number-input";
 
 export function OrderItemDialog() {
-  const { selectedOrderItem, setSelectedOrderItem, addItem, updateQuantity } = useOrderStore();
+  const { selectedOrderItem, setSelectedOrderItem, addItem, updateQuantity, removeItem } =
+    useOrderStore();
   const [quantity, setQuantity] = useState(1);
 
   // Update quantity when selectedOrderItem changes
@@ -31,7 +34,7 @@ export function OrderItemDialog() {
   };
 
   const handleMinus = () => {
-    if (quantity > 1) {
+    if (quantity > 0) {
       setQuantity(quantity - 1);
     }
   };
@@ -51,11 +54,26 @@ export function OrderItemDialog() {
   };
 
   const handleAddToBucket = () => {
-    // console.log("selectedOrderItem?.product", selectedOrderItem?.product);
     if (!selectedOrderItem?.product) return;
-    // console.log("quantity", quantity);
-    addItem(selectedOrderItem?.product, quantity);
+
+    if (quantity === 0) {
+      // Remove from bucket
+      removeItem(selectedOrderItem.product.id);
+    } else {
+      // Add/update quantity
+      addItem(selectedOrderItem.product, quantity);
+    }
     handleClose();
+  };
+
+  const handleRemoveItem = () => {
+    if (!selectedOrderItem?.product) return;
+    removeItem(selectedOrderItem.product.id);
+    handleClose();
+  };
+
+  const handleQuantityChange = (value?: number) => {
+    setQuantity(value || 0);
   };
 
   if (!selectedOrderItem) return null;
@@ -106,17 +124,26 @@ export function OrderItemDialog() {
           </div>
 
           {/* Quantity Controls */}
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex items-center justify-center gap-2">
             <Button
               variant="outline"
               size="icon"
               className="rounded-full h-10 w-10"
               onClick={handleMinus}
-              disabled={quantity <= 1}
+              disabled={quantity <= 0}
             >
               <Minus className="size-4" />
             </Button>
-            <span className="text-xl font-semibold w-8 text-center">{quantity}</span>
+            <NumberInput
+              value={quantity}
+              onChange={handleQuantityChange}
+              withDelimiter
+              hideControls
+              min={0}
+              max={product.enableStock ? product.stockQty : undefined}
+              className="w-20 h-12 bg-transparent border-transparent shadow-none"
+              inputClassName="text-center text-2xl sm:text-xl font-semibold"
+            />
             <Button
               variant="outline"
               size="icon"
@@ -133,9 +160,23 @@ export function OrderItemDialog() {
           </div>
         </div>
 
-        <DialogFooter>
-          <Button onClick={handleAddToBucket} className="w-full" size="lg">
-            Add to Bucket
+        <DialogFooter className="flex gap-2">
+          <Button
+            onClick={handleRemoveItem}
+            variant="light-destructive"
+            size="icon-lg"
+            className="rounded-full"
+            title="Remove from Bucket"
+          >
+            <Trash2 className="size-4" />
+          </Button>
+          <Button
+            onClick={handleAddToBucket}
+            className="flex-1"
+            size="lg"
+            variant={quantity === 0 ? "light-destructive" : "default"}
+          >
+            {quantity === 0 ? <>Remove from Bucket</> : <>Add to Bucket</>}
           </Button>
         </DialogFooter>
       </DialogContent>

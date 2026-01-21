@@ -47,10 +47,12 @@ export function ProductCard({ product, className }: ProductCardProps) {
       {/* Add Button Overlay */}
       <div className="absolute top-4 right-4 z-10">
         <Button
-          size="icon-lg"
+          size="icon"
           className={cn(
             "shadow-lg hover:scale-110 transition-all duration-300 rounded-full",
-            isAdded ? "bg-destructive hover:bg-destructive" : "bg-primary hover:bg-primary"
+            isAdded
+              ? "bg-destructive/60 backdrop-blur-lg hover:bg-destructive"
+              : "bg-primary/60 backdrop-blur-lg hover:bg-primary"
           )}
           onClick={(e) => {
             e.stopPropagation();

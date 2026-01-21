@@ -6,11 +6,12 @@ import { forwardRef, useEffect, useState } from "react";
 
 export type NumberInputProps = Omit<InputProps, "value" | "onChange" | "type"> & {
   value?: number;
-  onChange?: (value: number | undefined) => void;
+  onChange?: (value?: number) => void;
   withDelimiter?: boolean;
   step?: number;
   min?: number;
   max?: number;
+  hideControls?: boolean;
 };
 
 function formatNumberWithDelimiter(value: number): string {
@@ -25,7 +26,10 @@ function parseNumberFromDelimiter(value: string): number | undefined {
 }
 
 export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
-  ({ name, value, onChange, withDelimiter = true, step = 1, min, max, ...props }, ref) => {
+  (
+    { name, value, onChange, withDelimiter = true, step = 1, min, max, hideControls, ...props },
+    ref
+  ) => {
     const [display, setDisplay] = useState("");
 
     useEffect(() => {
@@ -90,26 +94,28 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
         }}
         inputMode="numeric"
         rightSection={
-          <div className="flex flex-col w-full max-w-5">
-            <button
-              className="flex-1 hover:bg-accent cursor-pointer flex justify-center items-center text-muted-foreground hover:text-foreground size-4 w-full"
-              type="button"
-              title="Increment"
-              onClick={handleIncrement}
-              tabIndex={-1}
-            >
-              <ChevronUp className="size-3!" />
-            </button>
-            <button
-              className="flex-1 hover:bg-accent cursor-pointer flex justify-center items-center text-muted-foreground hover:text-foreground size-4 w-full"
-              type="button"
-              title="Decrement"
-              onClick={handleDecrement}
-              tabIndex={-1}
-            >
-              <ChevronDown className="size-3!" />
-            </button>
-          </div>
+          !hideControls && (
+            <div className="flex flex-col w-full max-w-5">
+              <button
+                className="flex-1 hover:bg-accent cursor-pointer flex justify-center items-center text-muted-foreground hover:text-foreground size-4 w-full"
+                type="button"
+                title="Increment"
+                onClick={handleIncrement}
+                tabIndex={-1}
+              >
+                <ChevronUp className="size-3!" />
+              </button>
+              <button
+                className="flex-1 hover:bg-accent cursor-pointer flex justify-center items-center text-muted-foreground hover:text-foreground size-4 w-full"
+                type="button"
+                title="Decrement"
+                onClick={handleDecrement}
+                tabIndex={-1}
+              >
+                <ChevronDown className="size-3!" />
+              </button>
+            </div>
+          )
         }
         {...props}
       />
