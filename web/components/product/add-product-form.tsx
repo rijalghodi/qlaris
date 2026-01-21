@@ -353,11 +353,7 @@ export function AddProductForm() {
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-orange-500 hover:bg-orange-600 rounded-full"
-              >
+              <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Creating..." : "Create Product"}
               </Button>
             </div>

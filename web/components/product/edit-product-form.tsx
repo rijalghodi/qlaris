@@ -357,11 +357,7 @@ export function EditProductForm({ productId, defaultValues }: EditProductFormPro
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-orange-500 hover:bg-orange-600 rounded-full"
-              >
+              <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Updating..." : "Update Product"}
               </Button>
             </div>
