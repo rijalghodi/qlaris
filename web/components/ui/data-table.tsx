@@ -121,14 +121,17 @@ export function DataTable<TData, TValue>({
   return (
     <div className="relative flex flex-col gap-4">
       <LoadingOverlay visible={loading} />
-      <Table className="rounded-lg overflow-clip">
+      <Table className="">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className="has-data-[state=open]:bg-muted bg-muted">
+            <TableRow
+              key={headerGroup.id}
+              // className="has-data-[state=open]:bg-muted bg-muted rounded-md"
+            >
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
-                  className="font-semibold text-sm py-3 px-3"
+                  // className="font-semibold text-sm py-3 px-3"
                   style={{ width: header.getSize() }}
                 >
                   {header.isPlaceholder
@@ -147,7 +150,7 @@ export function DataTable<TData, TValue>({
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
                 onClick={() => onRowClick?.(data[row.index] as TData)}
-                className={cn(onRowClick && "cursor-pointer", "has-data-[state=open]:bg-muted")}
+                className={cn(onRowClick && "cursor-pointer")}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id} className="py-2.5 px-3 font-light text-sm">

@@ -3,6 +3,7 @@
 import { CategoryList } from "./category-list";
 import { ProductList } from "./product-list";
 import { OrderPanel } from "./order-panel";
+import { OrderItemDialog } from "./order-item-dialog";
 import { Input } from "../ui/input";
 import { Search } from "lucide-react";
 
@@ -13,8 +14,11 @@ export function OrderSystem() {
       <div className="flex-1 flex flex-col gap-4 overflow-hidden">
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <Input placeholder="Search Product" className="pl-9" />
+          <Input
+            placeholder="Search Product"
+            className="min-w-[250px] max-w-[400px] w-full shadow-lg bg-card focus-within:bg-card h-11"
+            leftSection={<Search className="size-4" />}
+          />
         </div>
 
         {/* Categories */}
@@ -27,9 +31,12 @@ export function OrderSystem() {
       </div>
 
       {/* Right Side - Order Panel */}
-      <div className="w-[400px] border-l bg-background">
+      <div className="w-[400px]">
         <OrderPanel />
       </div>
+
+      {/* Order Item Dialog */}
+      <OrderItemDialog />
     </div>
   );
 }

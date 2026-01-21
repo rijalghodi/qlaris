@@ -77,16 +77,17 @@ export function ProductTable({ products, isLoading, onDelete, onEdit }: ProductT
             <Button
               variant="ghost"
               size="icon"
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground"
               onClick={() => onEdit?.(product)}
+              title="Edit"
             >
               <Pencil className="size-4" />
             </Button>
             <Button
-              variant="ghost"
+              variant="ghost-destructive"
               size="icon"
-              className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
               onClick={() => onDelete?.(product)}
+              title="Delete"
             >
               <Trash2 className="size-4" />
             </Button>

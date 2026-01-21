@@ -73,7 +73,8 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   variant="default"
-                  className="bg-primary text-primary-foreground hover:text-primary-foreground hover:bg-primary/80 h-10"
+                  isActive
+                  // className="bg-primary text-primary-foreground hover:text-primary-foreground hover:bg-primary/80 h-10"
                 >
                   <Link href={ROUTES.NEW_ORDER}>
                     <Sparkle />

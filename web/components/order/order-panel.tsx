@@ -2,11 +2,15 @@
 
 import { useOrderStore } from "@/lib/stores/order-store";
 import { Button } from "../ui/button";
-import { ShoppingCart, Trash2, Minus, Plus } from "lucide-react";
+import { ShoppingCart, Trash2, Minus, Plus, Box, ArrowRight } from "lucide-react";
 import { delimitNumber } from "@/lib/number";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { ScrollArea } from "../ui/scroll-area";
 import Image from "next/image";
+import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
+import { IOrderItem } from "@/lib/stores/order-store";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "../ui/empty";
+import { cn } from "@/lib/utils";
 
 export function OrderPanel() {
   const { items, removeItem, updateQuantity, clearItems, getTotal, getItemCount } = useOrderStore();
@@ -14,103 +18,30 @@ export function OrderPanel() {
   const itemCount = getItemCount();
 
   return (
-    <div className="flex flex-col h-full">
+    <Card className="h-full">
       {/* Header */}
-      <div className="p-4 border-b">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Order Details</h2>
-          <span className="text-sm text-muted-foreground">Items: {itemCount}</span>
+      <CardHeader className="border-b">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold leading-none">Order Details</h2>
+          <span className="text-sm text-foreground font-medium">{itemCount} Items</span>
         </div>
-      </div>
+      </CardHeader>
 
       {/* Cart Items */}
-      <ScrollArea className="flex-1 p-4">
+      <CardContent className="flex-1 px-3 overflow-y-auto flex flex-col">
         {items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center py-12">
-            <Image
-              src="/images/empty-cart.svg"
-              alt="Empty cart"
-              width={200}
-              height={200}
-              className="mb-4 opacity-50"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-              }}
-            />
-            <ShoppingCart className="size-16 text-muted-foreground mb-4" />
-            <p className="text-lg font-medium">No Products Selected</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Add products from the left to start creating an order
-            </p>
-          </div>
+          <OrderEmpty />
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {items.map((item) => (
-              <div
-                key={item.product.id}
-                className="flex items-center gap-3 p-3 border rounded-lg hover:bg-accent/50 transition-colors"
-              >
-                {/* Product Image */}
-                <div className="size-12 rounded-md bg-muted flex items-center justify-center shrink-0 overflow-hidden">
-                  {item.product.image ? (
-                    <Avatar className="size-full rounded-md">
-                      <AvatarImage
-                        src={item.product.image.url}
-                        alt={item.product.name}
-                        className="object-cover"
-                      />
-                    </Avatar>
-                  ) : (
-                    <ShoppingCart className="size-6 text-muted-foreground" />
-                  )}
-                </div>
-
-                {/* Product Details */}
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-medium line-clamp-1">{item.product.name}</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Rp{delimitNumber(item.product.price)}
-                  </p>
-                </div>
-
-                {/* Quantity Controls */}
-                <div className="flex items-center gap-2 shrink-0">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="size-7"
-                    onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                  >
-                    <Minus className="size-3" />
-                  </Button>
-                  <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="size-7"
-                    onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                  >
-                    <Plus className="size-3" />
-                  </Button>
-                </div>
-
-                {/* Remove Button */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7 text-destructive hover:bg-destructive/10"
-                  onClick={() => removeItem(item.product.id)}
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-              </div>
+              <OrderItem item={item} key={item.product.id} />
             ))}
           </div>
         )}
-      </ScrollArea>
+      </CardContent>
 
       {/* Footer */}
-      <div className="p-4 border-t space-y-3">
+      <CardFooter className="block border-t space-y-3">
         {/* Total */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
@@ -124,7 +55,7 @@ export function OrderPanel() {
         </div>
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-2">
+        {/* <div className="grid grid-cols-2 gap-2">
           <Button
             variant="outline"
             onClick={clearItems}
@@ -142,18 +73,120 @@ export function OrderPanel() {
             <ShoppingCart className="size-4" />
             Payment
           </Button>
-        </div>
+        </div> */}
 
         {/* Grand Total Button */}
         <Button
           variant="default"
           size="lg"
           disabled={items.length === 0}
-          className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+          className="w-full rounded-full"
         >
-          Grand Total: Rp{delimitNumber(total)}
+          Charge Rp{delimitNumber(total)} <ArrowRight />
         </Button>
+      </CardFooter>
+    </Card>
+  );
+}
+
+export function OrderItem({ item, className }: { item: IOrderItem; className?: string }) {
+  const { updateQuantity, removeItem, setSelectedOrderItem } = useOrderStore();
+
+  return (
+    <div
+      key={item.product.id}
+      className={cn(
+        "flex items-center gap-3 p-2 rounded-md hover:bg-accent/50 transition-colors",
+        "animate-in fade-in slide-in-from-bottom-4 ease-in duration-300",
+        className
+      )}
+      onClick={(e) => {
+        e.stopPropagation();
+        setSelectedOrderItem(item);
+      }}
+    >
+      {/* Product Image */}
+      <div className="aspect-square w-12 bg-accent flex items-center justify-center relative overflow-hidden rounded-[8px]">
+        {item.product.image ? (
+          <Image
+            className="w-full h-full object-cover group-hover:scale-110 transition-all duration-300 shadow-lg"
+            src={item.product.image.url}
+            alt={item.product.name}
+            fill
+          />
+        ) : (
+          <Box className="size-5 text-muted-foreground group-hover:scale-110 transition-all duration-300" />
+        )}
       </div>
+
+      {/* Product Details */}
+      {/* <div className="flex-1 min-w-0">
+        <h4 className="text-base font-semibold line-clamp-1">{item.product.name}</h4>
+        <div className="flex items-end gap-2 justify-between">
+          <p className="text-sm text-muted-foreground">{item.quantity}x</p>
+          <p className="text-sm font-medium text-muted-foreground">
+            Rp{delimitNumber(item.product.price)}
+          </p>
+        </div>
+      </div> */}
+
+      <div className="flex-1 min-w-0 space-y-1">
+        <h4 className="text-base font-medium line-clamp-1">
+          {item.product.name}
+          <span className="text-sm text-muted-foreground ml-2">{item.quantity}x</span>
+        </h4>
+        <p className="text-sm font-medium text-muted-foreground">
+          Rp{delimitNumber(item.product.price)}
+        </p>
+      </div>
+
+      {/* Quantity Controls */}
+      {/* <div className="flex items-center gap-0.5 shrink-0">
+        <Button
+          variant="outline"
+          size="icon-sm"
+          className="rounded-full"
+          onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+        >
+          <Minus className="size-3" />
+        </Button>
+        <span className="text-sm font-medium w-6 text-center">{item.quantity}</span>
+        <Button
+          variant="outline"
+          size="icon-sm"
+          className="rounded-full"
+          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+        >
+          <Plus className="size-3" />
+        </Button>
+      </div> */}
+
+      {/* Remove Button */}
+      <Button
+        variant="light-destructive"
+        size="icon"
+        className="rounded-full"
+        onClick={(e) => {
+          e.stopPropagation();
+          removeItem(item.product.id);
+        }}
+      >
+        <Trash2 />
+      </Button>
     </div>
+  );
+}
+
+export function OrderEmpty() {
+  return (
+    <Empty className="flex-1 h-full animate-in fade-in slide-in-from-bottom-4 ease-in duration-300">
+      <EmptyHeader>
+        <EmptyMedia>
+          <ShoppingCart className="size-10 text-muted-foreground mb-4" />
+        </EmptyMedia>
+        <EmptyTitle>No Products Selected</EmptyTitle>
+        <EmptyDescription>Add products to start creating an order</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
   );
 }
