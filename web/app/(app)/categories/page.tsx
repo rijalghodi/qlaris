@@ -27,7 +27,7 @@ export default function CategoriesPage() {
 
         <div className="flex items-center gap-2">
           <Button
-            variant="default"
+            variant="ghost"
             className="rounded-full"
             onClick={() => {
               dialogs.openContextDialog({
