@@ -17,4 +17,7 @@ export const ROUTES = {
 
   // Transactions
   TRANSACTIONS: "/transactions",
+
+  // New Order
+  NEW_ORDER: "/order",
 };

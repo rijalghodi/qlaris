@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowRight,
   ArrowRightLeftIcon,
   Box,
   ChartNoAxesCombinedIcon,
@@ -14,9 +15,12 @@ import {
   Home,
   LayoutDashboard,
   ListTodo,
+  Plus,
   ShoppingBag,
   ShoppingBagIcon,
   ShoppingBasket,
+  Sparkle,
+  Sparkles,
   SquareActivityIcon,
   Tags,
   UsersIcon,
@@ -66,6 +70,18 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  variant="default"
+                  className="bg-primary text-primary-foreground hover:text-primary-foreground hover:bg-primary/80 h-10"
+                >
+                  <Link href={ROUTES.NEW_ORDER}>
+                    <Sparkle />
+                    <span>Transaction</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link href={ROUTES.DASHBOARD}>
                     <LayoutDashboard />
@@ -93,7 +109,7 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <Link href={ROUTES.TRANSACTIONS}>
                     <ArrowRightLeftIcon />
-                    <span>Transactions</span>
+                    <span>Transaction History</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

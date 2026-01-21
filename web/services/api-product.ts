@@ -108,10 +108,10 @@ export const productApi = {
 
 export const LIST_PRODUCTS_KEY = "products";
 export const useProducts = (params?: { page?: number; pageSize?: number; search?: string }) => {
-  return useQuery({
+  return useQuery<ListProductsRes>({
     queryKey: buildQueryKey(LIST_PRODUCTS_KEY, params),
     queryFn: () => productApi.list(params),
-    initialData: (data: any) => data,
+    // initialData: (data: ListProductsRes) => data,
   });
 };
 
