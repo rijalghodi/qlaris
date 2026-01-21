@@ -9,6 +9,7 @@ import { Toaster } from "./ui/sonner";
 import { DialogManagerProvider } from "./ui/dialog-manager";
 import { AddCategoryDialog } from "./category/add-category-dialog";
 import { SetupMeDialog } from "./me/setup-me-dialog";
+import { ConfirmDialog } from "./ui/dialog-confirm";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (

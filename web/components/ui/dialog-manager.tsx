@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./dialog";
+import { ConfirmDialog } from "./dialog-confirm";
 
 // Types
 type ContextDialogProps<T = any> = {
@@ -74,19 +75,25 @@ type DialogManagerProviderProps = {
 };
 
 // Provider Component
-export function DialogManagerProvider({
-  children,
-  dialogs: dialogComponents,
-}: DialogManagerProviderProps) {
+export function DialogManagerProvider({ children, dialogs }: DialogManagerProviderProps) {
+  // Pass the confirm dialog to the dialog components
+  const dialogComponents: Record<string, React.ComponentType<ContextDialogProps<any>>> = {
+    confirm: ConfirmDialog,
+    ...dialogs,
+  };
+
   const [dialogStates, setDialogStates] = React.useState<Map<string, DialogState>>(new Map());
   const dialogIdCounter = React.useRef(0);
 
   const openContextDialog = React.useCallback(<T,>(config: DialogConfig<T>): string => {
-    const id = config.modal || `dialog-${dialogIdCounter.current++}`;
+    // Use 'confirm' as default modal if not specified
+    const modal = config.modal || "confirm";
+    const id = modal || `dialog-${dialogIdCounter.current++}`;
     setDialogStates((prev) => {
       const newStates = new Map(prev);
       newStates.set(id, {
         ...config,
+        modal,
         isOpen: true,
         closeOnEscape: config.closeOnEscape ?? true,
         closeOnClickOutside: config.closeOnClickOutside ?? true,
