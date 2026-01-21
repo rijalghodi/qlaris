@@ -109,6 +109,7 @@ export const useProducts = (params?: { page?: number; pageSize?: number; search?
   return useQuery({
     queryKey: ["products", params],
     queryFn: () => productApi.list(params),
+    initialData: (data: any) => data,
   });
 };
 

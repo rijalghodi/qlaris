@@ -178,7 +178,7 @@ func (h *ProductHandler) ListProducts(c *fiber.Ctx) error {
 		return err
 	}
 
-	products, total, err := h.productUsecase.ListProducts(*claims.BusinessID, queries.Page, queries.PageSize)
+	products, total, err := h.productUsecase.ListProducts(*claims.BusinessID, queries.Page, queries.PageSize, queries.Search)
 	if err != nil {
 		return err
 	}

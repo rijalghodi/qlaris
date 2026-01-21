@@ -46,14 +46,21 @@ func (r *ProductRepository) GetProductByIDAndBusinessID(id string, businessID st
 	return &product, nil
 }
 
-func (r *ProductRepository) ListProducts(businessID string, page, pageSize int) ([]*model.Product, int64, error) {
+func (r *ProductRepository) ListProducts(businessID string, page, pageSize int, search string) ([]*model.Product, int64, error) {
 	var products []*model.Product
 	var total int64
 
+	// Build base query
+	query := r.db.Model(&model.Product{}).
+		Where("business_id = ?", businessID)
+
+	// Add search filter if search term is provided
+	if search != "" {
+		query = query.Where("name ILIKE ?", "%"+search+"%")
+	}
+
 	// Count total records
-	err := r.db.Model(&model.Product{}).
-		Where("business_id = ? AND is_active = ?", businessID, true).
-		Count(&total).Error
+	err := query.Count(&total).Error
 	if err != nil {
 		return nil, 0, err
 	}
@@ -62,9 +69,8 @@ func (r *ProductRepository) ListProducts(businessID string, page, pageSize int) 
 	offset := (page - 1) * pageSize
 
 	// Fetch paginated records
-	err = r.db.Model(&model.Product{}).
+	err = query.
 		Preload("Category").
-		Where("business_id = ? AND is_active = ?", businessID, true).
 		Order("created_at DESC").
 		Limit(pageSize).
 		Offset(offset).

@@ -8,21 +8,21 @@ import { DataTable } from "@/components/ui/data-table";
 import type { ColumnDef } from "@/components/ui/data-table";
 import { Pagination } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useProducts, type Product } from "@/services/api-product";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import RowsPerPage from "../ui/rows-perpage";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { ROUTES } from "@/lib/routes";
 import { delimitNumber } from "@/lib/number";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export function ProductDashboard() {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
 
-  const { data, isLoading } = useProducts({ page, pageSize, search });
+  const { data, isLoading, isFetching } = useProducts({ page, pageSize, search: debouncedSearch });
 
   const products = data?.data || [];
   const totalPages = data?.pagination?.totalPages || 1;
@@ -123,11 +123,11 @@ export function ProductDashboard() {
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="min-h-[300px]">
         <DataTable
           columns={columns}
           data={products}
-          loading={isLoading}
+          loading={isLoading || isFetching}
           emptyMessage="No products found"
           emptyDescription="Get started by adding your first product"
         />
