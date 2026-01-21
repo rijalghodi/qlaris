@@ -11,7 +11,7 @@ export default function ProductsPage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-3">
         <div className="flex flex-col gap-2">
-          <h1 className="text-xl font-semibold leading-none">Products</h1>
+          <h1 className="text-2xl font-semibold leading-none">Products</h1>
           <Breadcrumb
             items={[
               { label: "Dashboard", href: "/dashboard" },

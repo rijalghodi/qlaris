@@ -7,6 +7,7 @@ import { Box, Plus } from "lucide-react";
 import { delimitNumber } from "@/lib/number";
 import { useOrderStore } from "@/lib/stores/order-store";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 type ProductCardProps = {
   product: Product;
@@ -34,9 +35,13 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Product Image */}
       <div className="aspect-square bg-muted flex items-center justify-center relative overflow-hidden">
         {product.image ? (
-          <Avatar className="w-full h-full rounded-none">
-            <AvatarImage src={product.image.url} alt={product.name} className="object-cover" />
-          </Avatar>
+          <Image
+            className="w-full h-full object-cover"
+            src={product.image.url}
+            alt={product.name}
+            width={500}
+            height={500}
+          />
         ) : (
           <Box className="size-12 text-muted-foreground" />
         )}

@@ -85,15 +85,17 @@
   --chart-3: hsl(142, 100%, 33%);
   --chart-4: hsl(144, 100%, 25%);
   --chart-5: hsl(148, 96%, 20%);
-  --sidebar: hsl(0, 0%, 100%);
+  /* --sidebar: hsl(0, 0%, 100%); */
+  --sidebar: hsl(45, 7%, 97%);
   --sidebar-foreground: hsl(0, 0%, 21%);
   --sidebar-primary: hsl(86, 100%, 32%);
   --sidebar-primary-foreground: hsl(78, 92%, 95%);
   /* --sidebar-accent: hsl(240, 5%, 92%); */
-  --sidebar-accent: hsl(45, 12%, 94%);
+  --sidebar-accent: hsl(45, 12%, 80%);
   --sidebar-accent-foreground: hsl(240, 6%, 10%);
   /* --sidebar-border: transparent; */
-  --sidebar-border: hsl(45, 8%, 92%);
+  --sidebar-border: hsl(45, 7%, 97%);
+  /* --sidebar-border: hsl(45, 8%, 92%); */
   --sidebar-ring: hsl(80, 100%, 45%);
 }
 
