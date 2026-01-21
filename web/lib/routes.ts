@@ -12,6 +12,9 @@ export const ROUTES = {
   PRODUCT_ADD: "/products/add",
   PRODUCT_EDIT: (productId: string) => `/products/${productId}/edit`,
 
+  // Categories
+  CATEGORIES: "/categories",
+
   // Transactions
   TRANSACTIONS: "/transactions",
 };

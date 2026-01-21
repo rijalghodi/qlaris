@@ -83,7 +83,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link href={ROUTES.PRODUCTS}>
+                  <Link href={ROUTES.CATEGORIES}>
                     <Tags />
                     <span>Categories</span>
                   </Link>

@@ -10,6 +10,7 @@ import { DialogManagerProvider } from "./ui/dialog-manager";
 import { AddCategoryDialog } from "./category/add-category-dialog";
 import { SetupMeDialog } from "./me/setup-me-dialog";
 import { ConfirmDialog } from "./ui/dialog-confirm";
+import { EditCategoryDialog } from "./category/edit-category-dialog";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -17,6 +18,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <DialogManagerProvider
         dialogs={{
           addCategory: AddCategoryDialog,
+          editCategory: EditCategoryDialog,
           setupMe: SetupMeDialog,
         }}
       >
