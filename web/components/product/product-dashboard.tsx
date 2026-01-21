@@ -23,7 +23,7 @@ export function ProductDashboard() {
 
   const { data, isLoading, isFetching } = useProducts({ page, pageSize, search: debouncedSearch });
 
-  const { mutate: deleteProduct } = useDeleteProduct({
+  const { mutateAsync: deleteProduct } = useDeleteProduct({
     onSuccess: () => {
       toast.success("Product deleted successfully");
     },
@@ -66,7 +66,8 @@ export function ProductDashboard() {
                 confirmLabel: "Delete",
                 cancelLabel: "Cancel",
                 onConfirm: async () => {
-                  deleteProduct(product.id);
+                  const res = await deleteProduct(product.id);
+                  return !res.errors;
                 },
               },
             });

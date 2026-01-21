@@ -6,7 +6,7 @@ import { DialogFooter } from "./dialog";
 import type { ContextDialogProps } from "./dialog-manager";
 
 type ConfirmDialogInnerProps = {
-  onConfirm?: () => Promise<void> | void;
+  onConfirm?: () => Promise<boolean> | void;
   onCancel?: () => void;
   confirmLabel?: string;
   cancelLabel?: string;

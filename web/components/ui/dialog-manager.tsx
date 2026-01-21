@@ -45,7 +45,6 @@ export function useDialogManager() {
   return context;
 }
 
-// Imperative API (like Mantine's modals)
 export const dialogs = {
   openContextDialog: <T = any,>(config: DialogConfig<T>): string => {
     const event = new CustomEvent("open-dialog", { detail: config });
