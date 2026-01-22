@@ -6,7 +6,7 @@ import { ProductCard } from "./product-card";
 import { Package } from "lucide-react";
 
 export function ProductList() {
-  const { selectedCategoryId } = useOrderStore();
+  const { selectedCategoryId, getItemCount, items } = useOrderStore();
   const { data, isLoading } = useProducts({ page: 1, pageSize: 100 });
 
   const products = data?.data || [];
@@ -34,10 +34,13 @@ export function ProductList() {
   }
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 justify-start">
-      {filteredProducts.map((product) => (
-        <ProductCard key={product.id} product={product} />
-      ))}
-    </div>
+    <>
+      {/* {<pre>{JSON.stringify({ selectedCategoryId, getItemCount, items }, null, 2)}</pre>} */}
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 justify-start">
+        {filteredProducts.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
+    </>
   );
 }

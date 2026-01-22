@@ -40,8 +40,8 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
           item.product.id === product.id
             ? {
                 ...item,
-                quantity: item.quantity + quantity,
-                subtotal: (item.quantity + quantity) * product.price,
+                quantity: quantity,
+                subtotal: quantity * product.price,
               }
             : item
         ),
