@@ -70,18 +70,18 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild variant="default" isActive={pathname == "/"}>
-                  <Link href={ROUTES.NEW_ORDER}>
-                    <Sparkle />
-                    <span>Transaction</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname.startsWith(ROUTES.DASHBOARD)}>
                   <Link href={ROUTES.DASHBOARD}>
                     <LayoutDashboard />
                     <span>Dashboard</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild variant="default" isActive={pathname == "/"}>
+                  <Link href={ROUTES.NEW_ORDER}>
+                    <Sparkle />
+                    <span>Transaction</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

@@ -93,7 +93,7 @@ export function OrderItem({ item, className }: { item: IOrderItem; className?: s
       key={item.product.id}
       className={cn(
         "flex items-start gap-4 p-2 rounded-md hover:bg-accent/50 transition-colors",
-        "animate-in fade-in slide-in-from-right-4 ease-in duration-300 cursor-pointer",
+        "animate-in fade-in slide-in-from-right-4 duration-300 cursor-pointer",
         className
       )}
       onClick={(e) => {

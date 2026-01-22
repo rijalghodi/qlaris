@@ -33,6 +33,7 @@ type UpdateProductReq struct {
 
 type ProductRes struct {
 	ID            string       `json:"id"`
+	QuantitySold  int          `json:"quantitySold"`
 	BusinessID    string       `json:"businessId"`
 	Name          string       `json:"name"`
 	Price         float64      `json:"price"`

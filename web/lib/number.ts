@@ -2,6 +2,15 @@ export const delimitNumber = (number: number) => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
 
+export const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+};
+
 const MONEY_UNIT = [1000, 2000, 5000, 10000, 20000, 50000, 100000];
 
 export const getSuggestionMoneys = (total: number) => {

@@ -30,6 +30,10 @@ export function PaymentSuccessDisplay({
 
         <div className="w-full space-y-3 bg-muted p-4 rounded-lg text-sm">
           <div className="flex justify-between w-full text-sm">
+            <span className="text-muted-foreground">Invoice Number</span>
+            <span className="font-medium">#{transaction.invoiceNumber}</span>
+          </div>
+          <div className="flex justify-between w-full text-sm">
             <span className="text-muted-foreground">Payment Method</span>
             <span className="font-medium">Cash</span>
           </div>
