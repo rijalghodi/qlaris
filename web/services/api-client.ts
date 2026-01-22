@@ -1,6 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { setAuthCookie, removeAuthCookie } from "@/lib/auth-cookie";
 import { ROUTES } from "@/lib/routes";
+import { REFRESH_TOKEN_KEY } from "@/lib/constant";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -80,11 +81,10 @@ apiClient.interceptors.response.use(
 
       try {
         // Get refresh token from cookie
-        const refreshToken = getCookie("qlaris.refresh-token");
+        const refreshToken = getCookie(REFRESH_TOKEN_KEY);
 
         if (!refreshToken) {
-          // throw new Error("No refresh token available");
-          return; // No need to refresh token
+          throw new Error("No refresh token available");
         }
 
         // Call the refresh token endpoint with the refresh token in the body

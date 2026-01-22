@@ -59,7 +59,7 @@ export function OrderPaymentDialog({ open, onOpenChange }: OrderPaymentDialogPro
 
   // If input is empty, we treat it as "Enough Money" (exact payment)
   const isInputEmpty = receivedMoney === undefined || receivedMoney === 0;
-  const change = isInputEmpty ? 0 : Math.max(0, receivedMoney! - total);
+  const isInsufficient = receivedMoney !== undefined && receivedMoney < total;
 
   const suggestions = getSuggestionMoneys(total);
 
@@ -73,7 +73,7 @@ export function OrderPaymentDialog({ open, onOpenChange }: OrderPaymentDialogPro
         <div className="space-y-6">
           {/* Total Display */}
           <div className="text-center space-y-2">
-            <p className="text-sm text-muted-foreground">Total Charge</p>
+            <p className="text-sm font-medium text-muted-foreground">Total Charge</p>
             <p className="text-3xl font-bold text-primary">Rp{delimitNumber(total)}</p>
           </div>
 
@@ -93,7 +93,12 @@ export function OrderPaymentDialog({ open, onOpenChange }: OrderPaymentDialogPro
             </div>
 
             {/* Submit Button */}
-            <Button size="lg" className="w-full" onClick={handleSubmit} disabled={isPending}>
+            <Button
+              size="lg"
+              className="w-full rounded-full"
+              onClick={handleSubmit}
+              disabled={isPending || isInsufficient}
+            >
               {isPending ? (
                 <Loader2 className="mr-2 size-4 animate-spin" />
               ) : isInputEmpty ? (
@@ -109,7 +114,7 @@ export function OrderPaymentDialog({ open, onOpenChange }: OrderPaymentDialogPro
             {/* Suggestions */}
             {suggestions.length > 0 && (
               <>
-                <p className="text-xs font-bold text-foreground">Suggestions:</p>
+                <p className="text-xs font-semibold text-foreground">Suggestions:</p>
                 <div className="grid grid-cols-2 gap-2">
                   {suggestions.map((suggestion) => (
                     <Button

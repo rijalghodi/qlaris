@@ -70,7 +70,7 @@ export const transactionApi = {
 
   create: async (data: CreateTransactionReq): Promise<GResponse<TransactionRes>> => {
     const response = await apiClient.post("/transactions", data);
-    return response.data;
+    return response?.data;
   },
 
   update: async (id: string, data: UpdateTransactionReq): Promise<GResponse<TransactionRes>> => {
@@ -121,6 +121,7 @@ export const useCreateTransaction = ({
       onSuccess?.(data);
     },
     onError: (error: GErrorResponse) => {
+      console.log(error);
       onError?.(error.response?.data?.message || "An error occurred");
     },
   });

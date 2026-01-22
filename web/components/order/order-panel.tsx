@@ -98,13 +98,13 @@ export function OrderPanel() {
 }
 
 export function OrderItem({ item, className }: { item: IOrderItem; className?: string }) {
-  const { updateQuantity, removeItem, setSelectedOrderItem } = useOrderStore();
+  const { removeItem, setSelectedOrderItem } = useOrderStore();
 
   return (
     <div
       key={item.product.id}
       className={cn(
-        "flex items-center gap-3 p-2 rounded-md hover:bg-accent/50 transition-colors",
+        "flex items-start gap-4 p-2 rounded-md hover:bg-accent/50 transition-colors",
         "animate-in fade-in slide-in-from-bottom-4 ease-in duration-300 cursor-pointer",
         className
       )}
@@ -146,8 +146,13 @@ export function OrderItem({ item, className }: { item: IOrderItem; className?: s
             {item.product.unit ? " " + item.product.unit : "x"}
           </span>
         </h4>
-        <p className="text-sm font-medium text-muted-foreground">
-          Rp{delimitNumber(item.product.price)}
+        <p className="text-sm font-medium text-muted-foreground flex gap-2 justify-between items-end">
+          <span className="text-muted-foreground text-xs leading-none">
+            @ Rp{delimitNumber(item.product.price)}
+          </span>
+          <span className="font-semibold text-foreground leading-none">
+            Rp{delimitNumber(item.subtotal)}
+          </span>
         </p>
       </div>
 
