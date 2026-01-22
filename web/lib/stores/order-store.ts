@@ -23,6 +23,7 @@ type OrderStore = {
   // Computed
   getTotal: () => number;
   getItemCount: () => number;
+  getProductCount: () => number;
 };
 
 export const useOrderStore = create<OrderStore>((set, get) => ({
@@ -103,5 +104,9 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
 
   getItemCount: () => {
     return get().items.reduce((count, item) => count + item.quantity, 0);
+  },
+
+  getProductCount: () => {
+    return get().items.length;
   },
 }));

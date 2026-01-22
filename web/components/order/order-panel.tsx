@@ -13,9 +13,9 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "..
 import { cn } from "@/lib/utils";
 
 export function OrderPanel() {
-  const { items, removeItem, updateQuantity, clearItems, getTotal, getItemCount } = useOrderStore();
+  const { items, getTotal, getProductCount } = useOrderStore();
   const total = getTotal();
-  const itemCount = getItemCount();
+  const productCount = getProductCount();
 
   return (
     <Card className="h-full">
@@ -23,7 +23,8 @@ export function OrderPanel() {
       <CardHeader className="border-b">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold leading-none">Order Details</h2>
-          <span className="text-sm text-foreground font-medium">{itemCount} Items</span>
+          <span className="text-sm text-foreground font-medium">{productCount} Products</span>
+          {/* <span className="text-sm text-foreground font-medium">{itemCount} Items</span> */}
         </div>
       </CardHeader>
 
