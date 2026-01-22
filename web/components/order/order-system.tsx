@@ -10,7 +10,7 @@ import { OrderPaymentDialog } from "./order-payment-dialog";
 
 export function OrderSystem() {
   return (
-    <div className="flex h-[calc(100vh-4rem)] gap-4">
+    <div className="flex h-full gap-6">
       {/* Left Side - Products */}
       <div className="flex-1 flex flex-col gap-4 overflow-hidden">
         {/* Search */}

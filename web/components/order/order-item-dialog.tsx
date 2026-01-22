@@ -82,7 +82,7 @@ export function OrderItemDialog() {
 
   return (
     <Dialog open={!!selectedOrderItem} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px]" showCloseButton={false}>
+      <DialogContent className="sm:max-w-md gap-2" showCloseButton={false}>
         <DialogHeader className="sr-only">
           <DialogTitle>{product.name}</DialogTitle>
         </DialogHeader>
@@ -97,34 +97,35 @@ export function OrderItemDialog() {
           </Button>
         </DialogClose>
 
-        <div className="space-y-4 relative">
+        <div className="space-y-2 relative">
           {/* Product Image */}
-          <div className="aspect-video bg-muted flex items-center justify-center relative overflow-hidden rounded-lg">
-            {product.image ? (
-              <Image
-                className="w-full h-full object-cover"
-                src={product.image.url}
-                alt={product.name}
-                fill
-              />
-            ) : (
-              <Box className="size-20 text-muted-foreground" />
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <h2 className="text-2xl font-semibold leading-none">{product.name}</h2>
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-lg font-semibold text-primary leading-none">
-                Rp{delimitNumber(product.price)}
-              </p>
-              {product.enableStock &&
-                product.stockQty !== undefined &&
-                product.stockQty !== null && (
-                  <p className="text-base font-medium text-primary-complement leading-none">
-                    {delimitNumber(product.stockQty)} {product.unit || "Pcs"}
-                  </p>
-                )}
+          <div className="space-y-4">
+            <div className="aspect-video bg-muted flex items-center justify-center relative overflow-hidden rounded-lg">
+              {product.image ? (
+                <Image
+                  className="w-full h-full object-cover"
+                  src={product.image.url}
+                  alt={product.name}
+                  fill
+                />
+              ) : (
+                <Box className="size-20 text-muted-foreground" />
+              )}
+            </div>
+            <div className="space-y-3">
+              <h2 className="text-2xl font-semibold leading-none">{product.name}</h2>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-lg font-semibold text-primary leading-none">
+                  Rp{delimitNumber(product.price)}
+                </p>
+                {product.enableStock &&
+                  product.stockQty !== undefined &&
+                  product.stockQty !== null && (
+                    <p className="text-base font-medium text-primary-complement leading-none">
+                      {delimitNumber(product.stockQty)} {product.unit || "Pcs"}
+                    </p>
+                  )}
+              </div>
             </div>
           </div>
 
@@ -177,7 +178,7 @@ export function OrderItemDialog() {
           </Button>
           <Button
             onClick={handleAddToBucket}
-            className="flex-1"
+            className="flex-1 rounded-full"
             size="lg"
             variant={quantity === 0 ? "light-destructive" : "default"}
           >
