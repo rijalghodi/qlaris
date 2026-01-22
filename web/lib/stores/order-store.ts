@@ -54,7 +54,7 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
           {
             product,
             quantity: quantity,
-            subtotal: product.price,
+            subtotal: quantity * product.price,
           },
         ],
       });
