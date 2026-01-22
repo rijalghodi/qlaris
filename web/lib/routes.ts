@@ -8,6 +8,9 @@ export const ROUTES = {
   SEND_VERIFICATION: "/send-verification",
   GOOGLE_SUCCESS: "/google-success",
 
+  // Landing
+  LANDING: "/",
+
   // Dashboard
   DASHBOARD: "/dashboard",
 

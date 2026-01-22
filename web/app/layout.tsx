@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Barlow, Inter, Special_Gothic } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { BRAND } from "@/lib/brand";
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+const inter = localFont({
+  src: "./inter.woff2",
   variable: "--font-sans",
+  weight: "100 900",
 });
 
 export const metadata: Metadata = {

@@ -1,116 +1,61 @@
 # About project
 
-Qlaris is a POS (Point of Sale) application for UMKM (Mini and micro business) in Indonesia.
+Qlaris is a POS (Point of Sale) application for UMKM (Micro and small businesses) in Indonesia.
 
-## Feature Scope (UMKM)
+Qlaris is designed to be **simple, fast, and practical**, focusing on daily operational needs such as selling products, managing stock, and tracking sales without complex setup or training.  
+It is built for **offline stores** (retail, food & beverage, kiosks) where speed, clarity, and reliability matter more than advanced analytics.
 
----
+The goal of Qlaris is to help business owners **sell immediately**, understand their business performance at a glance, and grow step by step without being overwhelmed by features.
 
-## Phase 1 — Must Have (3 days)
-
-**Goal:** Sell immediately, no training
-
-### Account
-
-- Owner login (email/phone + password)
-
-### Catalog
-
-- Product:
-  - Name
-  - Price
-  - Image (optional)
-- Stock quantity
-
-### Checkout
-
-- Add / remove item
-- Change quantity
-- Show total
-- Checkout
-
-### Payment
-
-- Cash
-
-### Transaction
-
-- Save transaction
-- Simple receipt (screen / print)
-- Basic report:
-  - Total sales today
-  - Total transactions today
+**Tagline:**  
+Simple POS for everyday selling
 
 ---
 
-## Phase 2 — Improve (1 week)
+## Features
 
-**Goal:** Faster & neater
+### Account Management
 
-### Account
+- 3 role-based authentication
+  - Owner
+  - Manager
+  - Staff
+- Login with Google
+- Reset password
 
-- Staff login (select name + PIN)
-- Manager role (PIN)
+### Product Management
 
-### Catalog
-
-- Category
-- Buying price
-- Barcode scan
-- Low-stock alert
-- SKU (**optional**)
-
-### Checkout
-
-- Product search
-- Add by barcode
-- Clear cart / hold cart
-
-### Payment
-
-- QRIS (Xendit)
-
-### Transaction & Report
-
-- Sales by product
-- Simple profit report
-
----
-
-## Phase 3 — Nice to Have (2 weeks)
-
-**Goal:** Scale & flexibility
-
-### Catalog
-
+- Barcode support
+- Category support
 - Product variants (size, color, etc.)
+- Product image upload
+- Product stock management
+- Product buying price
 
-### Account
+### Checkout & Payment
 
-- Access right management
-- Customm role
-
-### System
-
-- Multi-outlet
-- Offline mode + sync
-
-### Checkout
-
-- Discount (flat only)
+- Cash payment
+- QRIS payment
+- Discount
 - Tax
 - Refund / return
 - Cash in / cash out
 
-### Customer
+### Reports
 
-- Customer name + WhatsApp
-- Send receipt via WhatsApp
+- Dashboard statistics displaying sales and transactions in a time range
+- List of transactions
 
----
+### Other Features (Next)
 
-## Later
-
-- Loyality program
-- Tax rules
+- Multi-outlet
 - Employee management
+- Offline support
+- Loyalty program
+- Desktop & mobile apps
+
+## Road Map
+
+- [Phase 1](TODO_1.md) — Goal: Sell immediately, no training
+- [Phase 2](TODO_2.md) — Goal: Faster & neater
+- [Phase 3](TODO_3.md) — Goal: Scale & flexibility

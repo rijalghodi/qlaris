@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "./api-client";
 import type { GErrorResponse, GResponse, MResponse } from "./type";
 import { buildQueryKey, buildQueryKeyPredicate } from "./util";
+import { DASHBOARD_SUMMARY_KEY } from "./api-dashboard";
+import { GET_PRODUCT_KEY, LIST_PRODUCTS_KEY } from "./api-product";
 
 // --- TYPES ---
 
@@ -117,7 +119,10 @@ export const useCreateTransaction = ({
     mutationFn: (data: CreateTransactionReq) => transactionApi.create(data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
-        predicate: buildQueryKeyPredicate([{ key: LIST_TRANSACTIONS_KEY }]),
+        predicate: buildQueryKeyPredicate([
+          { key: LIST_TRANSACTIONS_KEY },
+          { key: DASHBOARD_SUMMARY_KEY },
+        ]),
       });
       onSuccess?.(data);
     },
@@ -145,6 +150,7 @@ export const useUpdateTransaction = ({
         predicate: buildQueryKeyPredicate([
           { key: LIST_TRANSACTIONS_KEY },
           { key: GET_TRANSACTION_KEY, data: { id: variables.id } },
+          { key: DASHBOARD_SUMMARY_KEY },
         ]),
       });
       onSuccess?.(data);
@@ -172,6 +178,9 @@ export const usePayTransaction = ({
         predicate: buildQueryKeyPredicate([
           { key: LIST_TRANSACTIONS_KEY },
           { key: GET_TRANSACTION_KEY, data: { id: variables.id } },
+          { key: LIST_PRODUCTS_KEY },
+          { key: GET_PRODUCT_KEY },
+          { key: DASHBOARD_SUMMARY_KEY },
         ]),
       });
       onSuccess?.(data);

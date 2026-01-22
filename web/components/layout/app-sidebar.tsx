@@ -56,7 +56,7 @@ export function AppSidebar() {
                 asChild
                 className="bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent"
               >
-                <Link href="#" className="flex items-center gap-2">
+                <Link href={ROUTES.LANDING} className="flex items-center gap-2">
                   <ShoppingBagIcon className="size-6! text-primary" strokeWidth={2.5} />
                   <span className="font-semibold text-2xl bg-linear-to-r from-lime-600 to-lime-700 bg-clip-text text-transparent tracking-normal leading-none">
                     Qlaris

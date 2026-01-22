@@ -21,7 +21,7 @@ export function DatumCard({ title, value, comparison, decoration }: Props) {
         <div>
           <h2 className="text-lg font-semibold mb-4">{title}</h2>
         </div>
-        <p className="text-2xl leading-none font-semibold mb-2">{value}</p>
+        <p className="text-2xl leading-none tracking-tight font-semibold mb-2">{value}</p>
         <p className="text-sm text-muted-foreground">
           <span
             className={cn("font-semibold", comparison?.isUp ? "text-success" : "text-destructive")}

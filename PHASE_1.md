@@ -29,13 +29,13 @@ Ordered to **ship fast**, not perfect.
 
 ### Frontend
 
-- [ ] Login UI
-- [ ] Register UI
-- [ ] Forgot password UI
-- [ ] Reset password UI
-- [ ] Google login UI
-- [ ] Logout UI
-- [ ] Protect routes
+- [x] Login UI
+- [x] Register UI
+- [x] Forgot password UI
+- [x] Reset password UI
+- [x] Google login UI
+- [x] Logout UI
+- [x] Protect routes
 
 ---
 
@@ -53,11 +53,11 @@ Ordered to **ship fast**, not perfect.
 
 ### Frontend
 
-- [ ] Product list screen
-- [ ] Add product form
-- [ ] Edit product form
-- [ ] Optional image upload
-- [ ] Stock input field
+- [x] Product list screen
+- [x] Add product form
+- [x] Edit product form
+- [x] Optional image upload
+- [x] Stock input field
 
 ❌ No SKU
 ❌ No category
@@ -79,13 +79,13 @@ Ordered to **ship fast**, not perfect.
 
 ### Frontend
 
-- [ ] Product grid/list
-- [ ] Add item to cart
-- [ ] Increase/decrease quantity
-- [ ] Remove item
-- [ ] Show subtotal per item
-- [ ] Show total
-- [ ] Checkout button
+- [x] Product grid/list
+- [x] Add item to cart
+- [x] Increase/decrease quantity
+- [x] Remove item
+- [x] Show subtotal per item
+- [x] Show total
+- [x] Checkout button
 
 ---
 
@@ -100,9 +100,9 @@ Ordered to **ship fast**, not perfect.
 
 ### Frontend
 
-- [ ] Receipt screen (after checkout)
+- [x] Receipt screen (after checkout)
 - [ ] Print-friendly receipt layout
-- [ ] “Done / New sale” button
+- [x] “Done / New sale” button
 
 ❌ No QRIS
 ❌ No split payment
@@ -115,12 +115,17 @@ Ordered to **ship fast**, not perfect.
 
 ## 6️⃣ Basic Report (today only)
 
-- [ ] Fetch today total sales
-- [ ] Fetch today transaction count
-- [ ] Simple dashboard card:
-
+- [x] Fetch today total sales
+- [x] Fetch today transaction count
+- [x] Simple dashboard card:
   - Total sales today
   - Total transactions today
+  - Total profit today
+  - Total sales this week
+  - Total profit this week
+  - Total sales this month
+  - Top products
+  - Last transactions
 
 ❌ No date range
 ❌ No export
