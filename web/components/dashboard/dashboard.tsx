@@ -7,11 +7,8 @@ import { LastTransactionsCard } from "./last-transactions-card";
 import { TopProductsCard } from "./top-products-card";
 import { formatCurrency } from "@/lib/number";
 import { DollarSign, Receipt, TrendingUp, Loader2 } from "lucide-react";
-// import { Alert, AlertDescription } from "../ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "../ui/empty";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "../ui/button";
 
 export function Dashboard() {
   const { data, isLoading, error } = useDashboardSummary();
@@ -46,7 +43,7 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       {/*  Stats */}
-      <div>
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4 justify-start">
           <DatumCard
             title="Today Sales"
@@ -96,7 +93,11 @@ export function Dashboard() {
                   }
                 : undefined
             }
-            decoration={<DollarSign className="size-8 text-muted-foreground" />}
+            decoration={
+              <div className="rounded-full text-primary bg-primary/20 size-12 flex items-center justify-center">
+                <DollarSign className="size-5" />
+              </div>
+            }
           />
           <DatumCard
             title="This Week Profit"
@@ -110,13 +111,17 @@ export function Dashboard() {
                   }
                 : undefined
             }
-            decoration={<TrendingUp className="size-8 text-muted-foreground" />}
+            decoration={
+              <div className="rounded-full text-primary-complement bg-primary-complement/20 size-12 flex items-center justify-center">
+                <TrendingUp className="size-5" />
+              </div>
+            }
           />
         </div>
       </div>
 
       {/* Latest Transactions and Top Products */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <LastTransactionsCard transactions={summary.lastTransactions} />
         <TopProductsCard products={summary.topProducts} />
       </div>

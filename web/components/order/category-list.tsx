@@ -4,6 +4,7 @@ import { useCategories } from "@/services/api-category";
 import { useOrderStore } from "@/lib/stores/order-store";
 import { Button } from "../ui/button";
 import { Package } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function CategoryList() {
   const { data, isLoading } = useCategories({ page: 1, pageSize: 100 });
@@ -30,11 +31,11 @@ export function CategoryList() {
         <Package className="size-4" />
         All
       </Button>
-      {categories.map((category) => (
+      {categories.map((category, idx) => (
         <Button
           key={category.id}
           variant={selectedCategoryId === category.id ? "default" : "outline"}
-          className="rounded-full shrink-0 px-4 animate-in fade-in slide-in-from-left-4 ease-in duration-300"
+          className={cn("rounded-full shrink-0 px-4")}
           onClick={() => setSelectedCategory(category.id)}
         >
           {category.name}

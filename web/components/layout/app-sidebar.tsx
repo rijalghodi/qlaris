@@ -78,7 +78,11 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild variant="default" isActive={pathname == "/"}>
+                <SidebarMenuButton
+                  asChild
+                  variant="default"
+                  isActive={pathname == ROUTES.NEW_ORDER}
+                >
                   <Link href={ROUTES.NEW_ORDER}>
                     <Sparkle />
                     <span>Transaction</span>

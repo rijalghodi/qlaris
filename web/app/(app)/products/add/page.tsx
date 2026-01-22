@@ -10,7 +10,7 @@ export default function AddProductPage() {
     <div className="container mx-auto py-5 px-4 sm:px-6 max-w-7xl">
       {/* Header */}
       <div className="flex items-center justify-between gap-3 mb-4">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-left-4 ease-in duration-300">
           <h1 className="text-2xl font-semibold leading-none">Create Product</h1>
           <Breadcrumb
             items={[
@@ -21,7 +21,7 @@ export default function AddProductPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 ease-in duration-300">
           <Button asChild variant="secondary" className="shrink-0 rounded-full">
             <Link href={ROUTES.PRODUCTS}>
               <ArrowLeft className="size-4" /> Back to Products
@@ -30,7 +30,9 @@ export default function AddProductPage() {
         </div>
       </div>
 
-      <AddProductForm />
+      <div className="animate-in fade-in slide-in-from-bottom-4 ease-in duration-300">
+        <AddProductForm />
+      </div>
     </div>
   );
 }

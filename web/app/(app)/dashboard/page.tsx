@@ -12,13 +12,13 @@ export default function Page() {
   return (
     <div className="container py-4 px-4 max-w-7xl mx-auto">
       <div className="mb-5 flex items-center justify-between">
-        <div>
+        <div className="animate-in fade-in slide-in-from-left-4 ease-in duration-300">
           <h1 className="text-2xl font-semibold tracking-tight mb-2">
             Hello, {userData?.data?.name}
           </h1>
           <p className="text-muted-foreground text-sm">Give your best shot today!</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 ease-in duration-300">
           <Button variant="outline" size="lg" asChild className="rounded-full px-6 shadow-lg">
             <Link href={ROUTES.PRODUCT_ADD}>
               <Plus />
