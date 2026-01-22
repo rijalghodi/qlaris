@@ -42,10 +42,10 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ROUTES } from "@/lib/routes";
-
-import { ProfileDropdown } from "./profile-dropdown";
+import { usePathname } from "next/navigation";
 
 export function AppSidebar() {
+  const pathname = usePathname();
   return (
     <Sidebar variant="sidebar" collapsible="icon">
       <SidebarContent>
@@ -70,12 +70,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  variant="default"
-                  isActive
-                  // className="bg-primary text-primary-foreground hover:text-primary-foreground hover:bg-primary/80 h-10"
-                >
+                <SidebarMenuButton asChild variant="default" isActive={pathname == "/"}>
                   <Link href={ROUTES.NEW_ORDER}>
                     <Sparkle />
                     <span>Transaction</span>
@@ -83,7 +78,7 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild isActive={pathname.startsWith(ROUTES.DASHBOARD)}>
                   <Link href={ROUTES.DASHBOARD}>
                     <LayoutDashboard />
                     <span>Dashboard</span>
@@ -91,7 +86,7 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild isActive={pathname.startsWith(ROUTES.PRODUCTS)}>
                   <Link href={ROUTES.PRODUCTS}>
                     <Box />
                     <span>Products</span>
@@ -99,7 +94,7 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild isActive={pathname.startsWith(ROUTES.CATEGORIES)}>
                   <Link href={ROUTES.CATEGORIES}>
                     <Tags />
                     <span>Categories</span>
@@ -107,7 +102,7 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild isActive={pathname.startsWith(ROUTES.TRANSACTIONS)}>
                   <Link href={ROUTES.TRANSACTIONS}>
                     <ArrowRightLeftIcon />
                     <span>Transaction History</span>

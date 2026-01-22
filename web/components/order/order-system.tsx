@@ -17,7 +17,7 @@ export function OrderSystem() {
         <div className="relative">
           <Input
             placeholder="Search Product"
-            className="min-w-[250px] max-w-[400px] w-full shadow-lg bg-card focus-within:bg-card h-11"
+            className="min-w-[250px] max-w-[400px] w-full shadow-lg bg-card focus-within:bg-card h-11 animate-in fade-in slide-in-from-left-4 ease-in duration-300"
             leftSection={<Search className="size-4" />}
           />
         </div>
@@ -32,15 +32,12 @@ export function OrderSystem() {
       </div>
 
       {/* Right Side - Order Panel */}
-      <div className="w-[400px]">
+      <div className="w-[400px] animate-in fade-in slide-in-from-bottom-4 ease-in duration-300">
         <OrderPanel />
       </div>
 
       {/* Order Item Dialog */}
       <OrderItemDialog />
-
-      {/* Order Payment Dialog */}
-      {/* <OrderPaymentDialog /> */}
     </div>
   );
 }

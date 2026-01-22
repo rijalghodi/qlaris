@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { ROUTES } from "./lib/routes";
 
 // Define URL patterns
 const PUBLIC_URL = ["/"];
-const PROTECTED_URL = ["/dashboard", "/products", "/orders"];
-const AUTH_URL = ["/login", "/register", "/forgot-password", "/reset-password", "/set-password"];
+const PROTECTED_URL = [ROUTES.DASHBOARD, ROUTES.CATEGORIES, ROUTES.PRODUCTS, ROUTES.NEW_ORDER];
+const AUTH_URL = [
+  ROUTES.LOGIN,
+  ROUTES.REGISTER,
+  ROUTES.FORGOT_PASSWORD,
+  ROUTES.RESET_PASSWORD,
+  ROUTES.SET_PASSWORD,
+];
 
 // Helper function to check if the path matches any pattern
 const matchesPattern = (pathname: string, patterns: string[]): boolean => {

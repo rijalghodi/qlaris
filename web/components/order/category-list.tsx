@@ -34,7 +34,7 @@ export function CategoryList() {
         <Button
           key={category.id}
           variant={selectedCategoryId === category.id ? "default" : "outline"}
-          className="rounded-full shrink-0 px-4"
+          className="rounded-full shrink-0 px-4 animate-in fade-in slide-in-from-left-4 ease-in duration-300"
           onClick={() => setSelectedCategory(category.id)}
         >
           {category.name}
