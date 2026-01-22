@@ -2,7 +2,7 @@
 
 import { DataTable } from "@/components/ui/data-table";
 import type { ColumnDef } from "@/components/ui/data-table";
-import { delimitNumber } from "@/lib/number";
+import { formatCurrency } from "@/lib/number";
 import { TransactionRes } from "@/services/api-transaction";
 import { format } from "date-fns";
 
@@ -47,7 +47,7 @@ export function TransactionTable({ transactions, isLoading }: TransactionTablePr
       id: "totalAmount",
       header: () => <div className="text-sm font-semibold">Total Amount</div>,
       cell: ({ row }) => {
-        return <div className="text-sm">Rp{delimitNumber(row.original.totalAmount)}</div>;
+        return <div className="text-sm">{formatCurrency(row.original.totalAmount)}</div>;
       },
     },
   ];

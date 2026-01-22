@@ -12,7 +12,7 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Box, Minus, Plus, XIcon, Trash2, ShoppingCart } from "lucide-react";
-import { delimitNumber } from "@/lib/number";
+import { delimitNumber, formatCurrency } from "@/lib/number";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { NumberInput } from "../ui/number-input";
@@ -116,7 +116,7 @@ export function OrderItemDialog() {
               <h2 className="text-2xl font-semibold leading-none">{product.name}</h2>
               <div className="flex items-center justify-between gap-2">
                 <p className="text-lg font-semibold text-primary leading-none">
-                  Rp{delimitNumber(product.price)}
+                  {formatCurrency(product.price)}
                 </p>
                 {product.enableStock &&
                   product.stockQty !== undefined &&

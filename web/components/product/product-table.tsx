@@ -6,7 +6,7 @@ import { DataTable } from "@/components/ui/data-table";
 import type { ColumnDef } from "@/components/ui/data-table";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import type { Product } from "@/services/api-product";
-import { delimitNumber } from "@/lib/number";
+import { delimitNumber, formatCurrency } from "@/lib/number";
 
 interface ProductTableProps {
   products: Product[];
@@ -44,7 +44,7 @@ export function ProductTable({ products, isLoading, onDelete, onEdit }: ProductT
       header: () => <div className="text-sm font-semibold">Price</div>,
       cell: ({ row }) => {
         const price = row.original.price;
-        return <div className="text-sm font-normal">Rp{delimitNumber(price)}</div>;
+        return <div className="text-sm font-normal">{formatCurrency(price)}</div>;
       },
     },
     {
@@ -62,7 +62,7 @@ export function ProductTable({ products, isLoading, onDelete, onEdit }: ProductT
         const stock = row.original.stockQty;
         return (
           <div className="text-sm font-normal">
-            {stock != undefined && stock != null ? delimitNumber(stock) : ""}
+            {stock != undefined && stock != null ? formatCurrency(stock) : ""}
           </div>
         );
       },

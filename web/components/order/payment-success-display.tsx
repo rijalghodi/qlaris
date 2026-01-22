@@ -1,4 +1,4 @@
-import { delimitNumber } from "@/lib/number";
+import { delimitNumber, formatCurrency } from "@/lib/number";
 import { TransactionRes } from "@/services/api-transaction";
 import { format } from "date-fns";
 import { Check, Printer, Plus } from "lucide-react";
@@ -39,16 +39,16 @@ export function PaymentSuccessDisplay({
           </div>
           <div className="flex justify-between w-full text-sm">
             <span className="text-muted-foreground">Total Charge</span>
-            <span className="font-semibold">Rp{delimitNumber(transaction.totalAmount)}</span>
+            <span className="font-semibold">{formatCurrency(transaction.totalAmount)}</span>
           </div>
           <div className="flex justify-between w-full text-sm">
             <span className="text-muted-foreground">Received Amount</span>
-            <span className="font-medium">Rp{delimitNumber(transaction.receivedAmount)}</span>
+            <span className="font-medium">{formatCurrency(transaction.receivedAmount)}</span>
           </div>
           <div className="flex justify-between w-full text-sm border-t pt-2 mt-1">
             <span className="text-muted-foreground">Change</span>
             <span className="font-bold text-success">
-              Rp{delimitNumber(transaction.changeAmount)}
+              {formatCurrency(transaction.changeAmount)}
             </span>
           </div>
         </div>

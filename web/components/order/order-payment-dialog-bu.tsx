@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Banknote, QrCode, CheckCircle2, ArrowRight, ShoppingBag } from "lucide-react";
-import { delimitNumber } from "@/lib/number";
+import { delimitNumber, formatCurrency } from "@/lib/number";
 import { useState } from "react";
 import { NumberInput } from "../ui/number-input";
 
@@ -125,7 +125,7 @@ function PaymentFormStep({ method, total, onBack, onSuccess }: PaymentFormStepPr
         {/* Total Amount */}
         <div className="p-4 rounded-lg bg-muted">
           <p className="text-sm text-muted-foreground mb-1">Total Amount</p>
-          <p className="text-3xl font-bold text-primary">Rp{delimitNumber(total)}</p>
+          <p className="text-3xl font-bold text-primary">{formatCurrency(total)}</p>
         </div>
 
         {/* Received Money Input */}
@@ -147,14 +147,14 @@ function PaymentFormStep({ method, total, onBack, onSuccess }: PaymentFormStepPr
         {receivedMoney > 0 && (
           <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
             <p className="text-sm text-muted-foreground mb-1">Change</p>
-            <p className="text-2xl font-bold text-primary">Rp{delimitNumber(change)}</p>
+            <p className="text-2xl font-bold text-primary">{formatCurrency(change)}</p>
           </div>
         )}
 
         {/* Warning if insufficient */}
         {receivedMoney > 0 && receivedMoney < total && (
           <p className="text-sm text-destructive">
-            Insufficient amount. Please enter at least Rp{delimitNumber(total)}
+            Insufficient amount. Please enter at least {formatCurrency(total)}
           </p>
         )}
       </div>
@@ -206,10 +206,10 @@ function PaymentSuccessStep({
               <div className="flex-1">
                 <p className="font-medium">{item.product.name}</p>
                 <p className="text-sm text-muted-foreground">
-                  {delimitNumber(item.quantity)} × Rp{delimitNumber(item.product.price)}
+                  {formatCurrency(item.quantity)} × {formatCurrency(item.product.price)}
                 </p>
               </div>
-              <p className="font-semibold">Rp{delimitNumber(item.subtotal)}</p>
+              <p className="font-semibold">{formatCurrency(item.subtotal)}</p>
             </div>
           ))}
         </div>
@@ -222,15 +222,15 @@ function PaymentSuccessStep({
           </div>
           <div className="flex justify-between">
             <span className="font-semibold">Total</span>
-            <span className="font-bold text-primary">Rp{delimitNumber(total)}</span>
+            <span className="font-bold text-primary">{formatCurrency(total)}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Received</span>
-            <span className="font-medium">Rp{delimitNumber(receivedMoney)}</span>
+            <span className="font-medium">{formatCurrency(receivedMoney)}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Change</span>
-            <span className="font-medium">Rp{delimitNumber(change)}</span>
+            <span className="font-medium">{formatCurrency(change)}</span>
           </div>
         </div>
       </div>

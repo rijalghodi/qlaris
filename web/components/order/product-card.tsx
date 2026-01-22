@@ -4,7 +4,7 @@ import { Product } from "@/services/api-product";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { Box, Check, Minus, Plus } from "lucide-react";
-import { delimitNumber } from "@/lib/number";
+import { formatCurrency } from "@/lib/number";
 import { useOrderStore } from "@/lib/stores/order-store";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -91,11 +91,11 @@ export function ProductCard({ product, className }: ProductCardProps) {
         <h3 className="text-base font-medium line-clamp-1 leading-none">{product.name}</h3>
         <div className="flex items-center justify-between gap-2">
           <p className="text-base font-semibold text-primary leading-none">
-            Rp{delimitNumber(product.price)}
+            {formatCurrency(product.price)}
           </p>
           {product.enableStock && product.stockQty !== undefined && product.stockQty !== null && (
             <p className="text-sm font-medium text-primary-complement leading-none">
-              {delimitNumber(product.stockQty)} {product.unit || "Pcs"}
+              {formatCurrency(product.stockQty)} {product.unit || "Pcs"}
             </p>
           )}
         </div>

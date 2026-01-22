@@ -1,5 +1,7 @@
-export const delimitNumber = (number: number) => {
-  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+export const delimitNumber = (value: number) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "decimal",
+  }).format(value);
 };
 
 export const formatCurrency = (value: number) => {

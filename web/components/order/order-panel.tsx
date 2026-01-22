@@ -3,7 +3,7 @@
 import { useOrderStore } from "@/lib/stores/order-store";
 import { Button } from "../ui/button";
 import { ShoppingCart, Trash2, Box, ArrowRight } from "lucide-react";
-import { delimitNumber } from "@/lib/number";
+import { delimitNumber, formatCurrency } from "@/lib/number";
 import Image from "next/image";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { IOrderItem } from "@/lib/stores/order-store";
@@ -49,11 +49,11 @@ export function OrderPanel() {
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Sub Total</span>
-              <span>Rp{delimitNumber(total)}</span>
+              <span>{formatCurrency(total)}</span>
             </div>
             <div className="flex items-center justify-between font-semibold text-lg">
               <span>Total</span>
-              <span>Rp{delimitNumber(total)}</span>
+              <span>{formatCurrency(total)}</span>
             </div>
           </div>
 
@@ -75,7 +75,7 @@ export function OrderPanel() {
               className="flex-1 rounded-full"
               onClick={() => setPaymentDialogOpen(true)}
             >
-              Charge Rp{delimitNumber(total)} <ArrowRight />
+              Charge {formatCurrency(total)} <ArrowRight />
             </Button>
           </div>
         </CardFooter>
@@ -115,17 +115,6 @@ export function OrderItem({ item, className }: { item: IOrderItem; className?: s
         )}
       </div>
 
-      {/* Product Details */}
-      {/* <div className="flex-1 min-w-0">
-        <h4 className="text-base font-semibold line-clamp-1">{item.product.name}</h4>
-        <div className="flex items-end gap-2 justify-between">
-          <p className="text-sm text-muted-foreground">{item.quantity}x</p>
-          <p className="text-sm font-medium text-muted-foreground">
-            Rp{delimitNumber(item.product.price)}
-          </p>
-        </div>
-      </div> */}
-
       <div className="flex-1 min-w-0 space-y-1">
         <h4 className="text-base font-medium line-clamp-1">
           {item.product.name}
@@ -136,10 +125,10 @@ export function OrderItem({ item, className }: { item: IOrderItem; className?: s
         </h4>
         <p className="text-sm font-medium text-muted-foreground flex gap-2 justify-between items-end">
           <span className="text-muted-foreground text-xs leading-none">
-            @ Rp{delimitNumber(item.product.price)}
+            @ {formatCurrency(item.product.price)}
           </span>
           <span className="font-semibold text-foreground leading-none">
-            Rp{delimitNumber(item.subtotal)}
+            {formatCurrency(item.subtotal)}
           </span>
         </p>
       </div>

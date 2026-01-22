@@ -73,7 +73,9 @@ export function LastTransactionCard({
               </p>
             </div>
             <div className="text-right shrink-0">
-              <p className="font-semibold text-lg">{formatCurrency(transaction.totalAmount)}</p>
+              <p className="font-semibold text-lg tracking-tight">
+                {formatCurrency(transaction.totalAmount)}
+              </p>
             </div>
           </div>
         </div>

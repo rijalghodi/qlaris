@@ -3,7 +3,7 @@
 import { useOrderStore } from "@/lib/stores/order-store";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { delimitNumber, getSuggestionMoneys } from "@/lib/number";
+import { delimitNumber, formatCurrency, getSuggestionMoneys } from "@/lib/number";
 import { useEffect, useState } from "react";
 import { NumberInput } from "../ui/number-input";
 import { ArrowRight, Loader2 } from "lucide-react";
@@ -97,7 +97,9 @@ export function OrderPaymentDialog({ open, onOpenChange }: OrderPaymentDialogPro
             {/* Total Display */}
             <div className="text-center space-y-2">
               <p className="text-xs font-medium text-muted-foreground">Total Charge</p>
-              <p className="text-3xl font-bold text-primary">Rp{delimitNumber(total)}</p>
+              <p className="text-3xl font-bold text-primary tracking-tight">
+                {formatCurrency(total)}
+              </p>
             </div>
 
             {/* Money Input */}
@@ -146,7 +148,7 @@ export function OrderPaymentDialog({ open, onOpenChange }: OrderPaymentDialogPro
                         onClick={() => setReceivedMoney(suggestion)}
                         className="h-12 py-2 flex flex-col gap-1 hover:bg-primary/10 hover:text-primary hover:border-primary shadow-none"
                       >
-                        <span className="font-medium">Rp{delimitNumber(suggestion)}</span>
+                        <span className="font-medium">{formatCurrency(suggestion)}</span>
                       </Button>
                     ))}
                   </div>
