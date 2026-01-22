@@ -58,7 +58,7 @@ export function Dashboard() {
                 : undefined
             }
             decoration={
-              <div className="rounded-full text-primary bg-primary/20 size-12 flex items-center justify-center">
+              <div className="rounded-full text-primary-complement bg-primary-complement/20 size-12 flex items-center justify-center">
                 <DollarSign className="size-5" />
               </div>
             }
@@ -76,7 +76,7 @@ export function Dashboard() {
                 : undefined
             }
             decoration={
-              <div className="rounded-full text-primary-complement bg-primary-complement/20 size-12 flex items-center justify-center">
+              <div className="rounded-full text-primary bg-primary/20 size-12 flex items-center justify-center">
                 <TrendingUp className="size-5" />
               </div>
             }
@@ -94,7 +94,7 @@ export function Dashboard() {
                 : undefined
             }
             decoration={
-              <div className="rounded-full text-primary bg-primary/20 size-12 flex items-center justify-center">
+              <div className="rounded-full text-primary-complement bg-primary-complement/20 size-12 flex items-center justify-center">
                 <DollarSign className="size-5" />
               </div>
             }
@@ -112,7 +112,7 @@ export function Dashboard() {
                 : undefined
             }
             decoration={
-              <div className="rounded-full text-primary-complement bg-primary-complement/20 size-12 flex items-center justify-center">
+              <div className="rounded-full text-primary bg-primary/20 size-12 flex items-center justify-center">
                 <TrendingUp className="size-5" />
               </div>
             }
