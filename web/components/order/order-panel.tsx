@@ -81,15 +81,26 @@ export function OrderPanel() {
         </div> */}
 
           {/* Grand Total Button */}
-          <Button
-            variant="default"
-            size="lg"
-            disabled={items.length === 0}
-            className="w-full rounded-full"
-            onClick={() => setPaymentDialogOpen(true)}
-          >
-            Charge Rp{delimitNumber(total)} <ArrowRight />
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="lg"
+              disabled={items.length === 0}
+              className="w-24 rounded-full"
+              // onClick={() => setPaymentDialogOpen(true)}
+            >
+              Save
+            </Button>
+            <Button
+              variant="default"
+              size="lg"
+              disabled={items.length === 0}
+              className="flex-1 rounded-full"
+              onClick={() => setPaymentDialogOpen(true)}
+            >
+              Charge Rp{delimitNumber(total)} <ArrowRight />
+            </Button>
+          </div>
         </CardFooter>
       </Card>
       <OrderPaymentDialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen} />
