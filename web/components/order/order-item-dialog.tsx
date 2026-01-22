@@ -88,7 +88,11 @@ export function OrderItemDialog() {
         </DialogHeader>
 
         <DialogClose asChild className="absolute top-7 right-7 z-10">
-          <Button variant="ghost" className="bg-background/70 backdrop-blur-lg" size="icon-lg">
+          <Button
+            variant="ghost"
+            className="bg-background/70 backdrop-blur-lg rounded-full"
+            size="icon-lg"
+          >
             <XIcon />
           </Button>
         </DialogClose>

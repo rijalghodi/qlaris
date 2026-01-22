@@ -11,52 +11,56 @@ import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { IOrderItem } from "@/lib/stores/order-store";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "../ui/empty";
 import { cn } from "@/lib/utils";
+import { OrderPaymentDialog } from "./order-payment-dialog";
+import { useState } from "react";
 
 export function OrderPanel() {
   const { items, getTotal, getProductCount } = useOrderStore();
   const total = getTotal();
   const productCount = getProductCount();
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
 
   return (
-    <Card className="h-full">
-      {/* Header */}
-      <CardHeader className="border-b">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold leading-none">Order Details</h2>
-          <span className="text-sm text-foreground font-medium">{productCount} Products</span>
-          {/* <span className="text-sm text-foreground font-medium">{itemCount} Items</span> */}
-        </div>
-      </CardHeader>
+    <>
+      <Card className="h-full">
+        {/* Header */}
+        <CardHeader className="border-b">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold leading-none">Order Details</h2>
+            <span className="text-sm text-foreground font-medium">{productCount} Products</span>
+            {/* <span className="text-sm text-foreground font-medium">{itemCount} Items</span> */}
+          </div>
+        </CardHeader>
 
-      {/* Cart Items */}
-      <CardContent className="flex-1 px-3 overflow-y-auto flex flex-col">
-        {items.length === 0 ? (
-          <OrderEmpty />
-        ) : (
+        {/* Cart Items */}
+        <CardContent className="flex-1 px-3 overflow-y-auto flex flex-col">
+          {items.length === 0 ? (
+            <OrderEmpty />
+          ) : (
+            <div className="space-y-2">
+              {items.map((item) => (
+                <OrderItem item={item} key={item.product.id} />
+              ))}
+            </div>
+          )}
+        </CardContent>
+
+        {/* Footer */}
+        <CardFooter className="block border-t space-y-3">
+          {/* Total */}
           <div className="space-y-2">
-            {items.map((item) => (
-              <OrderItem item={item} key={item.product.id} />
-            ))}
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Sub Total</span>
+              <span>Rp{delimitNumber(total)}</span>
+            </div>
+            <div className="flex items-center justify-between font-semibold text-lg">
+              <span>Total</span>
+              <span>Rp{delimitNumber(total)}</span>
+            </div>
           </div>
-        )}
-      </CardContent>
 
-      {/* Footer */}
-      <CardFooter className="block border-t space-y-3">
-        {/* Total */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Sub Total</span>
-            <span>Rp{delimitNumber(total)}</span>
-          </div>
-          <div className="flex items-center justify-between font-semibold text-lg">
-            <span>Total</span>
-            <span>Rp{delimitNumber(total)}</span>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        {/* <div className="grid grid-cols-2 gap-2">
+          {/* Action Buttons */}
+          {/* <div className="grid grid-cols-2 gap-2">
           <Button
             variant="outline"
             onClick={clearItems}
@@ -76,17 +80,20 @@ export function OrderPanel() {
           </Button>
         </div> */}
 
-        {/* Grand Total Button */}
-        <Button
-          variant="default"
-          size="lg"
-          disabled={items.length === 0}
-          className="w-full rounded-full"
-        >
-          Charge Rp{delimitNumber(total)} <ArrowRight />
-        </Button>
-      </CardFooter>
-    </Card>
+          {/* Grand Total Button */}
+          <Button
+            variant="default"
+            size="lg"
+            disabled={items.length === 0}
+            className="w-full rounded-full"
+            onClick={() => setPaymentDialogOpen(true)}
+          >
+            Charge Rp{delimitNumber(total)} <ArrowRight />
+          </Button>
+        </CardFooter>
+      </Card>
+      <OrderPaymentDialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen} />
+    </>
   );
 }
 
@@ -134,7 +141,10 @@ export function OrderItem({ item, className }: { item: IOrderItem; className?: s
       <div className="flex-1 min-w-0 space-y-1">
         <h4 className="text-base font-medium line-clamp-1">
           {item.product.name}
-          <span className="text-sm text-muted-foreground ml-2">{item.quantity}x</span>
+          <span className="text-sm text-muted-foreground ml-2">
+            {item.quantity}
+            {item.product.unit ? " " + item.product.unit : "x"}
+          </span>
         </h4>
         <p className="text-sm font-medium text-muted-foreground">
           Rp{delimitNumber(item.product.price)}

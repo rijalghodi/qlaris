@@ -9,10 +9,16 @@ type TransactionItemReq struct {
 
 type CreateTransactionReq struct {
 	Items []TransactionItemReq `json:"items" validate:"required,min=1,dive"`
+	// For cash payment
+	ReceivedAmount *float64 `json:"receivedAmount" validate:"omitempty,min=0"`
+	IsCashPaid     bool     `json:"isCashPaid" validate:"omitempty"`
 }
 
 type UpdateTransactionReq struct {
 	Items []TransactionItemReq `json:"items" validate:"required,min=1,dive"`
+	// For cash payment
+	ReceivedAmount *float64 `json:"receivedAmount" validate:"omitempty,min=0"`
+	IsCashPaid     bool     `json:"isCashPaid" validate:"omitempty"`
 }
 
 type PayTransactionReq struct {

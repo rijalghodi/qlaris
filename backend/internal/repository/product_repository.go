@@ -102,9 +102,9 @@ func (r *ProductRepository) GetProductsByIDs(ids []string) ([]*model.Product, er
 	return products, nil
 }
 
-func (r *ProductRepository) DecreaseStock(productID string, quantity int) error {
+func (r *ProductRepository) DecreaseStock(tx *gorm.DB, productID string, quantity int) error {
 	// Using raw SQL to ensure atomic operation with stock validation
-	result := r.db.Exec(
+	result := tx.Exec(
 		"UPDATE products SET stock_qty = stock_qty - ?, updated_at = now() WHERE id = ? AND stock_qty >= ?",
 		quantity, productID, quantity,
 	)
@@ -117,8 +117,8 @@ func (r *ProductRepository) DecreaseStock(productID string, quantity int) error 
 	return nil
 }
 
-func (r *ProductRepository) IncreaseStock(productID string, quantity int) error {
-	return r.db.Model(&model.Product{}).
+func (r *ProductRepository) IncreaseStock(tx *gorm.DB, productID string, quantity int) error {
+	return tx.Model(&model.Product{}).
 		Where("id = ?", productID).
 		UpdateColumn("stock_qty", gorm.Expr("stock_qty + ?", quantity)).Error
 }

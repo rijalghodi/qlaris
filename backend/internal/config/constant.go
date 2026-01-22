@@ -1,11 +1,14 @@
 package config
 
+import "time"
+
 const (
 	APP_NAME                   = "Qlaris"
 	ACCESS_TOKEN_COOKIE_NAME   = "qlaris.access-token"
 	REFRESH_TOKEN_COOKIE_NAME  = "qlaris.refresh-token"
-	REQUEST_RESET_PASSWORD_TTL = 5
-	REQUEST_VERIFICATION_TTL   = 5
+	REQUEST_RESET_PASSWORD_TTL = 5 * time.Minute
+	REQUEST_VERIFICATION_TTL   = 5 * time.Minute
+	TRANSACTION_EXPIRY_TIME    = 15 * time.Minute
 )
 
 type UserRole string

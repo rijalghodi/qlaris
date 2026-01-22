@@ -47,7 +47,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
       {/* Add Button Overlay */}
       <div className="absolute top-4 right-4 z-10">
         {isAdded && (
-          <div className="size-8 rounded-full flex items-center justify-center bg-primary/70 text-primary-foreground shadow-lg backdrop-blur-lg">
+          <div className="size-8 rounded-full flex items-center justify-center bg-primary text-primary-foreground shadow-lg">
             <Check className="size-4" strokeWidth={4} />
           </div>
         )}

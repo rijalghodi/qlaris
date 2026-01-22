@@ -66,7 +66,7 @@
 :root {
   --radius: 1.25rem;
   --background: hsl(0, 0%, 100%);
-  --foreground: hsl(0, 0%, 20%);
+  --foreground: hsl(45, 0%, 25%);
   --card: hsl(0, 0%, 100%);
   --card-foreground: hsl(0, 0%, 20%);
   --popover: hsl(0, 0%, 100%);

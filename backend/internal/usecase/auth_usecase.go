@@ -204,7 +204,7 @@ func (u *AuthUsecase) SendVerificationEmail(email string) (*contract.SendVerific
 	// Check if verification email was requested recently (rate limiting)
 	if user.RequestVerificationAt != nil {
 		timeSinceLastRequest := time.Since(*user.RequestVerificationAt)
-		ttlDuration := time.Duration(config.REQUEST_VERIFICATION_TTL) * time.Minute
+		ttlDuration := config.REQUEST_VERIFICATION_TTL
 		if timeSinceLastRequest < ttlDuration {
 			remainingTime := ttlDuration - timeSinceLastRequest
 			logger.Log.Warn("Verification email requested too soon",
@@ -235,7 +235,7 @@ func (u *AuthUsecase) SendVerificationEmail(email string) (*contract.SendVerific
 	}
 
 	return &contract.SendVerificationEmailRes{
-		NextRequestAt: nextRequestAt(user.RequestVerificationAt, time.Duration(config.REQUEST_VERIFICATION_TTL)*time.Minute),
+		NextRequestAt: nextRequestAt(user.RequestVerificationAt, config.REQUEST_VERIFICATION_TTL),
 	}, nil
 }
 
@@ -297,7 +297,7 @@ func (u *AuthUsecase) ForgotPassword(req *contract.ForgotPasswordReq) (*contract
 	// Check if password reset was requested recently (rate limiting)
 	if user.RequestResetPasswordAt != nil {
 		timeSinceLastRequest := time.Since(*user.RequestResetPasswordAt)
-		ttlDuration := time.Duration(config.REQUEST_RESET_PASSWORD_TTL) * time.Minute
+		ttlDuration := config.REQUEST_RESET_PASSWORD_TTL
 		if timeSinceLastRequest < ttlDuration {
 			remainingTime := ttlDuration - timeSinceLastRequest
 			logger.Log.Warn("Password reset requested too soon",
@@ -328,7 +328,7 @@ func (u *AuthUsecase) ForgotPassword(req *contract.ForgotPasswordReq) (*contract
 	}
 
 	return &contract.ForgotPasswordRes{
-		NextRequestAt: nextRequestAt(user.RequestResetPasswordAt, time.Duration(config.REQUEST_RESET_PASSWORD_TTL)*time.Minute),
+		NextRequestAt: nextRequestAt(user.RequestResetPasswordAt, config.REQUEST_RESET_PASSWORD_TTL),
 	}, nil
 }
 

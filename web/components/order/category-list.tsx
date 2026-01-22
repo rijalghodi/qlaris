@@ -4,7 +4,6 @@ import { useCategories } from "@/services/api-category";
 import { useOrderStore } from "@/lib/stores/order-store";
 import { Button } from "../ui/button";
 import { Package } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 export function CategoryList() {
   const { data, isLoading } = useCategories({ page: 1, pageSize: 100 });
@@ -22,7 +21,7 @@ export function CategoryList() {
   }
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-2">
+    <div className="flex items-center gap-2 overflow-x-auto">
       <Button
         variant={selectedCategoryId === null ? "default" : "outline"}
         className="rounded-full shrink-0 px-4"

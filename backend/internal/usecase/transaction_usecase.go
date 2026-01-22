@@ -44,31 +44,54 @@ func NewTransactionUsecase(
 
 // CreateTransaction handles the checkout process
 func (u *TransactionUsecase) CreateTransaction(userID, businessID string, req *contract.CreateTransactionReq) (*contract.TransactionRes, error) {
-	tx := u.db.Begin()
-	if tx.Error != nil {
-		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to start transaction")
-	}
-	defer handlePanic(tx)
 
 	// Validate products and build items
-	productMap, err := u.fetchAndValidateProducts(tx, req.Items, businessID)
+	productMap, err := u.fetchAndValidateProducts(req.Items, businessID)
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
 
 	// Create transaction items and calculate total
 	totalAmount, transactionItems := u.buildTransactionItems(req.Items, productMap, "")
 
+	// For cash payment
+	status := config.TRANSACTION_STATUS_PENDING
+	var receivedAmount, changeAmount float64
+
+	if req.IsCashPaid {
+		if req.ReceivedAmount == nil {
+			return nil, fiber.NewError(fiber.StatusBadRequest, "Received amount is required")
+		}
+
+		receivedAmount = *req.ReceivedAmount
+		changeAmount = receivedAmount - totalAmount
+
+		if changeAmount < 0 {
+			return nil, fiber.NewError(fiber.StatusBadRequest, "Received amount is less than total amount")
+		}
+
+		// status
+		if req.IsCashPaid {
+			status = config.TRANSACTION_STATUS_PAID
+		}
+	}
+
+	// Start transaction
+	tx := u.db.Begin()
+	if tx.Error != nil {
+		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to start transaction")
+	}
+	defer handlePanic(tx)
+
 	// Create transaction
 	transaction := &model.Transaction{
 		BusinessID:     businessID,
 		CreatedBy:      userID,
 		TotalAmount:    totalAmount,
-		ReceivedAmount: 0,
-		ChangeAmount:   0,
-		Status:         config.TRANSACTION_STATUS_PENDING,
-		ExpiredAt:      time.Now().Add(15 * time.Minute),
+		ReceivedAmount: receivedAmount,
+		ChangeAmount:   changeAmount,
+		Status:         status,
+		ExpiredAt:      time.Now().Add(config.TRANSACTION_EXPIRY_TIME),
 	}
 
 	if err := tx.Create(transaction).Error; err != nil {
@@ -107,27 +130,25 @@ func (u *TransactionUsecase) CreateTransaction(userID, businessID string, req *c
 
 // UpdateTransaction updates a pending transaction
 func (u *TransactionUsecase) UpdateTransaction(userID, businessID, transactionID string, req *contract.UpdateTransactionReq) (*contract.TransactionRes, error) {
-	tx := u.db.Begin()
-	if tx.Error != nil {
-		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to start transaction")
-	}
-	defer handlePanic(tx)
-
 	// Get and validate existing transaction
-	transaction, err := u.getAndValidatePendingTransaction(tx, transactionID, businessID)
+	transaction, err := u.getAndValidatePendingTransaction(transactionID, businessID)
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
 
 	oldItems := transaction.Items
 
 	// Validate new products
-	productMap, err := u.fetchAndValidateProducts(tx, req.Items, businessID)
+	productMap, err := u.fetchAndValidateProducts(req.Items, businessID)
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
+
+	tx := u.db.Begin()
+	if tx.Error != nil {
+		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to start transaction")
+	}
+	defer handlePanic(tx)
 
 	// Restore stock from old items
 	if err := u.restoreStock(tx, oldItems); err != nil {
@@ -152,6 +173,32 @@ func (u *TransactionUsecase) UpdateTransaction(userID, businessID, transactionID
 	totalAmount, transactionItems := u.buildTransactionItems(req.Items, productMap, transactionID)
 	transaction.TotalAmount = totalAmount
 
+	// For cash payment
+	status := config.TRANSACTION_STATUS_PENDING
+	var receivedAmount, changeAmount float64
+
+	if req.IsCashPaid {
+		if req.ReceivedAmount == nil {
+			return nil, fiber.NewError(fiber.StatusBadRequest, "Received amount is required")
+		}
+
+		receivedAmount = *req.ReceivedAmount
+		changeAmount = receivedAmount - totalAmount
+
+		if changeAmount < 0 {
+			return nil, fiber.NewError(fiber.StatusBadRequest, "Received amount is less than total amount")
+		}
+
+		// status
+		if req.IsCashPaid {
+			status = config.TRANSACTION_STATUS_PAID
+		}
+	}
+
+	transaction.Status = status
+	transaction.ReceivedAmount = receivedAmount
+	transaction.ChangeAmount = changeAmount
+
 	if err := tx.Save(transaction).Error; err != nil {
 		tx.Rollback()
 		logger.Log.Error("Failed to update transaction", zap.Error(err))
@@ -175,7 +222,7 @@ func (u *TransactionUsecase) UpdateTransaction(userID, businessID, transactionID
 
 // PayTransaction finalizes a transaction with cash payment
 func (u *TransactionUsecase) PayTransaction(userID, businessID, transactionID string, req *contract.PayTransactionReq) (*contract.TransactionRes, error) {
-	transaction, err := u.getAndValidatePendingTransaction(nil, transactionID, businessID)
+	transaction, err := u.getAndValidatePendingTransaction(transactionID, businessID)
 	if err != nil {
 		return nil, err
 	}
@@ -274,7 +321,7 @@ func handlePanic(tx *gorm.DB) {
 }
 
 // fetchAndValidateProducts fetches products and validates them
-func (u *TransactionUsecase) fetchAndValidateProducts(tx *gorm.DB, items []contract.TransactionItemReq, businessID string) (map[string]*model.Product, error) {
+func (u *TransactionUsecase) fetchAndValidateProducts(items []contract.TransactionItemReq, businessID string) (map[string]*model.Product, error) {
 	// Get product IDs
 	productIDs := make([]string, len(items))
 	for i, item := range items {
@@ -349,9 +396,9 @@ func (u *TransactionUsecase) updateStock(tx *gorm.DB, items []contract.Transacti
 
 		var err error
 		if increase {
-			err = u.productRepo.IncreaseStock(item.ProductID, item.Quantity)
+			err = u.productRepo.IncreaseStock(tx, item.ProductID, item.Quantity)
 		} else {
-			err = u.productRepo.DecreaseStock(item.ProductID, item.Quantity)
+			err = u.productRepo.DecreaseStock(tx, item.ProductID, item.Quantity)
 		}
 
 		if err != nil {
@@ -375,7 +422,7 @@ func (u *TransactionUsecase) restoreStock(tx *gorm.DB, items []model.Transaction
 			continue
 		}
 
-		if err := u.productRepo.IncreaseStock(*item.ProductID, item.Quantity); err != nil {
+		if err := u.productRepo.IncreaseStock(tx, *item.ProductID, item.Quantity); err != nil {
 			logger.Log.Error("Failed to restore stock", zap.Error(err))
 			return fiber.NewError(fiber.StatusInternalServerError, "Failed to restore stock")
 		}
@@ -384,7 +431,7 @@ func (u *TransactionUsecase) restoreStock(tx *gorm.DB, items []model.Transaction
 }
 
 // getAndValidatePendingTransaction retrieves and validates a pending transaction
-func (u *TransactionUsecase) getAndValidatePendingTransaction(tx *gorm.DB, transactionID, businessID string) (*model.Transaction, error) {
+func (u *TransactionUsecase) getAndValidatePendingTransaction(transactionID, businessID string) (*model.Transaction, error) {
 	transaction, err := u.transactionRepo.GetTransactionByIDAndBusinessID(transactionID, businessID)
 	if err != nil {
 		logger.Log.Error("Failed to get transaction", zap.Error(err))
