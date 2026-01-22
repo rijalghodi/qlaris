@@ -87,7 +87,7 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
   },
 
   clearItems: () => {
-    set({ items: [] });
+    set({ items: [], selectedCategoryId: null, selectedOrderItem: null });
   },
 
   setSelectedCategory: (categoryId) => {

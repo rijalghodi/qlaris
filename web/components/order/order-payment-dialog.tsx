@@ -30,6 +30,7 @@ export function OrderPaymentDialog({ open, onOpenChange }: OrderPaymentDialogPro
         setTransactionResult(response.data);
       }
       setReceivedMoney(undefined);
+      clearItems();
     },
     onError: (error) => {
       toast.error(error);
