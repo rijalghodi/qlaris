@@ -10,6 +10,7 @@ import (
 	"app/pkg/storage"
 	"app/pkg/util"
 	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -57,6 +58,7 @@ func (u *TransactionUsecase) CreateTransaction(userID, businessID string, req *c
 	// For cash payment
 	status := config.TRANSACTION_STATUS_PENDING
 	var receivedAmount, changeAmount float64
+	var paidAt *time.Time
 
 	if req.IsCashPaid {
 		if req.ReceivedAmount == nil {
@@ -71,9 +73,10 @@ func (u *TransactionUsecase) CreateTransaction(userID, businessID string, req *c
 		}
 
 		// status
-		if req.IsCashPaid {
-			status = config.TRANSACTION_STATUS_PAID
-		}
+
+		status = config.TRANSACTION_STATUS_PAID
+		paidAt = util.ToPointer(time.Now())
+
 	}
 
 	// Start transaction
@@ -88,9 +91,11 @@ func (u *TransactionUsecase) CreateTransaction(userID, businessID string, req *c
 		BusinessID:     businessID,
 		CreatedBy:      userID,
 		TotalAmount:    totalAmount,
+		InvoiceNumber:  generateInvoiceNumber(),
 		ReceivedAmount: receivedAmount,
 		ChangeAmount:   changeAmount,
 		Status:         status,
+		PaidAt:         paidAt,
 		ExpiredAt:      time.Now().Add(config.TRANSACTION_EXPIRY_TIME),
 	}
 
@@ -174,10 +179,9 @@ func (u *TransactionUsecase) UpdateTransaction(userID, businessID, transactionID
 	transaction.TotalAmount = totalAmount
 
 	// For cash payment
-	status := config.TRANSACTION_STATUS_PENDING
-	var receivedAmount, changeAmount float64
-
 	if req.IsCashPaid {
+		status := config.TRANSACTION_STATUS_PENDING
+		var receivedAmount, changeAmount float64
 		if req.ReceivedAmount == nil {
 			return nil, fiber.NewError(fiber.StatusBadRequest, "Received amount is required")
 		}
@@ -193,11 +197,12 @@ func (u *TransactionUsecase) UpdateTransaction(userID, businessID, transactionID
 		if req.IsCashPaid {
 			status = config.TRANSACTION_STATUS_PAID
 		}
-	}
 
-	transaction.Status = status
-	transaction.ReceivedAmount = receivedAmount
-	transaction.ChangeAmount = changeAmount
+		transaction.Status = status
+		transaction.ReceivedAmount = receivedAmount
+		transaction.ChangeAmount = changeAmount
+		transaction.PaidAt = util.ToPointer(time.Now())
+	}
 
 	if err := tx.Save(transaction).Error; err != nil {
 		tx.Rollback()
@@ -263,8 +268,8 @@ func (u *TransactionUsecase) GetTransaction(userID, businessID, transactionID st
 }
 
 // ListTransactions lists transactions with pagination
-func (u *TransactionUsecase) ListTransactions(businessID string, page, pageSize int) ([]contract.TransactionRes, int64, error) {
-	transactions, total, err := u.transactionRepo.ListTransactionsByBusinessID(businessID, page, pageSize)
+func (u *TransactionUsecase) ListTransactions(businessID string, page, pageSize int, search string) ([]contract.TransactionRes, int64, error) {
+	transactions, total, err := u.transactionRepo.ListTransactionsByBusinessID(businessID, page, pageSize, search)
 	if err != nil {
 		logger.Log.Error("Failed to list transactions", zap.Error(err))
 		return nil, 0, fiber.NewError(fiber.StatusInternalServerError, "Failed to list transactions")
@@ -485,6 +490,7 @@ func buildTransactionRes(transaction model.Transaction) contract.TransactionRes 
 	return contract.TransactionRes{
 		ID:             transaction.ID,
 		BusinessID:     transaction.BusinessID,
+		InvoiceNumber:  transaction.InvoiceNumber,
 		CreatedBy:      transaction.CreatedBy,
 		CreatorName:    transaction.Creator.Name,
 		TotalAmount:    transaction.TotalAmount,
@@ -496,4 +502,19 @@ func buildTransactionRes(transaction model.Transaction) contract.TransactionRes 
 		CreatedAt:      transaction.CreatedAt.Format(time.RFC3339),
 		Items:          items,
 	}
+}
+
+func generateInvoiceNumber() string {
+	// Format: DDMMYY + 3 random uppercase letters, example 130126JTY
+	const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+	now := time.Now()
+	datePart := now.Format("020106")
+
+	b := make([]byte, 3)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+
+	return datePart + string(b)
 }

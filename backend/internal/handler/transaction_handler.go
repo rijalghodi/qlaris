@@ -101,7 +101,7 @@ func (h *TransactionHandler) ListTransactions(c *fiber.Ctx) error {
 		return err
 	}
 
-	transactions, total, err := h.transactionUsecase.ListTransactions(*claims.BusinessID, queries.Page, queries.PageSize)
+	transactions, total, err := h.transactionUsecase.ListTransactions(*claims.BusinessID, queries.Page, queries.PageSize, queries.Search)
 	if err != nil {
 		return err
 	}

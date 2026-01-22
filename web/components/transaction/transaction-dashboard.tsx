@@ -1,0 +1,53 @@
+"use client";
+
+import { useState } from "react";
+
+import { Pagination } from "@/components/ui/pagination";
+import { Input } from "@/components/ui/input";
+import RowsPerPage from "../ui/rows-perpage";
+import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
+import { useTransactions } from "@/services/api-transaction";
+import { TransactionTable } from "./transaction-table";
+import { useDebounce } from "@/hooks/use-debounce";
+
+export function TransactionDashboard() {
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [search, setSearch] = useState("");
+
+  const debouncedSearch = useDebounce(search, 300);
+
+  // TODO: Add search functionality when API supports it
+  const { data, isLoading, isFetching } = useTransactions({
+    page,
+    pageSize,
+    search: debouncedSearch,
+  });
+
+  const transactions = data?.data || [];
+  const totalPages = data?.pagination?.totalPages || 1;
+
+  return (
+    <Card className="flex flex-col gap-3 w-full">
+      {/* Table */}
+      <CardHeader>
+        <div className="flex items-center justify-between gap-2">
+          <Input
+            placeholder="Search invoice..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="max-w-xs"
+            // disabled // Disabled until API support
+          />
+        </div>
+      </CardHeader>
+      <CardContent className="min-h-[300px]">
+        <TransactionTable transactions={transactions} isLoading={isLoading || isFetching} />
+      </CardContent>
+      <CardFooter className="flex items-center justify-between">
+        <RowsPerPage />
+        <Pagination page={page} totalPage={totalPages} onPageChange={setPage} />
+      </CardFooter>
+    </Card>
+  );
+}

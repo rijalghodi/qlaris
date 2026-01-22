@@ -40,6 +40,7 @@ export type TransactionItemRes = {
 
 export type TransactionRes = {
   id: string;
+  invoiceNumber: string;
   businessId: string;
   createdBy: string;
   creatorName: string;
@@ -87,7 +88,7 @@ export const transactionApi = {
 // --- HOOKS ---
 
 export const LIST_TRANSACTIONS_KEY = "transactions";
-export const useTransactions = (params?: { page?: number; pageSize?: number }) => {
+export const useTransactions = (params?: { page?: number; pageSize?: number; search?: string }) => {
   return useQuery<ListTransactionsRes>({
     queryKey: buildQueryKey(LIST_TRANSACTIONS_KEY, params),
     queryFn: () => transactionApi.list(params),

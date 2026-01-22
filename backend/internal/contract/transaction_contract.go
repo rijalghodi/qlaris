@@ -43,6 +43,7 @@ type TransactionRes struct {
 	CreatorName    string               `json:"creatorName"`
 	TotalAmount    float64              `json:"totalAmount"`
 	ReceivedAmount float64              `json:"receivedAmount"`
+	InvoiceNumber  string               `json:"invoiceNumber"`
 	ChangeAmount   float64              `json:"changeAmount"`
 	Status         string               `json:"status"`
 	PaidAt         *string              `json:"paidAt,omitempty"`

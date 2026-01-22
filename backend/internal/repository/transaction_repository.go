@@ -64,7 +64,7 @@ func (r *TransactionRepository) UpdateTransactionStatus(id, status string) error
 		Update("status", status).Error
 }
 
-func (r *TransactionRepository) ListTransactionsByBusinessID(businessID string, page, pageSize int) ([]model.Transaction, int64, error) {
+func (r *TransactionRepository) ListTransactionsByBusinessID(businessID string, page, pageSize int, search string) ([]model.Transaction, int64, error) {
 	var transactions []model.Transaction
 	var total int64
 
@@ -75,8 +75,14 @@ func (r *TransactionRepository) ListTransactionsByBusinessID(businessID string, 
 		return nil, 0, err
 	}
 
+	query := r.db.Where("business_id = ?", businessID)
+
+	if search != "" {
+		query = query.Where("invoice_number LIKE ?", "%"+search+"%")
+	}
+
 	// Get paginated results with items preloaded
-	err := r.db.Where("business_id = ?", businessID).
+	err := query.
 		Preload("Items").
 		Order("created_at DESC").
 		Limit(pageSize).

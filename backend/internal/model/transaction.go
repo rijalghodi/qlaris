@@ -13,7 +13,7 @@ type Transaction struct {
 	ReceivedAmount float64                  `gorm:"type:numeric(12,2);not null;default:0;check:received_amount >= 0" json:"received_amount"`
 	ChangeAmount   float64                  `gorm:"type:numeric(12,2);not null;default:0;check:change_amount >= 0" json:"change_amount"`
 	Status         config.TransactionStatus `gorm:"type:transaction_status;not null;default:'pending'" json:"status"`
-	InvoiceNumber  *string                  `gorm:"type:varchar(36)" json:"invoice_number,omitempty"`
+	InvoiceNumber  string                   `gorm:"type:varchar(36)" json:"invoice_number,omitempty"`
 	PaidAt         *time.Time               `gorm:"type:timestamp" json:"paid_at,omitempty"`
 	ExpiredAt      time.Time                `gorm:"type:timestamp;not null" json:"expired_at"`
 	CreatedAt      time.Time                `gorm:"not null;default:now()" json:"created_at"`

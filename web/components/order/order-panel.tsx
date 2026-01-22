@@ -2,10 +2,8 @@
 
 import { useOrderStore } from "@/lib/stores/order-store";
 import { Button } from "../ui/button";
-import { ShoppingCart, Trash2, Minus, Plus, Box, ArrowRight } from "lucide-react";
+import { ShoppingCart, Trash2, Box, ArrowRight } from "lucide-react";
 import { delimitNumber } from "@/lib/number";
-import { Avatar, AvatarImage } from "../ui/avatar";
-import { ScrollArea } from "../ui/scroll-area";
 import Image from "next/image";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { IOrderItem } from "@/lib/stores/order-store";
@@ -15,7 +13,7 @@ import { OrderPaymentDialog } from "./order-payment-dialog";
 import { useState } from "react";
 
 export function OrderPanel() {
-  const { items, getTotal, getProductCount } = useOrderStore();
+  const { items, getTotal, getProductCount, clearItems } = useOrderStore();
   const total = getTotal();
   const productCount = getProductCount();
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
@@ -59,37 +57,16 @@ export function OrderPanel() {
             </div>
           </div>
 
-          {/* Action Buttons */}
-          {/* <div className="grid grid-cols-2 gap-2">
-          <Button
-            variant="outline"
-            onClick={clearItems}
-            disabled={items.length === 0}
-            className="w-full"
-          >
-            <Trash2 className="size-4" />
-            Clear
-          </Button>
-          <Button
-            variant="default"
-            disabled={items.length === 0}
-            className="w-full bg-primary hover:bg-primary/90"
-          >
-            <ShoppingCart className="size-4" />
-            Payment
-          </Button>
-        </div> */}
-
           {/* Grand Total Button */}
           <div className="flex gap-2">
             <Button
-              variant="outline"
+              variant="light-destructive"
               size="lg"
               disabled={items.length === 0}
               className="w-24 rounded-full"
-              // onClick={() => setPaymentDialogOpen(true)}
+              onClick={() => clearItems()}
             >
-              Save
+              Clear
             </Button>
             <Button
               variant="default"
