@@ -62,7 +62,7 @@ export function ProductTable({ products, isLoading, onDelete, onEdit }: ProductT
         const stock = row.original.stockQty;
         return (
           <div className="text-sm font-normal">
-            {stock != undefined && stock != null ? formatCurrency(stock) : ""}
+            {stock != undefined && stock != null ? delimitNumber(stock) : ""}
           </div>
         );
       },

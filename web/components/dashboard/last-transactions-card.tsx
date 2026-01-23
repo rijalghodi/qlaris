@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { ROUTES } from "@/lib/routes";
+import { formatDate } from "@/lib/date";
 
 type Props = {
   transactions: TransactionRes[];
@@ -62,14 +63,7 @@ export function LastTransactionCard({
                   {transaction.items.length} item(s)
                 </span>
                 <Dot className="size-4 inline" />
-                <span>
-                  {new Date(transaction.createdAt).toLocaleString("id-ID", {
-                    day: "numeric",
-                    month: "short",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
+                <span>{formatDate(transaction.createdAt, { includeTime: true })}</span>
               </p>
             </div>
             <div className="text-right shrink-0">

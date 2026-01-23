@@ -10,6 +10,7 @@ import {
   ClipboardListIcon,
   Clock9Icon,
   CrownIcon,
+  File,
   Gift,
   HashIcon,
   Home,
@@ -84,7 +85,7 @@ export function AppSidebar() {
                   isActive={pathname == ROUTES.NEW_ORDER}
                 >
                   <Link href={ROUTES.NEW_ORDER}>
-                    <Sparkle />
+                    <Plus />
                     <span>Transaction</span>
                   </Link>
                 </SidebarMenuButton>
@@ -108,7 +109,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname.startsWith(ROUTES.TRANSACTIONS)}>
                   <Link href={ROUTES.TRANSACTIONS}>
-                    <ArrowRightLeftIcon />
+                    <File />
                     <span>Transaction History</span>
                   </Link>
                 </SidebarMenuButton>
