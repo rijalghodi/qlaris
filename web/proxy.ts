@@ -78,33 +78,41 @@ export async function proxy(request: NextRequest) {
   const isProtectedUrl = matchesPattern(pathname, PROTECTED_URL);
   const isAuthUrl = matchesPattern(pathname, AUTH_URL);
 
-  // Get current user
-  const user = await getCurrentUser(request);
-  const isAuthenticated = !!user;
+  try {
+    // Get current user
+    const user = await getCurrentUser(request);
+    const isAuthenticated = !!user;
 
-  // Handle AUTH URLs (login, register, etc.)
-  if (isAuthUrl) {
-    if (isAuthenticated) {
-      // Redirect to dashboard if already authenticated
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+    // Handle AUTH URLs (login, register, etc.)
+    if (isAuthUrl) {
+      if (isAuthenticated) {
+        // Redirect to dashboard if already authenticated
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+      }
+      // Allow access to auth pages if not authenticated
+      return NextResponse.next();
     }
-    // Allow access to auth pages if not authenticated
-    return NextResponse.next();
-  }
 
-  // Handle PROTECTED URLs
-  if (isProtectedUrl) {
-    if (!isAuthenticated) {
-      // Redirect to login if not authenticated
-      return NextResponse.redirect(new URL("/login", request.url));
+    // Handle PROTECTED URLs
+    if (isProtectedUrl) {
+      if (!isAuthenticated) {
+        // Redirect to login if not authenticated
+        return NextResponse.redirect(new URL("/login", request.url));
+      }
+      // Allow access to protected pages if authenticated
+      return NextResponse.next();
     }
-    // Allow access to protected pages if authenticated
-    return NextResponse.next();
-  }
 
-  // Handle PUBLIC URLs (accessible by anyone)
-  // No restrictions, allow access
-  return NextResponse.next();
+    // Handle PUBLIC URLs (accessible by anyone)
+    // No restrictions, allow access
+    return NextResponse.next();
+  } catch (error) {
+    console.error("Error in proxy:", error);
+    if (isAuthUrl) {
+      return NextResponse.next();
+    }
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
 }
 
 // Configure which routes the middleware should run on

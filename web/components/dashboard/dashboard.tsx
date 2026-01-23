@@ -9,6 +9,7 @@ import { formatCurrency } from "@/lib/number";
 import { DollarSign, Receipt, TrendingUp, Loader2 } from "lucide-react";
 import { AlertCircle } from "lucide-react";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "../ui/empty";
+import { Spinner } from "../ui/spinner";
 
 export function Dashboard() {
   const { data, isLoading, error } = useDashboardSummary();
@@ -16,7 +17,7 @@ export function Dashboard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="size-8 animate-spin text-muted-foreground" />
+        <Spinner className="size-8 animate-spin text-muted-foreground" />
       </div>
     );
   }

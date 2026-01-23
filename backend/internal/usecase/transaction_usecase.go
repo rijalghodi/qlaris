@@ -253,8 +253,8 @@ func (u *TransactionUsecase) PayTransaction(userID, businessID, transactionID st
 }
 
 // GetTransaction gets a transaction by ID
-func (u *TransactionUsecase) GetTransaction(userID, businessID, transactionID string) (*contract.TransactionRes, error) {
-	transaction, err := u.transactionRepo.GetTransactionByIDAndBusinessID(transactionID, businessID)
+func (u *TransactionUsecase) GetTransaction(transactionID string) (*contract.TransactionRes, error) {
+	transaction, err := u.transactionRepo.GetTransactionByID(transactionID)
 	if err != nil {
 		logger.Log.Error("Failed to get transaction", zap.Error(err))
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to get transaction")

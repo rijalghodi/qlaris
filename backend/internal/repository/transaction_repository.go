@@ -20,7 +20,7 @@ func (r *TransactionRepository) CreateTransaction(tx *model.Transaction) error {
 
 func (r *TransactionRepository) GetTransactionByID(id string) (*model.Transaction, error) {
 	var transaction model.Transaction
-	err := r.db.Where("id = ?", id).First(&transaction).Error
+	err := r.db.Where("id = ?", id).Preload("Items").Preload("Creator").First(&transaction).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -84,6 +84,7 @@ func (r *TransactionRepository) ListTransactionsByBusinessID(businessID string, 
 	// Get paginated results with items preloaded
 	err := query.
 		Preload("Items").
+		Preload("Creator").
 		Order("created_at DESC").
 		Limit(pageSize).
 		Offset(offset).

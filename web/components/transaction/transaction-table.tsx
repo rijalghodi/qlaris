@@ -43,7 +43,7 @@ export function TransactionTable({ transactions, isLoading, onRowClick }: Transa
         const paidAt = row.original.paidAt;
         return (
           <div className="text-sm font-normal">
-            {paidAt ? formatDate(paidAt, { includeTime: true }) : "-"}
+            {paidAt ? formatDate(paidAt, { withTime: true }) : "-"}
           </div>
         );
       },

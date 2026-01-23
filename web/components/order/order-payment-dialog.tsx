@@ -10,6 +10,7 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import { TransactionRes, useCreateTransaction } from "@/services/api-transaction";
 import { toast } from "sonner";
 import { PaymentSuccessDisplay } from "./payment-success-display";
+import { Spinner } from "../ui/spinner";
 
 interface OrderPaymentDialogProps {
   open: boolean;
@@ -125,7 +126,7 @@ export function OrderPaymentDialog({ open, onOpenChange }: OrderPaymentDialogPro
                 disabled={isPending || isInsufficient}
               >
                 {isPending ? (
-                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  <Spinner className="mr-2 size-4 animate-spin" />
                 ) : isInputEmpty ? (
                   "Pay Exact"
                 ) : (

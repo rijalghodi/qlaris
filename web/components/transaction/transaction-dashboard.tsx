@@ -9,6 +9,8 @@ import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { useTransactions } from "@/services/api-transaction";
 import { TransactionTable } from "./transaction-table";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/lib/routes";
 
 export function TransactionDashboard() {
   const [page, setPage] = useState(1);
@@ -16,6 +18,7 @@ export function TransactionDashboard() {
   const [search, setSearch] = useState("");
 
   const debouncedSearch = useDebounce(search, 300);
+  const router = useRouter();
 
   // TODO: Add search functionality when API supports it
   const { data, isLoading, isFetching } = useTransactions({
@@ -42,7 +45,13 @@ export function TransactionDashboard() {
         </div>
       </CardHeader>
       <CardContent className="min-h-[300px]">
-        <TransactionTable transactions={transactions} isLoading={isLoading || isFetching} />
+        <TransactionTable
+          transactions={transactions}
+          isLoading={isLoading || isFetching}
+          onRowClick={(transaction) => {
+            router.push(ROUTES.TRANSACTION_DETAIL(transaction.id));
+          }}
+        />
       </CardContent>
       <CardFooter className="flex items-center justify-between">
         <RowsPerPage />

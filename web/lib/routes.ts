@@ -24,6 +24,7 @@ export const ROUTES = {
 
   // Transactions
   TRANSACTIONS: "/transactions",
+  TRANSACTION_DETAIL: (transactionId: string) => `/transactions/${transactionId}`,
 
   // New Order
   NEW_ORDER: "/order",

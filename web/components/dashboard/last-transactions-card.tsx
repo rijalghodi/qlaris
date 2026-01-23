@@ -63,7 +63,7 @@ export function LastTransactionCard({
                   {transaction.items.length} item(s)
                 </span>
                 <Dot className="size-4 inline" />
-                <span>{formatDate(transaction.createdAt, { includeTime: true })}</span>
+                <span>{formatDate(transaction.createdAt, { withTime: true })}</span>
               </p>
             </div>
             <div className="text-right shrink-0">

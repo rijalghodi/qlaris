@@ -137,7 +137,7 @@ func (h *TransactionHandler) GetTransaction(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
 	}
 
-	transaction, err := h.transactionUsecase.GetTransaction(claims.ID, *claims.BusinessID, transactionID)
+	transaction, err := h.transactionUsecase.GetTransaction(transactionID)
 	if err != nil {
 		return err
 	}

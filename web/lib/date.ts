@@ -2,27 +2,33 @@ import { formatDate as formatDateFn, isThisYear, isToday, isTomorrow, isYesterda
 
 export function formatDate(
   date: Date | string,
-  options?: { format?: string; includeTime?: boolean }
+  options?: { format?: string; withTime?: boolean; humanReadable?: boolean }
 ) {
-  const { format, includeTime } = options || {};
+  const { format, withTime = false, humanReadable = true } = options || {};
 
   if (format) return formatDateFn(date, format);
 
-  const timeFormat = "hh:mm a";
+  const timeFormat = "HH:mm";
+
+  if (!humanReadable) {
+    return withTime
+      ? formatDateFn(date, "MMM dd, yyyy, " + timeFormat)
+      : formatDateFn(date, "MMM dd, yyyy");
+  }
 
   if (isToday(date)) {
-    return includeTime ? formatDateFn(date, timeFormat) : "Today";
+    return withTime ? formatDateFn(date, timeFormat) : "Today";
   }
   if (isYesterday(date)) {
-    return includeTime ? `Yesterday, ${formatDateFn(date, timeFormat)}` : "Yesterday";
+    return withTime ? `Yesterday, ${formatDateFn(date, timeFormat)}` : "Yesterday";
   }
   if (isTomorrow(date)) {
-    return includeTime ? `Tomorrow, ${formatDateFn(date, timeFormat)}` : "Tomorrow";
+    return withTime ? `Tomorrow, ${formatDateFn(date, timeFormat)}` : "Tomorrow";
   }
   if (isThisYear(date)) {
-    return includeTime ? formatDateFn(date, "MMM dd, " + timeFormat) : formatDateFn(date, "MMM dd");
+    return withTime ? formatDateFn(date, "MMM dd, " + timeFormat) : formatDateFn(date, "MMM dd");
   }
-  return includeTime
+  return withTime
     ? formatDateFn(date, "MMM dd, yyyy, " + timeFormat)
     : formatDateFn(date, "MMM dd, yyyy");
 }

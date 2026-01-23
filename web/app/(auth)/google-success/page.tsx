@@ -14,6 +14,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ROUTES } from "@/lib/routes";
 import { Loader2, CheckCircle2, X } from "lucide-react";
 import { setAuthCookie } from "@/lib/auth-cookie";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function GoogleSuccessPage() {
   const router = useRouter();
@@ -50,7 +51,7 @@ export default function GoogleSuccessPage() {
     return (
       <Empty>
         <EmptyMedia>
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <Spinner className="h-12 w-12 animate-spin text-primary" />
         </EmptyMedia>
         <EmptyHeader>
           <EmptyTitle>Completing Sign In</EmptyTitle>

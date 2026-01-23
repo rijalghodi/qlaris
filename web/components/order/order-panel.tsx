@@ -116,16 +116,10 @@ export function OrderItem({ item, className }: { item: IOrderItem; className?: s
       </div>
 
       <div className="flex-1 min-w-0 space-y-1">
-        <h4 className="text-base font-medium line-clamp-1">
-          {item.product.name}
-          <span className="text-sm text-muted-foreground ml-2">
-            {item.quantity}
-            {item.product.unit ? " " + item.product.unit : "x"}
-          </span>
-        </h4>
+        <h4 className="text-base font-medium line-clamp-1">{item.product.name}</h4>
         <p className="text-sm font-medium text-muted-foreground flex gap-2 justify-between items-end">
           <span className="text-muted-foreground text-xs leading-none">
-            @ {formatCurrency(item.product.price)}
+            {formatCurrency(item.product.price)} x {item.quantity} {item.product.unit}
           </span>
           <span className="font-semibold text-foreground leading-none">
             {formatCurrency(item.subtotal)}
