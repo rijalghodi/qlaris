@@ -37,8 +37,6 @@ export function ProductDashboard() {
   const products = data?.data || [];
   const totalPages = data?.pagination?.totalPages || 1;
 
-  const queryClient = useQueryClient();
-
   return (
     <Card className="flex flex-col gap-3 w-full">
       {/* Table */}

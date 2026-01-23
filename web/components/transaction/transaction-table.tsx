@@ -47,7 +47,9 @@ export function TransactionTable({ transactions, isLoading }: TransactionTablePr
       id: "totalAmount",
       header: () => <div className="text-sm font-semibold">Total Amount</div>,
       cell: ({ row }) => {
-        return <div className="text-sm">{formatCurrency(row.original.totalAmount)}</div>;
+        return (
+          <div className="text-sm font-semibold">{formatCurrency(row.original.totalAmount)}</div>
+        );
       },
     },
   ];

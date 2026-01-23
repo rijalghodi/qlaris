@@ -4,7 +4,7 @@ import { Product } from "@/services/api-product";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { Box, Check, Minus, Plus } from "lucide-react";
-import { formatCurrency } from "@/lib/number";
+import { delimitNumber, formatCurrency } from "@/lib/number";
 import { useOrderStore } from "@/lib/stores/order-store";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -52,23 +52,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
           </div>
         )}
       </div>
-      {/* <div className="absolute top-4 right-4 z-10">
-        <Button
-          size="icon"
-          className={cn(
-            "shadow-lg hover:scale-110 transition-all duration-300 rounded-full",
-            isAdded
-              ? "bg-destructive/60 backdrop-blur-lg hover:bg-destructive"
-              : "bg-primary/60 backdrop-blur-lg hover:bg-primary"
-          )}
-          onClick={(e) => {
-            e.stopPropagation();
-            isAdded ? removeItem(product.id) : addItem(product);
-          }}
-        >
-          {isAdded ? <Minus className="size-4" /> : <Plus className="size-4" />}
-        </Button>
-      </div> */}
 
       {/* Product Image */}
       <CardHeader className="p-2">
@@ -95,7 +78,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
           </p>
           {product.enableStock && product.stockQty !== undefined && product.stockQty !== null && (
             <p className="text-sm font-medium text-primary-complement leading-none">
-              {formatCurrency(product.stockQty)} {product.unit || "Pcs"}
+              {delimitNumber(product.stockQty)} {product.unit || "Pcs"}
             </p>
           )}
         </div>

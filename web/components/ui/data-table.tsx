@@ -124,16 +124,9 @@ export function DataTable<TData, TValue>({
       <Table className="">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow
-              key={headerGroup.id}
-              // className="has-data-[state=open]:bg-muted bg-muted rounded-md"
-            >
+            <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead
-                  key={header.id}
-                  // className="font-semibold text-sm py-3 px-3"
-                  style={{ width: header.getSize() }}
-                >
+                <TableHead key={header.id} style={{ width: header.getSize() }}>
                   {header.isPlaceholder
                     ? null
                     : flexRender(header.column.columnDef.header, header.getContext())}
@@ -153,37 +146,39 @@ export function DataTable<TData, TValue>({
                 className={cn(onRowClick && "cursor-pointer")}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="py-2.5 px-3 font-light text-sm">
+                  <TableCell
+                    key={cell.id}
+                    // className="py-2.5 px-3 font-light text-sm h-full"
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
               </TableRow>
             ))
           ) : (
+            // Empty state
             <TableRow className="min-h-40 w-full hover:bg-transparent">
               <TableCell
                 colSpan={columns.length}
-                className="w-full min-h-40 text-center items-center justify-center"
+                className="w-full min-h-40 text-center items-center justify-center hover:bg-transparent!"
               >
-                <div className="w-full flex flex-col gap-3 items-center justify-center py-10 px-6 h-[300px]">
-                  {emptyState ?? (
-                    <>
-                      <div className="flex items-center justify-center py-12">
-                        <Empty>
-                          <EmptyHeader>
-                            <EmptyMedia>
-                              <FolderOpen className="h-5 w-5 text-primary" />
-                            </EmptyMedia>
-                            <EmptyTitle>{emptyMessage}</EmptyTitle>
-                            {emptyDescription && (
-                              <EmptyDescription>{emptyDescription}</EmptyDescription>
-                            )}
-                          </EmptyHeader>
-                        </Empty>
-                      </div>
-                    </>
-                  )}
-                </div>
+                {emptyState ?? (
+                  <>
+                    <div className="flex items-center justify-center py-12">
+                      <Empty>
+                        <EmptyHeader>
+                          <EmptyMedia>
+                            <FolderOpen className="h-5 w-5 text-primary" />
+                          </EmptyMedia>
+                          <EmptyTitle>{emptyMessage}</EmptyTitle>
+                          {emptyDescription && (
+                            <EmptyDescription>{emptyDescription}</EmptyDescription>
+                          )}
+                        </EmptyHeader>
+                      </Empty>
+                    </div>
+                  </>
+                )}
               </TableCell>
             </TableRow>
           )}
