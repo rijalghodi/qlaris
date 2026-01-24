@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Pagination } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
 import { useCategories, useDeleteCategory } from "@/services/api-category";
-import RowsPerPage from "../ui/rows-perpage";
+import ItemsPerPage from "../ui/items-perpage";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { useDebounce } from "@/hooks/use-debounce";
 import { CategoryTable } from "./category-table";
@@ -16,11 +16,15 @@ import { EditCategoryDialog } from "./edit-category-dialog";
 
 export function CategoryDashboard() {
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 400);
 
-  const { data, isLoading, isFetching } = useCategories({ page, pageSize });
+  const { data, isLoading, isFetching } = useCategories({
+    page,
+    pageSize,
+    search: debouncedSearch,
+  });
 
   const { mutateAsync: deleteCategory } = useDeleteCategory({
     onSuccess: () => {
@@ -82,7 +86,11 @@ export function CategoryDashboard() {
         />
       </CardContent>
       <CardFooter className="flex items-center justify-between">
-        <RowsPerPage />
+        <ItemsPerPage
+          value={pageSize}
+          onChange={setPageSize}
+          totalItems={data?.pagination?.total}
+        />
         <Pagination page={page} totalPage={totalPages} onPageChange={setPage} />
       </CardFooter>
     </Card>

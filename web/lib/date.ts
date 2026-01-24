@@ -12,12 +12,12 @@ export function formatDate(
 
   if (!humanReadable) {
     return withTime
-      ? formatDateFn(date, "MMM dd, yyyy, " + timeFormat)
-      : formatDateFn(date, "MMM dd, yyyy");
+      ? formatDateFn(date, "dd MMM yyyy, " + timeFormat)
+      : formatDateFn(date, "dd MMM yyyy");
   }
 
   if (isToday(date)) {
-    return withTime ? formatDateFn(date, timeFormat) : "Today";
+    return withTime ? "Today, " + formatDateFn(date, timeFormat) : "Today";
   }
   if (isYesterday(date)) {
     return withTime ? `Yesterday, ${formatDateFn(date, timeFormat)}` : "Yesterday";
@@ -26,9 +26,9 @@ export function formatDate(
     return withTime ? `Tomorrow, ${formatDateFn(date, timeFormat)}` : "Tomorrow";
   }
   if (isThisYear(date)) {
-    return withTime ? formatDateFn(date, "MMM dd, " + timeFormat) : formatDateFn(date, "MMM dd");
+    return withTime ? formatDateFn(date, "dd MMM " + timeFormat) : formatDateFn(date, "dd MMM");
   }
   return withTime
-    ? formatDateFn(date, "MMM dd, yyyy, " + timeFormat)
-    : formatDateFn(date, "MMM dd, yyyy");
+    ? formatDateFn(date, "dd MMM yyyy, " + timeFormat)
+    : formatDateFn(date, "dd MMM yyyy");
 }

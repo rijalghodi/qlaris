@@ -32,7 +32,7 @@ export function OrderPaymentDialog({ open, onOpenChange }: OrderPaymentDialogPro
         setShowSuccess(true);
         setTimeout(() => {
           onOpenChange(false);
-          router.push(ROUTES.ORDER_SUCCESS(response.data?.id as string));
+          router.push(ROUTES.TRANSACTION_SUCCESS(response.data?.id as string));
           setReceivedMoney(undefined);
           clearItems();
         }, 500);
@@ -95,7 +95,7 @@ export function OrderPaymentDialog({ open, onOpenChange }: OrderPaymentDialogPro
             <div className="space-y-6">
               {/* Total Display */}
               <div className="text-center space-y-2">
-                <p className="text-xs font-medium text-muted-foreground">Total Charge</p>
+                <p className="text-sm font-medium text-foreground">Total Charge</p>
                 <p className="text-3xl font-bold text-primary tracking-tight">
                   {formatCurrency(total)}
                 </p>

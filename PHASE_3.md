@@ -16,6 +16,10 @@
 - Multi-outlet
 - Offline mode + sync
 
+### Payment
+
+- QRIS (Xendit)
+
 ### Checkout
 
 - Discount (flat only)
@@ -32,6 +36,6 @@
 
 ## Later
 
-- Loyality program
+- Loyality program (points, etc.)
 - Tax rules
-- Employee management
+- Employee management (payroll, shift, etc.)

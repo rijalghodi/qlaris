@@ -29,7 +29,7 @@ export default function SuccessTransactionPage() {
       <div className="flex h-screen w-full flex-col items-center justify-center gap-4">
         <p className="text-muted-foreground">Transaction not found</p>
         <Button asChild variant="link">
-          <Link href={ROUTES.NEW_ORDER}>Back to Order</Link>
+          <Link href={ROUTES.NEW_TRANSACTION}>Back to Order</Link>
         </Button>
       </div>
     );
@@ -56,19 +56,19 @@ export default function SuccessTransactionPage() {
         <CardContent className="text-sm">
           <div className="flex flex-col gap-2 rounded-lg bg-muted p-4">
             <div className="flex w-full justify-between text-sm">
-              <span className="text-muted-foreground">Invoice Number</span>
+              <span className="text-muted-foreground">Invoice No.</span>
               <span className="font-medium">#{transaction.invoiceNumber}</span>
             </div>
             <div className="flex w-full justify-between text-sm">
-              <span className="text-muted-foreground">Payment Method</span>
+              <span className="text-muted-foreground">Payment</span>
               <span className="font-medium">Cash</span>
             </div>
             <div className="flex w-full justify-between text-sm">
-              <span className="text-muted-foreground">Total Charge</span>
+              <span className="text-muted-foreground">Total</span>
               <span className="font-semibold">{formatCurrency(transaction.totalAmount)}</span>
             </div>
             <div className="flex w-full justify-between text-sm">
-              <span className="text-muted-foreground">Received Amount</span>
+              <span className="text-muted-foreground">Received</span>
               <span className="font-medium">{formatCurrency(transaction.receivedAmount)}</span>
             </div>
             <div className="mt-1 flex w-full justify-between border-t pt-2 text-sm">
@@ -90,7 +90,7 @@ export default function SuccessTransactionPage() {
             Download Invoice
           </Button>
           <Button asChild variant="default" className="flex-1 rounded-full" size="lg">
-            <Link href={ROUTES.NEW_ORDER}>New Transaction</Link>
+            <Link href={ROUTES.NEW_TRANSACTION}>New Transaction</Link>
           </Button>
         </CardFooter>
       </Card>

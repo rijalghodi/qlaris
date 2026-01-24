@@ -85,13 +85,13 @@ export default function TransactionDetailPage() {
               {transaction.invoiceNumber ? `#${transaction.invoiceNumber}` : "Transaction"}
             </CardTitle>
             <CardAction className="flex justify-end gap-2 flex-wrap">
-              <Button
+              {/* <Button
                 variant="outline"
                 className="flex-1"
                 onClick={() => alert("Refund feature implementation coming soon")}
               >
                 <Undo2 /> Refund
-              </Button>
+              </Button> */}
               <Button
                 variant="default"
                 className="flex-1"
@@ -176,24 +176,6 @@ export default function TransactionDetailPage() {
             </div>
           </CardFooter>
         </Card>
-        {/* <Card>
-          <CardFooter className="flex gap-3">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => alert("Refund feature implementation coming soon")}
-            >
-              <Undo2 /> Refund
-            </Button>
-            <Button
-              variant="default"
-              className="flex-1"
-              onClick={() => alert("Receipt printing implementation coming soon")}
-            >
-              <Send /> Send Receipt
-            </Button>
-          </CardFooter>
-        </Card> */}
       </div>
     </div>
   );

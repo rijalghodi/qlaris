@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { Pagination } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
-import RowsPerPage from "../ui/rows-perpage";
+import ItemsPerPage from "../ui/items-perpage";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { useTransactions } from "@/services/api-transaction";
 import { TransactionTable } from "./transaction-table";
@@ -14,7 +14,7 @@ import { ROUTES } from "@/lib/routes";
 
 export function TransactionDashboard() {
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
 
   const debouncedSearch = useDebounce(search, 300);
@@ -40,7 +40,6 @@ export function TransactionDashboard() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-xs"
-            // disabled // Disabled until API support
           />
         </div>
       </CardHeader>
@@ -54,7 +53,11 @@ export function TransactionDashboard() {
         />
       </CardContent>
       <CardFooter className="flex items-center justify-between">
-        <RowsPerPage />
+        <ItemsPerPage
+          value={pageSize}
+          onChange={setPageSize}
+          totalItems={data?.pagination?.total}
+        />
         <Pagination page={page} totalPage={totalPages} onPageChange={setPage} />
       </CardFooter>
     </Card>

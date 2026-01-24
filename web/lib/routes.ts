@@ -25,8 +25,6 @@ export const ROUTES = {
   // Transactions
   TRANSACTIONS: "/transactions",
   TRANSACTION_DETAIL: (transactionId: string) => `/transactions/${transactionId}`,
-
-  // New Order
-  NEW_ORDER: "/order",
-  ORDER_SUCCESS: (transactionId: string) => `/order/success/${transactionId}`,
+  NEW_TRANSACTION: "/transactions/new",
+  TRANSACTION_SUCCESS: (transactionId: string) => `/transactions/${transactionId}/success`,
 };

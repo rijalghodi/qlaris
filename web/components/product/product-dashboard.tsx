@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Pagination } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
 import { useProducts, useDeleteProduct, LIST_PRODUCTS_KEY } from "@/services/api-product";
-import RowsPerPage from "../ui/rows-perpage";
+import ItemsPerPage from "../ui/items-perpage";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { useDebounce } from "@/hooks/use-debounce";
 import { ProductTable } from "./product-table";
@@ -19,7 +19,7 @@ import { useQueryClient } from "@tanstack/react-query";
 export function ProductDashboard() {
   const router = useRouter();
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 400);
 
@@ -77,7 +77,11 @@ export function ProductDashboard() {
         />
       </CardContent>
       <CardFooter className="flex items-center justify-between">
-        <RowsPerPage />
+        <ItemsPerPage
+          value={pageSize}
+          onChange={setPageSize}
+          totalItems={data?.pagination?.total}
+        />
         <Pagination page={page} totalPage={totalPages} onPageChange={setPage} />
       </CardFooter>
     </Card>

@@ -85,11 +85,11 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   variant="default"
-                  isActive={pathname == ROUTES.NEW_ORDER}
+                  isActive={pathname == ROUTES.NEW_TRANSACTION}
                 >
-                  <Link href={ROUTES.NEW_ORDER}>
+                  <Link href={ROUTES.NEW_TRANSACTION}>
                     <Plus />
-                    <span>Transaction</span>
+                    <span>New Transaction</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -110,7 +110,12 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname.startsWith(ROUTES.TRANSACTIONS)}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={
+                    pathname.startsWith(ROUTES.TRANSACTIONS) && pathname !== ROUTES.NEW_TRANSACTION
+                  }
+                >
                   <Link href={ROUTES.TRANSACTIONS}>
                     <File />
                     <span>Transaction History</span>

@@ -4,6 +4,7 @@
 
 #### Account
 
+- Role management
 - Staff login (select name + PIN)
 - Manager role (PIN)
 
@@ -20,10 +21,6 @@
 - Product search
 - Add by barcode
 - Clear cart / hold cart
-
-### Payment
-
-- QRIS (Xendit)
 
 ### Transaction & Report
 

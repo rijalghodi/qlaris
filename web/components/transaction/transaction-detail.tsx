@@ -166,13 +166,13 @@ export default function TransactionDetailPage() {
 
           <Card>
             <CardFooter>
-              <Button
+              {/* <Button
                 variant="outline"
                 className="flex-1"
                 onClick={() => alert("Refund feature implementation coming soon")}
               >
                 <Undo2 /> Refund
-              </Button>
+              </Button> */}
               <Button
                 variant="default"
                 className="flex-1"

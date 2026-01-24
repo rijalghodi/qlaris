@@ -26,7 +26,7 @@ export default function Page() {
             </Link>
           </Button>
           <Button variant="default" size="lg" asChild className="rounded-full px-6">
-            <Link href={ROUTES.NEW_ORDER}>
+            <Link href={ROUTES.NEW_TRANSACTION}>
               <Plus />
               New Transaction
             </Link>

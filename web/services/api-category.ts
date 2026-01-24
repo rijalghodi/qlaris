@@ -73,7 +73,7 @@ export const categoryApi = {
 // --- HOOKS ---
 
 export const LIST_CATEGORIES_KEY = "categories";
-export const useCategories = (params?: { page?: number; pageSize?: number }) => {
+export const useCategories = (params?: { page?: number; pageSize?: number; search?: string }) => {
   return useQuery({
     queryKey: buildQueryKey(LIST_CATEGORIES_KEY, params),
     queryFn: () => categoryApi.list(params),
