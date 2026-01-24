@@ -84,7 +84,7 @@ export default function SuccessTransactionPage() {
           <Button
             variant="outline"
             className="flex-1 rounded-full"
-            onClick={() => window.print()}
+            onClick={() => alert("Receipt printing implementation coming soon")}
             size="lg"
           >
             Download Invoice
