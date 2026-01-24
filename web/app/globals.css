@@ -51,9 +51,9 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
-  --shadow-md: 0px 4px 20px 0px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0px 8px 40px 0px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0px 12px 40px 0px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0px 4px 20px 0px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0px 8px 40px 0px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0px 12px 40px 0px rgba(0, 0, 0, 0.05);
   --shadow-inner-lg: inset 0px 8px 40px 0px rgba(0, 0, 0, 0.05);
   --shadow-inner-md: inset 0px 4px 20px 0px rgba(0, 0, 0, 0.05);
   --shadow-inner-sm: inset 0px 2px 10px 0px rgba(0, 0, 0, 0.05);
