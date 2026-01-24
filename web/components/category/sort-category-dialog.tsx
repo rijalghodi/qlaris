@@ -79,12 +79,12 @@ export function SortCategoryDialog({
           setList={setSortedCategories}
           animation={200}
           handle=".drag-handle"
-          className="space-y-2"
+          className="space-y-1"
         >
           {sortedCategories.map((category) => (
             <div
               key={category.id}
-              className="flex items-center gap-3 px-4 py-2 cursor-move hover:bg-accent/50 transition-colors border rounded-md drag-handle"
+              className="flex items-center gap-3 px-4 py-3 cursor-move hover:bg-accent transition-colors bg-input rounded-sm drag-handle"
             >
               <div className="cursor-grab active:cursor-grabbing">
                 <GripVertical className="size-4 text-muted-foreground" />
