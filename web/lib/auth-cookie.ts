@@ -32,8 +32,8 @@ function setCookieWithExpiration(key: string, value: string, expires?: string | 
     typeof expires === "number"
       ? addSecondsToCurrentDate(expires)
       : expires
-      ? new Date(expires)
-      : undefined;
+        ? new Date(expires)
+        : undefined;
 
   setCookie(key, value, expiresDate);
 }

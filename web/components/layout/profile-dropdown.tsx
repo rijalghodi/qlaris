@@ -1,9 +1,10 @@
 "use client";
-
+import Link from "next/link";
+import { ROUTES } from "@/lib/routes";
 import { CreditCardIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { useGetCurrentUser, useLogout } from "@/services/api-auth";
+import { useLogout } from "@/services/api-auth";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -18,6 +19,7 @@ import {
 } from "../ui/dropdown-menu";
 import { ReactNode } from "react";
 import { Button } from "../ui/button";
+import { useGetCurrentUser } from "@/services/api-user";
 
 type Props = {
   trigger?: ReactNode;
@@ -26,7 +28,7 @@ type Props = {
 };
 
 export function ProfileDropdown({ trigger, defaultOpen, align }: Props) {
-  const { logout } = useLogout();
+  const { mutateAsync: logout } = useLogout({});
   const { data: user } = useGetCurrentUser();
 
   const userName = user?.data?.name || "User";
@@ -63,23 +65,17 @@ export function ProfileDropdown({ trigger, defaultOpen, align }: Props) {
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
-          <DropdownMenuItem className="">
-            <UserIcon />
-            <span>My account</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="">
-            <SettingsIcon />
-            <span>Settings</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="">
-            <CreditCardIcon />
-            <span>Billing</span>
+          <DropdownMenuItem asChild>
+            <Link href={ROUTES.MY_ACCOUNT}>
+              <UserIcon />
+              <span>My Account</span>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem variant="destructive" className="" onClick={() => logout()}>
+        <DropdownMenuItem variant="destructive" onClick={() => logout()}>
           <LogOutIcon />
           <span>Logout</span>
         </DropdownMenuItem>

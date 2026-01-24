@@ -52,7 +52,7 @@ export default function TransactionDetailPage() {
   }
 
   return (
-    <div className="container mx-auto py-5 px-4 sm:px-6 max-w-7xl space-y-6">
+    <div className="container mx-auto py-5 px-4 sm:px-6 max-w-4xl space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between animate-in fade-in slide-in-from-top-4 duration-500">
         <div className="space-y-2">

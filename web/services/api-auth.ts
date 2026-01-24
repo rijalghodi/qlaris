@@ -143,8 +143,8 @@ export const authApi = {
     return response?.data;
   },
 
-  getCurrentUser: async (): Promise<GetCurrentUserRes> => {
-    const response = await apiClient.get("/users/current");
+  logout: async (): Promise<GResponse<any>> => {
+    const response = await apiClient.post("/auth/logout");
     return response?.data;
   },
 };
@@ -185,12 +185,6 @@ export const useLogin = ({
   return useMutation({
     mutationFn: (data: LoginReq) => authApi.login(data),
     onSuccess: (data: LoginRes) => {
-      // if (data.data?.token) {
-      //   setAuthCookie({
-      //     accessToken: data.data.token,
-      //     accessTokenExpires: data.data.tokenExpiredAt,
-      //   });
-      // }
       onSuccess?.(data);
     },
     onError: (error: GErrorResponse) => {
@@ -290,20 +284,21 @@ export const useVerifyEmail = ({
   });
 };
 
-export const useGetCurrentUser = () => {
-  return useQuery({
-    queryKey: ["current-user"],
-    queryFn: () => authApi.getCurrentUser(),
+export const useLogout = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: () => void;
+  onError?: (error: string) => void;
+}) => {
+  return useMutation({
+    mutationFn: () => authApi.logout(),
+    onSuccess: () => {
+      window.location.href = ROUTES.LOGIN;
+      onSuccess?.();
+    },
+    onError: (error: GErrorResponse) => {
+      onError?.(error.response?.data?.message || "An error occurred");
+    },
   });
-};
-
-export const useLogout = () => {
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const logout = useCallback(async () => {
-    setIsLoggingOut(true);
-    removeAuthCookie();
-    window.location.href = ROUTES.LOGIN;
-    setIsLoggingOut(false);
-  }, []);
-  return { isLoggingOut, logout };
 };

@@ -41,6 +41,7 @@ func (h *AuthHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	authGroup.Post("/forgot-password", h.ForgotPassword)
 	authGroup.Post("/reset-password", h.ResetPassword)
 	authGroup.Post("/refresh-token", h.RefreshToken)
+	authGroup.Post("/logout", h.Logout)
 }
 
 // @Tags Auth
@@ -135,6 +136,11 @@ func (h *AuthHandler) GoogleCallback(c *fiber.Ctx) error {
 
 	googleLoginURL := fmt.Sprintf("%s?accessToken=%s&refreshToken=%s",
 		config.Env.GoogleOAuth.ClientCallbackURI, res.TokenRes.AccessToken, res.TokenRes.RefreshToken)
+
+	usecase.SetAuthCookies(c, &contract.TokenRes{
+		AccessToken:  res.TokenRes.AccessToken,
+		RefreshToken: res.TokenRes.RefreshToken,
+	})
 
 	return c.Status(fiber.StatusSeeOther).Redirect(googleLoginURL)
 }
@@ -351,4 +357,16 @@ func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
 		return err
 	}
 	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
+}
+
+// @Tags Auth
+// @Summary Logout
+// @Description Logout user by clearing cookies
+// @Accept json
+// @Produce json
+// @Success 200 {object} util.BaseResponse
+// @Router /auth/logout [post]
+func (h *AuthHandler) Logout(c *fiber.Ctx) error {
+	usecase.ClearAuthCookies(c)
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse("Logged out successfully"))
 }

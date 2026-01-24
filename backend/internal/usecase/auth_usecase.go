@@ -132,7 +132,7 @@ func (u *AuthUsecase) Login(c *fiber.Ctx, req *contract.LoginReq) (*contract.Log
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	setAuthCookies(c, tokens)
+	SetAuthCookies(c, tokens)
 
 	userRes := BuildUserRes(util.ToValue(user), u.storage)
 
@@ -275,7 +275,7 @@ func (u *AuthUsecase) VerifyEmail(c *fiber.Ctx, token string) (*contract.VerifyE
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	setAuthCookies(c, tokens)
+	SetAuthCookies(c, tokens)
 
 	return &contract.VerifyEmailRes{
 		UserRes: BuildUserRes(util.ToValue(user), u.storage),
@@ -398,7 +398,7 @@ func (u *AuthUsecase) RefreshToken(c *fiber.Ctx, req *contract.RefreshTokenReq) 
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	setAuthCookies(c, tokens)
+	SetAuthCookies(c, tokens)
 
 	userRes := BuildUserRes(util.ToValue(user), u.storage)
 
@@ -455,26 +455,46 @@ func nextRequestAt(lastRequestAt *time.Time, ttlDuration time.Duration) *string 
 	return util.ToPointer(lastRequestAt.Add(ttlDuration).Format(time.RFC3339))
 }
 
-func setAuthCookies(c *fiber.Ctx, tokens *contract.TokenRes) {
-	// Set access token cookie
+func SetAuthCookies(c *fiber.Ctx, tokens *contract.TokenRes) {
 	c.Cookie(&fiber.Cookie{
 		Name:     config.ACCESS_TOKEN_COOKIE_NAME,
 		Value:    tokens.AccessToken,
 		HTTPOnly: true,
-		Secure:   false, // Set to true in production with HTTPS
+		Secure:   config.Env.App.IsDev,
 		SameSite: "Lax",
 		MaxAge:   config.Env.JWT.AccessExpMinutes * 60,
 		Path:     "/",
 	})
 
-	// Set refresh token cookie
 	c.Cookie(&fiber.Cookie{
 		Name:     config.REFRESH_TOKEN_COOKIE_NAME,
 		Value:    tokens.RefreshToken,
 		HTTPOnly: true,
-		Secure:   false, // Set to true in production with HTTPS
+		Secure:   config.Env.App.IsDev,
 		SameSite: "Lax",
 		MaxAge:   config.Env.JWT.RefreshExpDays * 24 * 60 * 60,
 		Path:     "/",
+	})
+}
+
+func ClearAuthCookies(c *fiber.Ctx) {
+	c.Cookie(&fiber.Cookie{
+		Name:     config.ACCESS_TOKEN_COOKIE_NAME,
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HTTPOnly: true,
+		Secure:   config.Env.App.IsDev,
+		SameSite: "Lax",
+	})
+
+	c.Cookie(&fiber.Cookie{
+		Name:     config.REFRESH_TOKEN_COOKIE_NAME,
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HTTPOnly: true,
+		Secure:   config.Env.App.IsDev,
+		SameSite: "Lax",
 	})
 }

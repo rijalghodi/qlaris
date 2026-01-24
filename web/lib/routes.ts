@@ -13,6 +13,7 @@ export const ROUTES = {
 
   // Dashboard
   DASHBOARD: "/dashboard",
+  MY_ACCOUNT: "/account",
 
   // Products
   PRODUCTS: "/products",

@@ -3,7 +3,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { ProfileDropdown } from "./profile-dropdown";
 import { AppSidebar } from "./app-sidebar";
 import { BRAND } from "@/lib/brand";
-import { SetupMeTrigger } from "../me/setup-me-dialog";
+import { SetupMeTrigger } from "../profile/setup-profile-dialog";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (

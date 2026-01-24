@@ -27,6 +27,7 @@ type App struct {
 	Port          int    `env:"APP_PORT"`
 	BaseURL       string `env:"APP_BASE_URL"`
 	SuperPassword string `env:"APP_SUPER_PASSWORD"`
+	IsDev         bool   `env:"APP_IS_DEV"`
 }
 
 type Logger struct {
