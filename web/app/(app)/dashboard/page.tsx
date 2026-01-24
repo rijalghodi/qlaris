@@ -4,7 +4,7 @@ import { Dashboard } from "@/components/dashboard/dashboard";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/routes";
 import { useGetCurrentUser } from "@/services/api-user";
-import { Plus } from "lucide-react";
+import { Box, Plus } from "lucide-react";
 import Link from "next/link";
 
 export default function Page() {
@@ -21,7 +21,7 @@ export default function Page() {
         <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4  duration-500">
           <Button variant="outline" size="lg" asChild className="rounded-full px-6 shadow-lg">
             <Link href={ROUTES.PRODUCT_ADD}>
-              <Plus />
+              <Box />
               New Product
             </Link>
           </Button>

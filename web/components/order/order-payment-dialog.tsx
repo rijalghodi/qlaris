@@ -28,20 +28,14 @@ export function OrderPaymentDialog({ open, onOpenChange }: OrderPaymentDialogPro
 
   const { mutate: createTransaction, isPending } = useCreateTransaction({
     onSuccess: (response) => {
-      // toast.success("Payment successful"); // Commented out to avoid double feedback
       if (response?.data?.id) {
         setShowSuccess(true);
         setTimeout(() => {
           onOpenChange(false);
           router.push(ROUTES.ORDER_SUCCESS(response.data?.id as string));
-          setShowSuccess(false);
           setReceivedMoney(undefined);
           clearItems();
         }, 500);
-      } else {
-        // Fallback if no data
-        setReceivedMoney(undefined);
-        clearItems();
       }
     },
     onError: (error) => {

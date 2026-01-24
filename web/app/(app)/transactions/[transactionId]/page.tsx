@@ -62,7 +62,9 @@ export default function TransactionDetailPage() {
               { label: "Dashboard", href: ROUTES.DASHBOARD },
               { label: "Transactions", href: ROUTES.TRANSACTIONS },
               {
-                label: `#${transaction.invoiceNumber}`,
+                label: transaction.invoiceNumber
+                  ? `#${transaction.invoiceNumber}`
+                  : "Detail Transaction",
                 href: ROUTES.TRANSACTION_DETAIL(transactionId),
               },
             ]}
@@ -79,7 +81,9 @@ export default function TransactionDetailPage() {
       <div className="animate-in fade-in slide-in-from-bottom-8 duration-500">
         <Card className="max-w-lg">
           <CardHeader className="border-b flex justify-between items-center gap-2 flex-wrap">
-            <CardTitle className="text-lg">Transaction Data</CardTitle>
+            <CardTitle className="text-lg">
+              {transaction.invoiceNumber ? `#${transaction.invoiceNumber}` : "Transaction"}
+            </CardTitle>
             <CardAction className="flex justify-end gap-2 flex-wrap">
               <Button
                 variant="outline"

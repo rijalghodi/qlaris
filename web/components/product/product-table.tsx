@@ -104,6 +104,7 @@ export function ProductTable({ products, isLoading, onDelete, onEdit }: ProductT
       loading={isLoading}
       emptyMessage="No products found"
       emptyDescription="Get started by adding your first product"
+      onRowClick={(row) => onEdit?.(row)}
     />
   );
 }

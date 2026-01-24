@@ -59,6 +59,7 @@ export function CategoryTable({ categories, isLoading, onDelete, onEdit }: Categ
       loading={isLoading}
       emptyMessage="No categories found"
       emptyDescription="Get started by adding your first category"
+      onRowClick={(row) => onEdit?.(row)}
     />
   );
 }

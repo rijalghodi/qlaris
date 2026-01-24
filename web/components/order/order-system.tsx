@@ -6,7 +6,6 @@ import { OrderPanel } from "./order-panel";
 import { OrderItemDialog } from "./order-item-dialog";
 import { Input } from "../ui/input";
 import { Search } from "lucide-react";
-import { OrderPaymentDialog } from "./order-payment-dialog";
 
 export function OrderSystem() {
   return (
