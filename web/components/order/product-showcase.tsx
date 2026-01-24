@@ -22,7 +22,7 @@ export function ProductShowcase() {
   const isFilterActive = !!(selectedCategoryId || search);
 
   return (
-    <div className="flex flex-col gap-4 overflow-hidden">
+    <div className="flex flex-col gap-4 h-full">
       {/* Search */}
       <div className="relative flex flex-col gap-4 animate-in fade-in slide-in-from-top-4  duration-500">
         <Input

@@ -39,7 +39,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
   return (
     <Card
       className={cn(
-        "group relative rounded-lg transition-all duration-500 cursor-pointer group py-0 gap-2 hover:scale-100",
+        "group relative rounded-lg transition-all duration-300 ease-out cursor-pointer group py-0 gap-2 hover:scale-100",
         className
       )}
       onClick={handleCardClick}

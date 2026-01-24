@@ -19,7 +19,7 @@ export function DatumCard({ title, value, comparison, decoration }: Props) {
     <Card>
       <CardHeader>
         <div>
-          <h2 className="text-lg font-semibold mb-4">{title}</h2>
+          <h2 className="text-base font-semibold mb-4">{title}</h2>
         </div>
         <p className="text-2xl leading-none tracking-tight font-semibold mb-2">{value}</p>
         <p className="text-sm text-muted-foreground">
