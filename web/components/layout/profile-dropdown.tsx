@@ -79,7 +79,7 @@ export function ProfileDropdown({ trigger, defaultOpen, align }: Props) {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem variant="destructive" className="">
+        <DropdownMenuItem variant="destructive" className="" onClick={() => logout()}>
           <LogOutIcon />
           <span>Logout</span>
         </DropdownMenuItem>
