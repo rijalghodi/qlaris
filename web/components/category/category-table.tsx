@@ -38,12 +38,7 @@ export function CategoryTable({ categories, isLoading, onDelete, onEdit }: Categ
             >
               <Pencil className="size-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => onDelete?.(category)}
-            >
+            <Button variant="ghost-destructive" size="icon" onClick={() => onDelete?.(category)}>
               <Trash2 className="size-4" />
             </Button>
           </div>
