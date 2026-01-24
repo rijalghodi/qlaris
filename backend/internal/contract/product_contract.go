@@ -52,6 +52,14 @@ type ProductRes struct {
 	UpdatedAt     string       `json:"updatedAt"`
 }
 
+type ListProductsReq struct {
+	Search     string  `json:"search"`
+	Limit      int     `json:"limit"`
+	Page       int     `json:"page"`
+	IsActive   *bool   `json:"isActive"`
+	CategoryID *string `json:"categoryId"`
+}
+
 type ListProductsRes struct {
 	Products []ProductRes `json:"products"`
 }

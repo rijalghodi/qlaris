@@ -174,11 +174,22 @@ func (h *ProductHandler) ListProducts(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
+	var req contract.ListProductsReq
+	if err := c.QueryParser(&req); err != nil {
+		logger.Log.Warn("Failed to parse request body", zap.Error(err))
+		return err
+	}
+
+	if err := util.ValidateStruct(&req); err != nil {
+		logger.Log.Warn("Validation error", zap.Error(err))
+		return err
+	}
+
 	if err := h.productUsecase.IsAllowedToAccess(claims, []config.Permission{config.READ_PRODUCT_ANY, config.READ_PRODUCT_ORG}, nil); err != nil {
 		return err
 	}
 
-	products, total, err := h.productUsecase.ListProducts(*claims.BusinessID, queries.Page, queries.PageSize, queries.Search)
+	products, total, err := h.productUsecase.ListProducts(*claims.BusinessID, queries.Page, queries.PageSize, queries.Search, req.IsActive, req.CategoryID)
 	if err != nil {
 		return err
 	}

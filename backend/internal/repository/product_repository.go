@@ -46,7 +46,7 @@ func (r *ProductRepository) GetProductByIDAndBusinessID(id string, businessID st
 	return &product, nil
 }
 
-func (r *ProductRepository) ListProducts(businessID string, page, pageSize int, search string) ([]*model.Product, int64, error) {
+func (r *ProductRepository) ListProducts(businessID string, page, pageSize int, search string, isActive *bool, categoryID *string) ([]*model.Product, int64, error) {
 	var products []*model.Product
 	var total int64
 
@@ -57,6 +57,16 @@ func (r *ProductRepository) ListProducts(businessID string, page, pageSize int, 
 	// Add search filter if search term is provided
 	if search != "" {
 		query = query.Where("name ILIKE ?", "%"+search+"%")
+	}
+
+	// Add isActive filter if provided
+	if isActive != nil {
+		query = query.Where("is_active = ?", *isActive)
+	}
+
+	// Add categoryID filter if provided
+	if categoryID != nil && *categoryID != "" {
+		query = query.Where("category_id = ?", *categoryID)
 	}
 
 	// Count total records

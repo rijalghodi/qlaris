@@ -84,8 +84,8 @@ func (u *ProductUsecase) GetProductByID(productID string) (*contract.ProductRes,
 	return u.buildProductRes(product), nil
 }
 
-func (u *ProductUsecase) ListProducts(businessID string, page, pageSize int, search string) ([]contract.ProductRes, int64, error) {
-	products, total, err := u.productRepo.ListProducts(businessID, page, pageSize, search)
+func (u *ProductUsecase) ListProducts(businessID string, page, pageSize int, search string, isActive *bool, categoryID *string) ([]contract.ProductRes, int64, error) {
+	products, total, err := u.productRepo.ListProducts(businessID, page, pageSize, search, isActive, categoryID)
 	if err != nil {
 		logger.Log.Error("Failed to list products", zap.Error(err), zap.String("businessID", businessID))
 		return nil, 0, fiber.NewError(fiber.StatusInternalServerError, "Failed to list products")
