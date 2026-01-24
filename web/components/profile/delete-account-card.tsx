@@ -43,7 +43,7 @@ export function DeleteAccountCard({ userId }: { userId: string }) {
           account.
         </CardDescription>
       </CardHeader>
-      <CardFooter className="justify-end border-t bg-destructive/5 py-4">
+      <CardFooter className="justify-end">
         <Button variant="destructive" onClick={handleDelete} disabled={isPending}>
           {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           <Trash2 className="mr-2 h-4 w-4" />

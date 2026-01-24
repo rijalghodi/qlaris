@@ -1,15 +1,13 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { type Product } from "@/services/api-product";
-import { formatCurrency } from "@/lib/number";
-import { ChevronRight, Heart, Package, TrendingUp } from "lucide-react";
+import { Box, ChevronRight, Package } from "lucide-react";
 import Image from "next/image";
-import { Badge } from "../ui/badge";
 import { TopProduct } from "@/services/api-dashboard";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { ROUTES } from "@/lib/routes";
+import { EmptyState } from "../ui/empty";
 
 type Props = {
   products: TopProduct[];
@@ -29,7 +27,11 @@ export function TopProductsCard({ products }: Props) {
       </CardHeader>
       <CardContent className="space-y-0">
         {products.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">No products yet</p>
+          <EmptyState
+            title="No products yet"
+            description="Once you add a product, it will appear here."
+            icon={<Box className="size-6 text-muted-foreground" />}
+          />
         ) : (
           products.map((product, index) => (
             <TopProductCard key={product.id} product={product} rank={index + 1} />
@@ -61,7 +63,7 @@ export function TopProductCard({
             <Image src={product.image.url} alt={product.name} fill className="object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <Package className="size-6 text-muted-foreground" />
+              <Box className="size-6 text-muted-foreground" />
             </div>
           )}
         </div>

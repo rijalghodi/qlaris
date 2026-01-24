@@ -1,15 +1,18 @@
 "use client";
 
 import { useCategories } from "@/services/api-category";
-import { useOrderStore } from "@/lib/stores/order-store";
 import { Button } from "../ui/button";
 import { Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function CategoryList() {
+type Props = {
+  selectedCategoryId: string | null;
+  setSelectedCategory: (id: string | null) => void;
+};
+
+export function CategoryList({ selectedCategoryId, setSelectedCategory }: Props) {
   const { data, isLoading } = useCategories({ page: 1, pageSize: 100 });
   const categories = data?.data || [];
-  const { selectedCategoryId, setSelectedCategory } = useOrderStore();
 
   if (isLoading) {
     return (

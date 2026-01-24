@@ -9,7 +9,6 @@ export type IOrderItem = {
 
 type OrderStore = {
   items: IOrderItem[];
-  selectedCategoryId: string | null;
   selectedOrderItem: IOrderItem | null;
 
   // Actions
@@ -17,7 +16,6 @@ type OrderStore = {
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearItems: () => void;
-  setSelectedCategory: (categoryId: string | null) => void;
   setSelectedOrderItem: (orderItem: IOrderItem | null) => void;
 
   // Computed
@@ -28,7 +26,6 @@ type OrderStore = {
 
 export const useOrderStore = create<OrderStore>((set, get) => ({
   items: [],
-  selectedCategoryId: null,
   selectedOrderItem: null,
 
   addItem: (product, quantity = 1) => {
@@ -87,11 +84,7 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
   },
 
   clearItems: () => {
-    set({ items: [], selectedCategoryId: null, selectedOrderItem: null });
-  },
-
-  setSelectedCategory: (categoryId) => {
-    set({ selectedCategoryId: categoryId });
+    set({ items: [], selectedOrderItem: null });
   },
 
   setSelectedOrderItem: (productId) => {

@@ -3,12 +3,13 @@ import { Card, CardContent, CardHeader } from "../ui/card";
 import { type TransactionRes } from "@/services/api-transaction";
 import { formatCurrency } from "@/lib/number";
 import { Badge } from "../ui/badge";
-import { ArrowRight, ArrowRightLeft, ChevronRight, Dot } from "lucide-react";
+import { ArrowRight, ArrowRightLeft, ChevronRight, Dot, File } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { ROUTES } from "@/lib/routes";
 import { formatDate } from "@/lib/date";
+import { EmptyState } from "../ui/empty";
 
 type Props = {
   transactions: TransactionRes[];
@@ -28,7 +29,11 @@ export function LastTransactionsCard({ transactions }: Props) {
       </CardHeader>
       <CardContent className="space-y-0">
         {transactions.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">No transactions yet</p>
+          <EmptyState
+            title="No transactions yet"
+            description="Once you make a sale, it will appear here."
+            icon={<File className="size-6 text-muted-foreground" />}
+          />
         ) : (
           transactions.map((transaction, index) => (
             <LastTransactionCard key={transaction.id} transaction={transaction} />

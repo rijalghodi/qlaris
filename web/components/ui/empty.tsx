@@ -1,6 +1,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
+import { FolderOpen } from "lucide-react";
 
 function Empty({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -87,4 +88,27 @@ function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-export { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyContent, EmptyMedia };
+function EmptyState({
+  title,
+  description,
+  icon,
+  action,
+}: {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  action?: React.ReactNode;
+}) {
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia>{icon || <FolderOpen className="size-6 text-muted-foreground" />}</EmptyMedia>
+        <EmptyTitle>{title}</EmptyTitle>
+        <EmptyDescription>{description}</EmptyDescription>
+      </EmptyHeader>
+      {action && <EmptyContent>{action}</EmptyContent>}
+    </Empty>
+  );
+}
+
+export { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyContent, EmptyMedia, EmptyState };

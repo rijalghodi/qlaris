@@ -73,6 +73,7 @@ export const productApi = {
     page?: number;
     pageSize?: number;
     search?: string;
+    categoryId?: string;
   }): Promise<ListProductsRes> => {
     const response = await apiClient.get("/products", { params });
     return response.data;
@@ -107,7 +108,12 @@ export const productApi = {
 // --- HOOKS ---
 
 export const LIST_PRODUCTS_KEY = "products";
-export const useProducts = (params?: { page?: number; pageSize?: number; search?: string }) => {
+export const useProducts = (params?: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  categoryId?: string;
+}) => {
   return useQuery<ListProductsRes>({
     queryKey: buildQueryKey(LIST_PRODUCTS_KEY, params),
     queryFn: () => productApi.list(params),
