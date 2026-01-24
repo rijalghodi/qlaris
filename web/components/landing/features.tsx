@@ -52,7 +52,7 @@ export function Features() {
         {/* Section header */}
         <div
           className={cn(
-            "text-center max-w-3xl mx-auto mb-16 transition-all duration-700 ease-out",
+            "text-center max-w-3xl mx-auto mb-16 transition-all duration-700 ",
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           )}
         >
@@ -73,7 +73,7 @@ export function Features() {
               <div
                 key={feature.name}
                 className={cn(
-                  "group relative rounded-2xl border bg-card p-8 hover:shadow-lg transition-all duration-500 ease-out",
+                  "group relative rounded-2xl border bg-card p-8 hover:shadow-lg transition-all duration-500 ",
                   isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
                 )}
                 style={{

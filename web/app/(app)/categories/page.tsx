@@ -13,7 +13,7 @@ export default function CategoriesPage() {
     <div className="container mx-auto py-5 px-4 sm:px-6 max-w-7xl">
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-4">
-        <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-left-4 ease-in duration-300">
+        <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-top-4  duration-500">
           <h1 className="text-2xl font-semibold leading-none">Categories</h1>
           <Breadcrumb
             items={[
@@ -25,7 +25,7 @@ export default function CategoriesPage() {
 
         {/* Search and Actions */}
 
-        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 ease-in duration-300">
+        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-top-4  duration-500">
           <Button
             variant="ghost"
             className="rounded-full"
@@ -61,7 +61,7 @@ export default function CategoriesPage() {
         </div>
       </div>
 
-      <div className="animate-in fade-in slide-in-from-bottom-4 ease-in duration-300">
+      <div className="animate-in fade-in slide-in-from-bottom-4  duration-500">
         <CategoryDashboard />
       </div>
     </div>

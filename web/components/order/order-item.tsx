@@ -30,7 +30,7 @@ export function OrderItem({
       key={item.id}
       className={cn(
         "flex items-start gap-4 p-2 rounded-md hover:bg-accent/50 transition-colors",
-        "animate-in fade-in slide-in-from-right-4 duration-300 cursor-pointer",
+        "animate-in fade-in slide-in-from-right-4 duration-500 cursor-pointer",
         className
       )}
       onClick={(e) => {
@@ -42,13 +42,13 @@ export function OrderItem({
       <div className="aspect-square w-12 bg-accent flex items-center justify-center relative overflow-hidden rounded-[8px]">
         {item.imageUrl ? (
           <Image
-            className="w-full h-full object-cover group-hover:scale-110 transition-all duration-300 shadow-lg"
+            className="w-full h-full object-cover group-hover:scale-110 transition-all duration-500 shadow-lg"
             src={item.imageUrl}
             alt={item.name}
             fill
           />
         ) : (
-          <Box className="size-5 text-muted-foreground group-hover:scale-110 transition-all duration-300" />
+          <Box className="size-5 text-muted-foreground group-hover:scale-110 transition-all duration-500" />
         )}
       </div>
 

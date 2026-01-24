@@ -48,7 +48,7 @@ export function FAQ() {
         {/* Section header */}
         <div
           className={cn(
-            "text-center max-w-3xl mx-auto mb-16 transition-all duration-700 ease-out",
+            "text-center max-w-3xl mx-auto mb-16 transition-all duration-700 ",
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           )}
         >
@@ -64,7 +64,7 @@ export function FAQ() {
             <div
               key={index}
               className={cn(
-                "rounded-lg border bg-card overflow-hidden transition-all duration-500 ease-out",
+                "rounded-lg border bg-card overflow-hidden transition-all duration-500 ",
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
               )}
               style={{
@@ -78,14 +78,14 @@ export function FAQ() {
                 <span className="font-semibold text-base">{faq.question}</span>
                 <ChevronDown
                   className={cn(
-                    "h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-300",
+                    "h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-500",
                     openIndex === index && "rotate-180"
                   )}
                 />
               </button>
               <div
                 className={cn(
-                  "grid transition-all duration-300 ease-in-out",
+                  "grid transition-all duration-500 -out",
                   openIndex === index ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                 )}
               >

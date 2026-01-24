@@ -19,7 +19,7 @@ export function Hero() {
       <div className="container mx-auto px-4 lg:px-8">
         <div
           className={cn(
-            "grid gap-12 lg:grid-cols-2 lg:gap-16 items-center transition-all duration-1000 ease-out",
+            "grid gap-12 lg:grid-cols-2 lg:gap-16 items-center transition-all duration-1000 ",
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           )}
         >
@@ -61,7 +61,7 @@ export function Hero() {
           {/* Right image */}
           <div
             className={cn(
-              "relative transition-all duration-1000 delay-300 ease-out",
+              "relative transition-all duration-1000 delay-300 ",
               isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-10"
             )}
           >

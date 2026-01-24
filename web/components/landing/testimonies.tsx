@@ -38,7 +38,7 @@ export function Testimonies() {
         {/* Section header */}
         <div
           className={cn(
-            "text-center max-w-3xl mx-auto mb-16 transition-all duration-700 ease-out",
+            "text-center max-w-3xl mx-auto mb-16 transition-all duration-700 ",
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           )}
         >
@@ -56,7 +56,7 @@ export function Testimonies() {
             <div
               key={testimonial.name}
               className={cn(
-                "rounded-2xl border bg-card p-8 transition-all duration-500 ease-out hover:shadow-lg",
+                "rounded-2xl border bg-card p-8 transition-all duration-500  hover:shadow-lg",
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
               )}
               style={{

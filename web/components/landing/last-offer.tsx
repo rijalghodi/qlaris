@@ -26,7 +26,7 @@ export function LastOffer() {
       <div className="container mx-auto px-4 lg:px-8">
         <div
           className={cn(
-            "max-w-4xl mx-auto text-center transition-all duration-700 ease-out",
+            "max-w-4xl mx-auto text-center transition-all duration-700 ",
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           )}
         >
@@ -47,7 +47,7 @@ export function LastOffer() {
               <div
                 key={benefit}
                 className={cn(
-                  "flex items-center gap-2  text-sm transition-all duration-500 ease-out",
+                  "flex items-center gap-2  text-sm transition-all duration-500 ",
                   isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
                 )}
                 style={{
@@ -65,7 +65,7 @@ export function LastOffer() {
           {/* CTA Button */}
           <div
             className={cn(
-              "transition-all duration-700 delay-500 ease-out",
+              "transition-all duration-700 delay-500 ",
               isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
             )}
           >

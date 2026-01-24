@@ -14,7 +14,7 @@ export function OrderSystem() {
       {/* Left Side - Products */}
       <div className="flex-1 flex flex-col gap-4 overflow-hidden">
         {/* Search */}
-        <div className="relative flex flex-col gap-4 animate-in fade-in slide-in-from-left-4 ease-in duration-300">
+        <div className="relative flex flex-col gap-4 animate-in fade-in slide-in-from-top-4  duration-500">
           <Input
             placeholder="Search Product"
             className="min-w-[250px] max-w-[400px] w-full shadow-lg bg-card focus-within:bg-card h-11"
@@ -24,13 +24,13 @@ export function OrderSystem() {
         </div>
 
         {/* Products Grid */}
-        <div className="flex-1 overflow-auto animate-in fade-in slide-in-from-bottom-4 ease-in duration-300">
+        <div className="flex-1 overflow-auto animate-in fade-in slide-in-from-bottom-4  duration-500">
           <ProductList />
         </div>
       </div>
 
       {/* Right Side - Order Panel */}
-      <div className="w-[400px] animate-in fade-in slide-in-from-right-4 ease-in duration-300">
+      <div className="w-[400px] animate-in fade-in slide-in-from-right-4  duration-500">
         <OrderPanel />
       </div>
 

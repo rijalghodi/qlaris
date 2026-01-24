@@ -14,7 +14,7 @@ export function PaymentSuccessDisplay({
   onNewTransaction,
 }: PaymentSuccessDisplayProps) {
   return (
-    <div className="flex flex-col items-center justify-center animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="flex flex-col items-center justify-center animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col items-center text-center w-full">
         <div className="bg-success/10 text-success rounded-full p-3 mb-4">
           <Check className="size-6" strokeWidth={3} />

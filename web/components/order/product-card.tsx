@@ -39,7 +39,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
   return (
     <Card
       className={cn(
-        "group relative rounded-lg transition-all duration-300 cursor-pointer group py-0 gap-2 hover:scale-100",
+        "group relative rounded-lg transition-all duration-500 cursor-pointer group py-0 gap-2 hover:scale-100",
         className
       )}
       onClick={handleCardClick}
@@ -58,13 +58,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
         <div className="aspect-video bg-muted flex items-center justify-center relative overflow-hidden rounded-md">
           {product.image ? (
             <Image
-              className="w-full h-full object-cover group-hover:scale-110 transition-all duration-300"
+              className="w-full h-full object-cover group-hover:scale-110 transition-all duration-500"
               src={product.image.url}
               alt={product.name}
               fill
             />
           ) : (
-            <Box className="size-12 text-muted-foreground group-hover:scale-110 transition-all duration-300" />
+            <Box className="size-12 text-muted-foreground group-hover:scale-110 transition-all duration-500" />
           )}
         </div>
       </CardHeader>
