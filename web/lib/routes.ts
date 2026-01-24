@@ -28,4 +28,5 @@ export const ROUTES = {
 
   // New Order
   NEW_ORDER: "/order",
+  ORDER_SUCCESS: (transactionId: string) => `/order/success/${transactionId}`,
 };

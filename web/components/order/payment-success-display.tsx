@@ -3,6 +3,7 @@ import { TransactionRes } from "@/services/api-transaction";
 import { format } from "date-fns";
 import { Check, Printer, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatDate } from "@/lib/date";
 
 interface PaymentSuccessDisplayProps {
   transaction: TransactionRes;
@@ -24,9 +25,7 @@ export function PaymentSuccessDisplay({
           Transaction Succeed
         </h2>
 
-        <p className="text-muted-foreground mb-6 text-sm">
-          {format(new Date(transaction.createdAt), "dd MMM yyyy, HH:mm")}
-        </p>
+        <p className="text-muted-foreground mb-6 text-sm">{formatDate(transaction.createdAt)}</p>
 
         <div className="w-full space-y-3 bg-muted p-4 rounded-lg text-sm">
           <div className="flex justify-between w-full text-sm">
