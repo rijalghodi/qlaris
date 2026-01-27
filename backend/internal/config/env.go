@@ -52,11 +52,7 @@ type Postgres struct {
 }
 
 type JWT struct {
-	Secret                  string `env:"JWT_SECRET"`
-	AccessExpMinutes        int    `env:"JWT_ACCESS_EXP_MINUTES"`
-	RefreshExpDays          int    `env:"JWT_REFRESH_EXP_DAYS"`
-	ResetPasswordExpMinutes int    `env:"JWT_RESET_PASSWORD_EXP_MINUTES"`
-	VerifyEmailExpMinutes   int    `env:"JWT_VERIFY_EMAIL_EXP_MINUTES"`
+	Secret string `env:"JWT_SECRET"`
 }
 
 type SMTPGoogle struct {
@@ -99,8 +95,6 @@ type Storage struct {
 
 type Cors struct {
 	Origins string `env:"CORS_ORIGINS"`
-	Headers string `env:"CORS_HEADERS"`
-	Methods string `env:"CORS_METHODS"`
 }
 
 var Env Environment

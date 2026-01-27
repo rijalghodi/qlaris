@@ -58,8 +58,8 @@ func setupFiberApp() *fiber.App {
 	app.Use(compress.New())
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     config.Env.Cors.Origins,
-		AllowHeaders:     config.Env.Cors.Headers,
-		AllowMethods:     config.Env.Cors.Methods,
+		AllowHeaders:     "Content-Type,Authorization,Accept,Origin,X-Requested-With",
+		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
 		AllowCredentials: true,
 	}))
 	app.Use(middleware.RecoverConfig())

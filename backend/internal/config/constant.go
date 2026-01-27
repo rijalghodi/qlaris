@@ -9,6 +9,8 @@ const (
 	REQUEST_RESET_PASSWORD_TTL = 5 * time.Minute
 	REQUEST_VERIFICATION_TTL   = 5 * time.Minute
 	TRANSACTION_EXPIRY_TIME    = 15 * time.Minute
+	JWT_ACCESS_TTL             = 15 * time.Minute
+	JWT_REFRESH_TTL            = 7 * 24 * time.Hour
 )
 
 type UserRole string

@@ -418,13 +418,13 @@ func (u *AuthUsecase) GetUserByID(id string) (*contract.UserRes, error) {
 }
 
 func (u *AuthUsecase) generateTokenPair(userID, role string) (*contract.TokenRes, error) {
-	accessExpiresAt := time.Now().Add(time.Duration(config.Env.JWT.AccessExpMinutes) * time.Minute)
+	accessExpiresAt := time.Now().Add(config.JWT_ACCESS_TTL)
 	accessToken, err := util.GenerateToken(userID, role, config.TokenTypeAccess, config.Env.JWT.Secret, accessExpiresAt)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshExpiresAt := time.Now().Add(time.Duration(config.Env.JWT.RefreshExpDays) * 24 * time.Hour)
+	refreshExpiresAt := time.Now().Add(config.JWT_REFRESH_TTL)
 	refreshToken, err := util.GenerateToken(userID, role, config.TokenTypeRefresh, config.Env.JWT.Secret, refreshExpiresAt)
 	if err != nil {
 		return nil, err
@@ -439,12 +439,12 @@ func (u *AuthUsecase) generateTokenPair(userID, role string) (*contract.TokenRes
 }
 
 func (u *AuthUsecase) generateVerificationToken(userID, role string) (string, error) {
-	expiresAt := time.Now().Add(time.Duration(config.Env.JWT.VerifyEmailExpMinutes) * time.Minute)
+	expiresAt := time.Now().Add(config.REQUEST_VERIFICATION_TTL)
 	return util.GenerateToken(userID, role, config.TokenTypeVerifyEmail, config.Env.JWT.Secret, expiresAt)
 }
 
 func (u *AuthUsecase) generateResetPasswordToken(userID, role string) (string, error) {
-	expiresAt := time.Now().Add(time.Duration(config.Env.JWT.ResetPasswordExpMinutes) * time.Minute)
+	expiresAt := time.Now().Add(config.REQUEST_RESET_PASSWORD_TTL)
 	return util.GenerateToken(userID, role, config.TokenTypeResetPassword, config.Env.JWT.Secret, expiresAt)
 }
 
@@ -462,7 +462,7 @@ func SetAuthCookies(c *fiber.Ctx, tokens *contract.TokenRes) {
 		HTTPOnly: true,
 		Secure:   config.Env.App.IsDev,
 		SameSite: "Lax",
-		MaxAge:   config.Env.JWT.AccessExpMinutes * 60,
+		MaxAge:   int(config.JWT_ACCESS_TTL.Seconds()),
 		Path:     "/",
 	})
 
@@ -472,7 +472,7 @@ func SetAuthCookies(c *fiber.Ctx, tokens *contract.TokenRes) {
 		HTTPOnly: true,
 		Secure:   config.Env.App.IsDev,
 		SameSite: "Lax",
-		MaxAge:   config.Env.JWT.RefreshExpDays * 24 * 60 * 60,
+		MaxAge:   int(config.JWT_REFRESH_TTL.Seconds()),
 		Path:     "/",
 	})
 }
