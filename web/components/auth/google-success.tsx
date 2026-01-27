@@ -49,7 +49,7 @@ export function GoogleSuccess() {
   // Loading State (initial state)
   if (!success && !error) {
     return (
-      <Empty>
+      <Empty className="animate-in fade-in slide-in-from-bottom-4 duration-500">
         <EmptyMedia>
           <Spinner className="h-12 w-12 animate-spin text-primary" />
         </EmptyMedia>

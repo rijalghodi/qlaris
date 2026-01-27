@@ -59,7 +59,7 @@ export function SetPasswordForm() {
   };
 
   return (
-    <div className="w-full max-w-sm space-y-6">
+    <div className="w-full max-w-sm space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header */}
       <div className="space-y-2 text-center">
         <h1 className="text-2xl font-semibold">Set Your Password</h1>
