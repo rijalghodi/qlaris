@@ -32,7 +32,7 @@ WORKDIR /app
 COPY --from=build /app/main .
 
 # Copy assets folder
-COPY --from=build /app/assets ./assets
+# COPY --from=build /app/assets ./assets
 
 EXPOSE 8000
 

@@ -7,7 +7,8 @@ import (
 // @title Qlaris API documentation
 // @version 1.0.0
 // @license.name MIT
-// @license.url https://github.com/rijalghodi/qlaris/blob/main/LICENSE
+// @Contact.name	Rijal Ghodi
+// @Contact.email	rijalghodi.dev@gmail.com
 // @host localhost:8000
 // @BasePath /
 // @securityDefinitions.apikey BearerAuth
