@@ -78,7 +78,10 @@ export function ProductTable({ products, isLoading, onDelete, onEdit }: ProductT
               variant="ghost"
               size="icon"
               className="text-muted-foreground"
-              onClick={() => onEdit?.(product)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit?.(product);
+              }}
               title="Edit"
             >
               <Pencil className="size-4" />
@@ -86,7 +89,10 @@ export function ProductTable({ products, isLoading, onDelete, onEdit }: ProductT
             <Button
               variant="ghost-destructive"
               size="icon"
-              onClick={() => onDelete?.(product)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete?.(product);
+              }}
               title="Delete"
             >
               <Trash2 className="size-4" />

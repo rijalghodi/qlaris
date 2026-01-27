@@ -34,11 +34,21 @@ export function CategoryTable({ categories, isLoading, onDelete, onEdit }: Categ
               variant="ghost"
               size="icon"
               className="text-muted-foreground hover:text-foreground"
-              onClick={() => onEdit?.(category)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit?.(category);
+              }}
             >
               <Pencil className="size-4" />
             </Button>
-            <Button variant="ghost-destructive" size="icon" onClick={() => onDelete?.(category)}>
+            <Button
+              variant="ghost-destructive"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete?.(category);
+              }}
+            >
               <Trash2 className="size-4" />
             </Button>
           </div>

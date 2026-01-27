@@ -15,10 +15,10 @@ import {
 import { cn } from "@/lib/utils";
 
 type Props = {
-  variant: "single" | "buttons" | "dropdown";
+  variant?: "single" | "buttons" | "dropdown";
 };
 
-export function ThemeSwitcher({ variant }: Props) {
+export function ThemeSwitcher({ variant = "single" }: Props) {
   const { setTheme, theme, resolvedTheme } = useTheme();
 
   if (variant === "single") {
