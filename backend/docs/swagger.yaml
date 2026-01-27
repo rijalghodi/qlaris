@@ -1,8 +1,54 @@
 definitions:
+  contract.CategoryRes:
+    properties:
+      businessId:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      sortOrder:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  contract.ComparisonRes:
+    properties:
+      profitPercent:
+        type: number
+      salesPercent:
+        type: number
+      transactionsPercent:
+        type: number
+    type: object
+  contract.CreateCategoryReq:
+    properties:
+      name:
+        maxLength: 255
+        type: string
+    required:
+    - name
+    type: object
   contract.CreateProductReq:
     properties:
+      barcodeType:
+        type: string
+      barcodeValue:
+        type: string
+      categoryId:
+        type: string
+      cost:
+        type: number
+      enableBarcode:
+        type: boolean
+      enableStock:
+        type: boolean
       image:
         type: string
+      isFavorite:
+        type: boolean
       name:
         maxLength: 255
         type: string
@@ -12,10 +58,113 @@ definitions:
       stockQty:
         minimum: 0
         type: integer
+      unit:
+        type: string
     required:
     - name
     - price
-    - stockQty
+    type: object
+  contract.CreateTransactionReq:
+    properties:
+      isCashPaid:
+        type: boolean
+      items:
+        items:
+          $ref: '#/definitions/contract.TransactionItemReq'
+        minItems: 1
+        type: array
+      receivedAmount:
+        description: For cash payment
+        minimum: 0
+        type: number
+    required:
+    - items
+    type: object
+  contract.CreateUserReq:
+    properties:
+      businessAddress:
+        type: string
+      businessId:
+        type: string
+      businessName:
+        maxLength: 255
+        type: string
+      email:
+        maxLength: 255
+        type: string
+      image:
+        type: string
+      name:
+        maxLength: 255
+        type: string
+      password:
+        type: string
+      role:
+        enum:
+        - owner
+        - manager
+        - cashier
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - role
+    type: object
+  contract.DashboardSummaryRes:
+    properties:
+      lastTransactions:
+        items:
+          $ref: '#/definitions/contract.TransactionRes'
+        type: array
+      thisWeek:
+        $ref: '#/definitions/contract.WeekStatsRes'
+      today:
+        $ref: '#/definitions/contract.DayStatsRes'
+      topProducts:
+        items:
+          $ref: '#/definitions/contract.ProductRes'
+        type: array
+    type: object
+  contract.DayStatsRes:
+    properties:
+      compareYesterday:
+        $ref: '#/definitions/contract.ComparisonRes'
+      profit:
+        type: number
+      sales:
+        type: number
+      transactions:
+        type: integer
+    type: object
+  contract.EditCurrentUserReq:
+    properties:
+      businessAddress:
+        type: string
+      businessName:
+        maxLength: 255
+        type: string
+      image:
+        type: string
+      name:
+        maxLength: 255
+        type: string
+    type: object
+  contract.EditPasswordReq:
+    properties:
+      currentPassword:
+        type: string
+      newPassword:
+        type: string
+    required:
+    - newPassword
+    type: object
+  contract.FileRes:
+    properties:
+      key:
+        type: string
+      url:
+        type: string
     type: object
   contract.ForgotPasswordReq:
     properties:
@@ -40,47 +189,77 @@ definitions:
     type: object
   contract.LoginRes:
     properties:
-      accessToken:
+      businessAddress:
         type: string
-      accessTokenExpiresAt:
+      businessName:
         type: string
       createdAt:
         type: string
       email:
         type: string
+      googleImage:
+        type: string
+      hasPassword:
+        type: boolean
       id:
         type: string
+      image:
+        $ref: '#/definitions/contract.FileRes'
+      isDataCompleted:
+        type: boolean
       isVerified:
         type: boolean
       name:
-        type: string
-      refreshToken:
-        type: string
-      refreshTokenExpiresAt:
         type: string
       role:
         type: string
       updatedAt:
         type: string
     type: object
+  contract.PayTransactionReq:
+    properties:
+      receivedAmount:
+        minimum: 0
+        type: number
+    required:
+    - receivedAmount
+    type: object
   contract.ProductRes:
     properties:
+      barcodeType:
+        type: string
+      barcodeValue:
+        type: string
       businessId:
         type: string
+      category:
+        $ref: '#/definitions/contract.CategoryRes'
+      categoryId:
+        type: string
+      cost:
+        type: number
       createdAt:
         type: string
+      enableBarcode:
+        type: boolean
+      enableStock:
+        type: boolean
       id:
         type: string
       image:
-        type: string
+        $ref: '#/definitions/contract.FileRes'
       isActive:
         type: boolean
       name:
         type: string
       price:
         type: number
+      quantitySold:
+        type: integer
       stockQty:
         type: integer
+      unit:
+        type: string
       updatedAt:
         type: string
     type: object
@@ -93,23 +272,27 @@ definitions:
     type: object
   contract.RefreshTokenRes:
     properties:
-      accessToken:
+      businessAddress:
         type: string
-      accessTokenExpiresAt:
+      businessName:
         type: string
       createdAt:
         type: string
       email:
         type: string
+      googleImage:
+        type: string
+      hasPassword:
+        type: boolean
       id:
         type: string
+      image:
+        $ref: '#/definitions/contract.FileRes'
+      isDataCompleted:
+        type: boolean
       isVerified:
         type: boolean
       name:
-        type: string
-      refreshToken:
-        type: string
-      refreshTokenExpiresAt:
         type: string
       role:
         type: string
@@ -122,7 +305,6 @@ definitions:
         maxLength: 50
         type: string
       name:
-        maxLength: 50
         type: string
       password:
         maxLength: 50
@@ -130,28 +312,33 @@ definitions:
         type: string
     required:
     - email
-    - name
     - password
     type: object
   contract.RegisterRes:
     properties:
-      accessToken:
+      businessAddress:
         type: string
-      accessTokenExpiresAt:
+      businessName:
         type: string
       createdAt:
         type: string
       email:
         type: string
+      googleImage:
+        type: string
+      hasPassword:
+        type: boolean
       id:
         type: string
+      image:
+        $ref: '#/definitions/contract.FileRes'
+      isDataCompleted:
+        type: boolean
       isVerified:
         type: boolean
       name:
         type: string
-      refreshToken:
-        type: string
-      refreshTokenExpiresAt:
+      nextRequestAt:
         type: string
       role:
         type: string
@@ -178,15 +365,104 @@ definitions:
     required:
     - email
     type: object
+  contract.SortCategoriesReq:
+    properties:
+      categoryIds:
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - categoryIds
+    type: object
   contract.ToggleProductStatusReq:
     properties:
       isActive:
         type: boolean
     type: object
+  contract.TransactionItemReq:
+    properties:
+      productId:
+        type: string
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - productId
+    - quantity
+    type: object
+  contract.TransactionItemRes:
+    properties:
+      id:
+        type: string
+      price:
+        type: number
+      productId:
+        type: string
+      productName:
+        type: string
+      quantity:
+        type: integer
+      subtotal:
+        type: number
+    type: object
+  contract.TransactionRes:
+    properties:
+      businessId:
+        type: string
+      changeAmount:
+        type: number
+      createdAt:
+        type: string
+      createdBy:
+        type: string
+      creatorName:
+        type: string
+      expiredAt:
+        type: string
+      id:
+        type: string
+      invoiceNumber:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/contract.TransactionItemRes'
+        type: array
+      paidAt:
+        type: string
+      receivedAmount:
+        type: number
+      status:
+        type: string
+      totalAmount:
+        type: number
+    type: object
+  contract.UpdateCategoryReq:
+    properties:
+      name:
+        maxLength: 255
+        type: string
+    type: object
   contract.UpdateProductReq:
     properties:
+      barcodeType:
+        type: string
+      barcodeValue:
+        type: string
+      categoryId:
+        type: string
+      cost:
+        type: number
+      enableBarcode:
+        type: boolean
+      enableStock:
+        type: boolean
       image:
         type: string
+      isActive:
+        type: boolean
+      isFavorite:
+        type: boolean
       name:
         maxLength: 255
         type: string
@@ -196,15 +472,64 @@ definitions:
       stockQty:
         minimum: 0
         type: integer
+      unit:
+        type: string
+    type: object
+  contract.UpdateTransactionReq:
+    properties:
+      isCashPaid:
+        type: boolean
+      items:
+        items:
+          $ref: '#/definitions/contract.TransactionItemReq'
+        minItems: 1
+        type: array
+      receivedAmount:
+        description: For cash payment
+        minimum: 0
+        type: number
+    required:
+    - items
+    type: object
+  contract.UpdateUserReq:
+    properties:
+      businessAddress:
+        type: string
+      businessName:
+        maxLength: 255
+        type: string
+      image:
+        type: string
+      name:
+        maxLength: 255
+        type: string
+      role:
+        enum:
+        - owner
+        - manager
+        - cashier
+        type: string
     type: object
   contract.UserRes:
     properties:
+      businessAddress:
+        type: string
+      businessName:
+        type: string
       createdAt:
         type: string
       email:
         type: string
+      googleImage:
+        type: string
+      hasPassword:
+        type: boolean
       id:
         type: string
+      image:
+        $ref: '#/definitions/contract.FileRes'
+      isDataCompleted:
+        type: boolean
       isVerified:
         type: boolean
       name:
@@ -214,35 +539,46 @@ definitions:
       updatedAt:
         type: string
     type: object
+  contract.WeekStatsRes:
+    properties:
+      compareLastWeek:
+        $ref: '#/definitions/contract.ComparisonRes'
+      profit:
+        type: number
+      sales:
+        type: number
+      transactions:
+        type: integer
+    type: object
   util.BaseResponse:
     properties:
       data: {}
       details: {}
       message:
         type: string
-      status:
+      success:
         type: boolean
-    type: object
-  util.PaginatedData:
-    properties:
-      items: {}
-      page:
-        type: integer
-      page_size:
-        type: integer
-      total:
-        type: integer
-      total_pages:
-        type: integer
     type: object
   util.PaginatedResponse:
     properties:
-      data:
-        $ref: '#/definitions/util.PaginatedData'
+      data: {}
       message:
         type: string
-      status:
+      pagination:
+        $ref: '#/definitions/util.Pagination'
+      success:
         type: boolean
+    type: object
+  util.Pagination:
+    properties:
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+      totalPages:
+        type: integer
     type: object
 info:
   contact: {}
@@ -317,34 +653,19 @@ paths:
       summary: Login
       tags:
       - Auth
-  /auth/me:
-    get:
+  /auth/logout:
+    post:
       consumes:
       - application/json
-      description: Get authenticated user information
+      description: Logout user by clearing cookies
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/util.BaseResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/contract.UserRes'
-              type: object
-        "401":
-          description: Unauthorized
-          schema:
             $ref: '#/definitions/util.BaseResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.BaseResponse'
-      security:
-      - BearerAuth: []
-      summary: Get current user
+      summary: Logout
       tags:
       - Auth
   /auth/refresh-token:
@@ -379,7 +700,7 @@ paths:
       tags:
       - Auth
   /auth/register:
-    post:
+    get:
       consumes:
       - application/json
       description: Register a new user account
@@ -498,6 +819,327 @@ paths:
       summary: Verify email
       tags:
       - Auth
+  /categories:
+    get:
+      consumes:
+      - application/json
+      description: List all categories for the authenticated user's business with
+        pagination, ordered by sort_order
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Page size (default: 10, max: 100)'
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/contract.CategoryRes'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: List categories
+      tags:
+      - Categories
+    post:
+      consumes:
+      - application/json
+      description: Create a new category for the authenticated user's business with
+        auto-incremented sort_order
+      parameters:
+      - description: Create category request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.CreateCategoryReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.CategoryRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Create category
+      tags:
+      - Categories
+  /categories/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Permanently delete a category from the database
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete category
+      tags:
+      - Categories
+    get:
+      consumes:
+      - application/json
+      description: Get category details by ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.CategoryRes'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Get category
+      tags:
+      - Categories
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update category request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.UpdateCategoryReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.CategoryRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Update category
+      tags:
+      - Categories
+  /categories/sort:
+    post:
+      consumes:
+      - application/json
+      description: Update the sort order of multiple categories in a single atomic
+        operation
+      parameters:
+      - description: Sort categories request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.SortCategoriesReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Sort categories
+      tags:
+      - Categories
+  /dashboard/summary:
+    get:
+      consumes:
+      - application/json
+      description: Get comprehensive dashboard statistics including today's and this
+        week's sales, transactions, profit with comparisons, last transactions, and
+        top products
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.DashboardSummaryRes'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Get dashboard summary
+      tags:
+      - Dashboard
+  /files:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: 'isPublic: true or false'
+        in: formData
+        name: isPublic
+        required: true
+        type: string
+      - description: folder name
+        in: formData
+        name: folder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.FileRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      summary: Upload a file
+      tags:
+      - files
   /hello:
     get:
       consumes:
@@ -542,14 +1184,9 @@ paths:
             - $ref: '#/definitions/util.PaginatedResponse'
             - properties:
                 data:
-                  allOf:
-                  - $ref: '#/definitions/util.PaginatedData'
-                  - properties:
-                      items:
-                        items:
-                          $ref: '#/definitions/contract.ProductRes'
-                        type: array
-                    type: object
+                  items:
+                    $ref: '#/definitions/contract.ProductRes'
+                  type: array
               type: object
         "401":
           description: Unauthorized
@@ -768,4 +1405,577 @@ paths:
       summary: Toggle product status
       tags:
       - Products
+  /transactions:
+    get:
+      consumes:
+      - application/json
+      description: List all transactions for the authenticated user's business with
+        pagination
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Page size (default: 10, max: 100)'
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/contract.TransactionRes'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: List transactions
+      tags:
+      - Transactions
+    post:
+      consumes:
+      - application/json
+      description: Create a new transaction with items, decreases stock, sets 15-minute
+        expiry
+      parameters:
+      - description: Create transaction request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.CreateTransactionReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.TransactionRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Create transaction (checkout)
+      tags:
+      - Transactions
+  /transactions/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get transaction details by ID
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.TransactionRes'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Get transaction
+      tags:
+      - Transactions
+    put:
+      consumes:
+      - application/json
+      description: Update a pending transaction before payment
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update transaction request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.UpdateTransactionReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.TransactionRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Update transaction
+      tags:
+      - Transactions
+  /transactions/{id}/pay:
+    post:
+      consumes:
+      - application/json
+      description: Finalize transaction with cash payment
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Pay transaction request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.PayTransactionReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.TransactionRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Pay transaction
+      tags:
+      - Transactions
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: List all users with pagination
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Page size (default: 10, max: 100)'
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/contract.UserRes'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: List users
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      description: Create a new user for the organization
+      parameters:
+      - description: Create user request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.CreateUserReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.UserRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Create user
+      tags:
+      - User
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Permanently delete a user from the database
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete user
+      tags:
+      - User
+    get:
+      consumes:
+      - application/json
+      description: Get user details by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.UserRes'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: Update an existing user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update user request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.UpdateUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.UserRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user
+      tags:
+      - User
+  /users/{id}/password:
+    put:
+      consumes:
+      - application/json
+      description: Change password for a specific user (admin function)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Edit password request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.EditPasswordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Edit user password
+      tags:
+      - User
+  /users/current:
+    get:
+      consumes:
+      - application/json
+      description: Get authenticated user information with business data
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.UserRes'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: Update authenticated user's profile and business information
+      parameters:
+      - description: Edit user request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.EditCurrentUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/contract.UserRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Edit current user
+      tags:
+      - User
+  /users/current/password:
+    put:
+      consumes:
+      - application/json
+      description: Change authenticated user's password
+      parameters:
+      - description: Edit password request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/contract.EditPasswordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Edit current user password
+      tags:
+      - User
 swagger: "2.0"

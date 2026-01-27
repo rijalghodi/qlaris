@@ -81,7 +81,7 @@ func (h *TransactionHandler) CreateTransaction(c *fiber.Ctx) error {
 // @Security BearerAuth
 // @Param page query int false "Page number (default: 1)"
 // @Param pageSize query int false "Page size (default: 10, max: 100)"
-// @Success 200 {object} util.PaginatedResponse{data=util.PaginatedData{items=[]contract.TransactionRes}}
+// @Success 200 {object} util.PaginatedResponse{data=[]contract.TransactionRes}
 // @Failure 401 {object} util.BaseResponse
 // @Failure 500 {object} util.BaseResponse
 // @Router /transactions [get]

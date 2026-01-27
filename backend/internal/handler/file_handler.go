@@ -34,9 +34,9 @@ func (h FileHandler) RegisterRoutes(app *fiber.App) {
 //	@Param		file	formData	file	true	"File to upload"
 //	@Param		isPublic	formData	string	true	"isPublic: true or false"
 //	@Param		folder	formData	string	false	"folder name"
-//	@Success	200		{object}	helpers.Response{data=contract.FileUploadResponse}
-//	@Failure	400		{object}	helpers.Response
-//	@Failure	422		{object}	helpers.Response
+//	@Success	200		{object}	util.BaseResponse{data=contract.FileRes}
+//	@Failure	400		{object}	util.BaseResponse
+//	@Failure	422		{object}	util.BaseResponse
 //	@Router		/files [post]
 func (h FileHandler) UploadFile(c *fiber.Ctx) error {
 	// file

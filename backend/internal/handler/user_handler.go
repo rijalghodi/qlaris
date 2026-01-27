@@ -66,7 +66,7 @@ func (h *UserHandler) GetCurrentUser(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param request body contract.EditCurrentUserReq true \"Edit user request\"
+// @Param request body contract.EditCurrentUserReq true "Edit user request"
 // @Success 200 {object} util.BaseResponse{data=contract.UserRes}
 // @Failure 400 {object} util.BaseResponse
 // @Failure 401 {object} util.BaseResponse
@@ -99,7 +99,7 @@ func (h *UserHandler) EditCurrentUser(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param request body contract.EditPasswordReq true \"Edit password request\"
+// @Param request body contract.EditPasswordReq true "Edit password request"
 // @Success 200 {object} util.BaseResponse
 // @Failure 400 {object} util.BaseResponse
 // @Failure 401 {object} util.BaseResponse
@@ -131,7 +131,7 @@ func (h *UserHandler) EditCurrentUserPassword(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param request body contract.CreateUserReq true \"Create user request\"
+// @Param request body contract.CreateUserReq true "Create user request"
 // @Success 201 {object} util.BaseResponse{data=contract.UserRes}
 // @Failure 400 {object} util.BaseResponse
 // @Failure 401 {object} util.BaseResponse
@@ -168,8 +168,8 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param id path string true \"User ID\"
-// @Param request body contract.UpdateUserReq true \"Update user request\"
+// @Param id path string true "User ID"
+// @Param request body contract.UpdateUserReq true "Update user request"
 // @Success 200 {object} util.BaseResponse{data=contract.UserRes}
 // @Failure 400 {object} util.BaseResponse
 // @Failure 401 {object} util.BaseResponse
@@ -212,7 +212,7 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param id path string true \"User ID\"
+// @Param id path string true "User ID"
 // @Success 200 {object} util.BaseResponse{data=contract.UserRes}
 // @Failure 401 {object} util.BaseResponse
 // @Failure 404 {object} util.BaseResponse
@@ -243,9 +243,9 @@ func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param page query int false \"Page number (default: 1)\"
-// @Param pageSize query int false \"Page size (default: 10, max: 100)\"
-// @Success 200 {object} util.PaginatedResponse{data=util.PaginatedData{items=[]contract.UserRes}}
+// @Param page query int false "Page number (default: 1)"
+// @Param pageSize query int false "Page size (default: 10, max: 100)"
+// @Success 200 {object} util.PaginatedResponse{data=[]contract.UserRes}
 // @Failure 401 {object} util.BaseResponse
 // @Failure 500 {object} util.BaseResponse
 // @Router /users [get]
@@ -275,7 +275,7 @@ func (h *UserHandler) ListUser(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param id path string true \"User ID\"
+// @Param id path string true "User ID"
 // @Success 200 {object} util.BaseResponse
 // @Failure 401 {object} util.BaseResponse
 // @Failure 404 {object} util.BaseResponse
@@ -305,8 +305,8 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param id path string true \"User ID\"
-// @Param request body contract.EditPasswordReq true \"Edit password request\"
+// @Param id path string true "User ID"
+// @Param request body contract.EditPasswordReq true "Edit password request"
 // @Success 200 {object} util.BaseResponse
 // @Failure 400 {object} util.BaseResponse
 // @Failure 401 {object} util.BaseResponse

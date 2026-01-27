@@ -158,7 +158,7 @@ func (h *ProductHandler) GetProduct(c *fiber.Ctx) error {
 // @Param page query int false "Page number (default: 1)"
 // @Param pageSize query int false "Page size (default: 10, max: 100)"
 // @Param search query string false "Search query"
-// @Success 200 {object} util.PaginatedResponse{data=util.PaginatedData{items=[]contract.ProductRes}}
+// @Success 200 {object} util.PaginatedResponse{data=[]contract.ProductRes}
 // @Failure 401 {object} util.BaseResponse
 // @Failure 500 {object} util.BaseResponse
 // @Router /products [get]
