@@ -9,20 +9,12 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ROUTES } from "@/lib/routes";
 import { Loader2, CheckCircle2, X } from "lucide-react";
 import { setAuthCookie } from "@/lib/auth-cookie";
 import { Spinner } from "@/components/ui/spinner";
-
-export default function GoogleSuccessPage() {
-  return (
-    <Suspense fallback={null}>
-      <GoogleSuccess />
-    </Suspense>
-  );
-}
 
 export function GoogleSuccess() {
   const router = useRouter();

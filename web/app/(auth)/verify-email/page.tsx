@@ -15,8 +15,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ROUTES } from "@/lib/routes";
 import { Loader2, CheckCircle2, X } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import { Suspense } from "react";
 
 export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={null}>
+      <VerifyEmailPageContent />
+    </Suspense>
+  );
+}
+
+function VerifyEmailPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");

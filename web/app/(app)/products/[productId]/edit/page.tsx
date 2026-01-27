@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useProduct } from "@/services/api-product";
 import { useParams } from "next/navigation";
+import { Suspense } from "react";
 
 interface EditProductPageProps {
   params: Promise<{
@@ -16,6 +17,14 @@ interface EditProductPageProps {
 }
 
 export default function EditProductPage() {
+  return (
+    <Suspense fallback={null}>
+      <EditProductContent />
+    </Suspense>
+  );
+}
+
+function EditProductContent() {
   const { productId } = useParams<{ productId: string }>();
 
   const { data, isLoading, isFetching, error } = useProduct(productId);
