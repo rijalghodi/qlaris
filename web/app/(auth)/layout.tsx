@@ -20,13 +20,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         {/* Testimonial */}
-        <blockquote className="space-y-2">
+        {/* <blockquote className="space-y-2">
           <p className="text-lg font-medium">
             "This library has saved me countless hours of work and helped me deliver stunning
             designs to my clients faster than ever before."
           </p>
           <footer className="text-sm text-primary/80">- Sofia Davis</footer>
-        </blockquote>
+        </blockquote> */}
       </div>
 
       {/* Right side - Login Form */}
