@@ -17,6 +17,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/joho/godotenv v1.5.1
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/rubenv/sql-migrate v1.8.0
 	github.com/swaggo/swag v1.16.3
 	go.uber.org/zap v1.27.0
