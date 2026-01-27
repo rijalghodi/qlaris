@@ -81,7 +81,7 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "bg-background data-open:animate-in ease-out data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 ring-foreground/10 flex flex-col gap-4 max-w-[calc(100%-2rem)] rounded-xl p-6 text-sm ring-1 duration-300 fixed top-1/2 left-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2",
+          "bg-popover data-open:animate-in ease-out data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 ring-foreground/10 flex flex-col gap-4 max-w-[calc(100%-2rem)] rounded-xl p-6 text-sm ring-1 duration-300 fixed top-1/2 left-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2",
           "max-h-screen overflow-y-auto",
           sizeClasses[size || "md"],
           className

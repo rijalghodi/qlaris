@@ -126,7 +126,7 @@ export function SetupMeDialog({ context, id, innerProps }: ContextDialogProps<Se
   );
 }
 
-export function SetupMeTrigger() {
+export function SetupProfileDialogTrigger() {
   const { data: userData, isLoading, isFetching } = useGetCurrentUser();
 
   useEffect(() => {

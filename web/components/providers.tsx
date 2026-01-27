@@ -20,9 +20,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       attribute="class"
       defaultTheme="light"
       themes={["light", "dark"]}
-      enableSystem={false}
-      disableTransitionOnChange={false}
-      enableColorScheme
+      enableSystem={true}
     >
       <QueryProvider>
         <DialogManagerProvider

@@ -3,8 +3,23 @@ export const siteConfig = {
   url: "https://qlaris.com",
   getStartedUrl: "https://qlaris.com/docs/getting-started/introduction",
   ogImage: "https://qlaris.com/og.jpg",
+  tagline: "POS for Small Businesses",
+  author: "Rijal Ghodi",
+  authorUrl: "https://github.com/rijalghodi",
   description:
     "Qlaris is a platform that helps you to create and manage your business. It is a platform that helps you to create and manage your business.",
+  keywords: [
+    "Qlaris",
+    "POS",
+    "Point of Sale",
+    "Cashier App",
+    "Inventory Management",
+    "Sales",
+    "Small Business",
+    "Retail POS",
+    "QRIS",
+    "Web POS",
+  ],
   links: {
     twitter: "https://twitter.com/qlaris",
     github: "https://github.com/qlaris/qlaris",

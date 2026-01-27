@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Providers } from "@/components/providers";
-import { BRAND } from "@/lib/brand";
-
+import { siteConfig } from "@/config/site";
 const inter = localFont({
   src: "./inter.woff2",
   variable: "--font-sans",
@@ -11,31 +10,31 @@ const inter = localFont({
 });
 
 export const metadata: Metadata = {
-  title: BRAND.SITE_NAME,
-  description: BRAND.SITE_DESCRIPTION,
-  keywords: BRAND.KEYWORDS,
-  authors: [{ name: BRAND.AUTHOR, url: BRAND.AUTHOR_URL }],
-  creator: BRAND.AUTHOR,
+  title: siteConfig.name,
+  description: siteConfig.description,
+  keywords: siteConfig.keywords,
+  authors: [{ name: siteConfig.author, url: siteConfig.authorUrl }],
+  creator: siteConfig.author,
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: BRAND.SITE_NAME,
-    title: BRAND.SITE_NAME,
-    description: BRAND.SITE_DESCRIPTION,
+    siteName: siteConfig.name,
+    title: siteConfig.name,
+    description: siteConfig.description,
     images: [
       {
-        url: BRAND.OG_IMAGE_URL,
+        url: siteConfig.ogImage,
         width: 1200,
         height: 630,
-        alt: BRAND.SITE_NAME,
+        alt: siteConfig.name,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: BRAND.SITE_NAME,
-    description: BRAND.SITE_DESCRIPTION,
-    images: [BRAND.OG_IMAGE_URL],
+    title: siteConfig.name,
+    description: siteConfig.description,
+    images: [siteConfig.ogImage],
   },
 };
 

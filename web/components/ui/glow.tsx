@@ -27,7 +27,7 @@ function Glow({
     <div data-slot="glow" className={cn(glowVariants({ variant }), className)} {...props}>
       <div
         className={cn(
-          "from-brand-foreground/50 to-brand-foreground/0 absolute left-1/2 h-[256px] w-[60%] -translate-x-1/2 scale-[2.5] rounded-[50%] bg-radial from-10% to-60% opacity-20 sm:h-[512px] dark:opacity-100",
+          "from-brand-foreground/50 to-brand-foreground/0 absolute left-1/2 h-[256px] w-[60%] -translate-x-1/2 scale-[2.5] rounded-[50%] bg-radial from-10% to-60% opacity-20 sm:h-[512px] dark:opacity-80",
           variant === "center" && "-translate-y-1/2"
         )}
       />

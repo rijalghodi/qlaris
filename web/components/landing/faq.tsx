@@ -1,101 +1,85 @@
 "use client";
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import { cn } from "@/lib/utils";
-import { ChevronDown } from "lucide-react";
-import { useState } from "react";
 
 const faqs = [
   {
-    question: "Apakah Qlaris cocok untuk usaha kecil saya?",
+    question: "Is Qlaris suitable for my small business?",
     answer:
-      "Ya! Qlaris dirancang khusus untuk UMKM di Indonesia. Mudah digunakan tanpa training, Anda bisa langsung mulai jual dalam hitungan menit.",
+      "Yes! Qlaris is designed specifically for small businesses in Indonesia. It's easy to use without training, so you can start selling in minutes.",
   },
   {
-    question: "Berapa biaya berlangganan Qlaris?",
+    question: "How much does the Qlaris subscription cost?",
     answer:
-      "Mulai dari gratis untuk fitur dasar. Paket premium mulai dari Rp 99.000/bulan dengan fitur lengkap seperti laporan detail, multi-user, dan integrasi QRIS.",
+      "Starting from free for basic features. The premium plan starts at Rp 99.000/month with complete features such as detailed reports, multi-user access, and QRIS integration.",
   },
   {
-    question: "Apakah saya perlu internet untuk menggunakan Qlaris?",
+    question: "Do I need the internet to use Qlaris?",
     answer:
-      "Untuk fitur dasar, ya. Namun mode offline sedang dalam pengembangan dan akan segera hadir untuk memastikan Anda tetap bisa berjualan tanpa koneksi internet.",
+      "For basic features, yes. However, offline mode is currently under development and will be coming soon to ensure you can keep selling without an internet connection.",
   },
   {
-    question: "Bagaimana cara saya mulai menggunakan Qlaris?",
+    question: "How do I start using Qlaris?",
     answer:
-      "Sangat mudah! Daftar gratis, tambahkan produk Anda, dan mulai jual. Tidak perlu setup rumit atau training khusus. Dalam 5 menit Anda sudah bisa mulai.",
+      "It's very easy! Sign up for free, add your products, and start selling. No complicated setup or special training needed. You can start within 5 minutes.",
   },
   {
-    question: "Apakah data transaksi saya aman?",
+    question: "Is my transaction data safe?",
     answer:
-      "Sangat aman. Kami menggunakan enkripsi tingkat bank, backup otomatis setiap hari, dan server di Indonesia. Data Anda sepenuhnya terlindungi.",
+      "Very safe. We use bank-level encryption, automatic daily backups, and servers in Indonesia. Your data is fully protected.",
   },
   {
-    question: "Bisakah saya gunakan untuk beberapa toko?",
+    question: "Can I use it for multiple stores?",
     answer:
-      "Fitur multi-outlet akan segera hadir di update berikutnya! Anda bisa mengelola beberapa toko dari satu dashboard yang sama.",
+      "Multi-outlet features will be coming soon in the next update! You'll be able to manage multiple stores from a single dashboard.",
   },
 ];
 
 export function FAQ() {
-  const { ref, isVisible } = useScrollAnimation();
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
 
   return (
-    <section id="faq" ref={ref} className="py-20 bg-muted/30">
+    <section id="faq" className="py-24" ref={ref}>
       <div className="container mx-auto px-4 lg:px-8">
-        {/* Section header */}
-        <div
-          className={cn(
-            "text-center max-w-3xl mx-auto mb-16 transition-all duration-700 ",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-          )}
-        >
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <h2
+            className={cn(
+              "text-3xl font-semibold tracking-tight sm:text-4xl mb-4 opacity-0",
+              isVisible && "animate-appear"
+            )}
+          >
             Frequently Asked Questions
           </h2>
-          <p className="text-lg text-muted-foreground">Everything you need to know about Qlaris</p>
+          <p
+            className={cn(
+              "text-lg text-muted-foreground opacity-0 delay-100",
+              isVisible && "animate-appear"
+            )}
+          >
+            Everything you need to know about Qlaris
+          </p>
         </div>
 
-        {/* FAQ items */}
-        <div className="max-w-3xl mx-auto space-y-4">
+        <Accordion type="single" collapsible className="w-full max-w-3xl mx-auto">
           {faqs.map((faq, index) => (
-            <div
+            <AccordionItem
               key={index}
-              className={cn(
-                "rounded-lg border bg-card overflow-hidden transition-all duration-500 ",
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-              )}
-              style={{
-                transitionDelay: isVisible ? `${index * 50}ms` : "0ms",
-              }}
+              value={`item-${index}`}
+              className={cn("opacity-0", isVisible && "animate-appear")}
+              style={{ animationDelay: `${index * 100 + 300}ms` }}
             >
-              <button
-                className="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-muted/50 transition-colors"
-                onClick={() => setOpenIndex(openIndex === index ? null : index)}
-              >
-                <span className="font-semibold text-base">{faq.question}</span>
-                <ChevronDown
-                  className={cn(
-                    "h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-500",
-                    openIndex === index && "rotate-180"
-                  )}
-                />
-              </button>
-              <div
-                className={cn(
-                  "grid transition-all duration-500 -out",
-                  openIndex === index ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-                )}
-              >
-                <div className="overflow-hidden">
-                  <p className="p-6 pt-0 text-muted-foreground">{faq.answer}</p>
-                </div>
-              </div>
-            </div>
+              <AccordionTrigger>{faq.question}</AccordionTrigger>
+              <AccordionContent>{faq.answer}</AccordionContent>
+            </AccordionItem>
           ))}
-        </div>
+        </Accordion>
       </div>
     </section>
   );

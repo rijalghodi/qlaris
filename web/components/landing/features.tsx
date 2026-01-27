@@ -1,99 +1,111 @@
 "use client";
 
+import {
+  BarChart3,
+  CreditCard,
+  KeyRound,
+  Package,
+  Percent,
+  ScanBarcode,
+  ShieldCheck,
+  Zap,
+} from "lucide-react";
+import { ReactNode } from "react";
+
+import { Item, ItemDescription, ItemIcon, ItemTitle } from "../ui/item";
+import { Section } from "../ui/section";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import { cn } from "@/lib/utils";
-import { Zap, Package, Users, BarChart3, Tag, Rocket } from "lucide-react";
 
-const features = [
-  {
-    name: "Quick Checkout",
-    description:
-      "Process transactions in seconds with cash and QRIS payments. Lightning-fast checkout experience for your customers.",
-    icon: Zap,
-  },
-  {
-    name: "Smart Inventory",
-    description:
-      "Barcode scanning, stock alerts, and product variants. Never run out of stock unexpectedly again.",
-    icon: Package,
-  },
-  {
-    name: "Easy Management",
-    description:
-      "Role-based access for Owner, Manager, and Staff. Simple login with Google, no complex setup needed.",
-    icon: Users,
-  },
-  {
-    name: "Real-time Reports",
-    description:
-      "Daily sales dashboard, transaction history, and profit tracking. Understand your business at a glance.",
-    icon: BarChart3,
-  },
-  {
-    name: "Flexible Pricing",
-    description:
-      "Support for discounts and tax. Multiple payment methods to serve all your customers.",
-    icon: Tag,
-  },
-  {
-    name: "Future-Ready",
-    description:
-      "Multi-outlet support and offline mode coming soon. Grow your business without limitations.",
-    icon: Rocket,
-  },
-];
+interface ItemProps {
+  title: string;
+  description: string;
+  icon: ReactNode;
+}
 
-export function Features() {
-  const { ref, isVisible } = useScrollAnimation();
+interface ItemsProps {
+  title?: string;
+  items?: ItemProps[] | false;
+  className?: string;
+}
+
+export function Features({
+  title = "Everything you need to run your business",
+  items = [
+    {
+      title: "Role-Based Access",
+      description: "Secure access control for Owner, Manager, and Staff members",
+      icon: <ShieldCheck className="size-5 stroke-1" />,
+    },
+    {
+      title: "Smart Inventory",
+      description: "Manage product variants, stock levels, and categories easily",
+      icon: <Package className="size-5 stroke-1" />,
+    },
+    {
+      title: "Barcode Scanning",
+      description: "Speed up the checkout process with integrated barcode support",
+      icon: <ScanBarcode className="size-5 stroke-1" />,
+    },
+    {
+      title: "Flexible Payments",
+      description: "Accept Cash, QRIS, and handle refunds or returns effortlessly",
+      icon: <CreditCard className="size-5 stroke-1" />,
+    },
+    {
+      title: "Real-time Reports",
+      description: "Track sales, transactions, and business performance instantly",
+      icon: <BarChart3 className="size-5 stroke-1" />,
+    },
+    {
+      title: "Easy Login",
+      description: "Quick and secure access with your Google account integration",
+      icon: <KeyRound className="size-5 stroke-1" />,
+    },
+    {
+      title: "Discounts & Tax",
+      description: "Apply discounts and manage tax calculations automatically",
+      icon: <Percent className="size-5 stroke-1" />,
+    },
+    {
+      title: "Simple & Fast",
+      description: "Designed for speed with a practical interface, no training required",
+      icon: <Zap className="size-5 stroke-1" />,
+    },
+  ],
+  className,
+}: ItemsProps) {
+  const { ref, isVisible } = useScrollAnimation({ threshold: 0.5 });
 
   return (
-    <section id="features" ref={ref} className="py-20 bg-muted/30">
-      <div className="container mx-auto px-4 lg:px-8">
-        {/* Section header */}
-        <div
+    <Section className={className} id="features" ref={ref}>
+      <div className="max-w-container mx-auto flex flex-col items-center gap-6 sm:gap-20">
+        <h2
           className={cn(
-            "text-center max-w-3xl mx-auto mb-16 transition-all duration-700 ",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            "max-w-[560px] text-center text-3xl leading-tight font-semibold sm:text-5xl sm:leading-tight opacity-0",
+            isVisible && "animate-appear"
           )}
         >
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
-            Everything You Need to Run Your Business
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            Powerful features designed for Indonesian small businesses. Simple to use, yet
-            comprehensive.
-          </p>
-        </div>
-
-        {/* Features grid */}
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature, index) => {
-            const Icon = feature.icon;
-            return (
-              <div
-                key={feature.name}
-                className={cn(
-                  "group relative rounded-2xl border bg-card p-8 hover:shadow-lg transition-all duration-500 ",
-                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-                )}
-                style={{
-                  transitionDelay: isVisible ? `${index * 100}ms` : "0ms",
-                }}
+          {title}
+        </h2>
+        {items !== false && items.length > 0 && (
+          <div className="grid auto-rows-fr grid-cols-2 gap-0 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+            {items.map((item, index) => (
+              <Item
+                key={index}
+                className={cn("opacity-0", isVisible && "animate-appear")}
+                style={{ animationDelay: `${index * 50 + 200}ms` }}
               >
-                <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">{feature.name}</h3>
-                    <p className="text-muted-foreground text-sm">{feature.description}</p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                <ItemTitle className="flex items-center gap-2">
+                  <ItemIcon>{item.icon}</ItemIcon>
+                  {item.title}
+                </ItemTitle>
+                <ItemDescription>{item.description}</ItemDescription>
+              </Item>
+            ))}
+          </div>
+        )}
       </div>
-    </section>
+    </Section>
   );
 }

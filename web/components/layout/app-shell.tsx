@@ -1,16 +1,14 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 
-import { ProfileDropdown } from "./profile-dropdown";
 import { AppSidebar } from "./app-sidebar";
-import { BRAND } from "@/lib/brand";
-import { SetupMeTrigger } from "../profile/setup-profile-dialog";
+import { SetupProfileDialogTrigger } from "../profile/setup-profile-dialog";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-dvh w-full">
       <SidebarProvider>
         <AppSidebar />
-        <div className="flex flex-1 flex-col bg-sidebar">
+        <div className="flex flex-1 flex-col bg-background">
           {/* <header className="bg-card sticky top-0 z-50 border-b border-sidebar-border h-14">
             <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-2 sm:px-6">
               <div className="flex items-center gap-4"></div>
@@ -30,7 +28,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </p>
             </div>
           </footer> */}
-          <SetupMeTrigger />
+          <SetupProfileDialogTrigger />
         </div>
       </SidebarProvider>
     </div>

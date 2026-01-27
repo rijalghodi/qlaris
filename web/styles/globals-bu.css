@@ -1,12 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "../styles/utils.css";
+@import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-brand: var(--brand);
-  --color-brand-foreground: var(--brand-foreground);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
@@ -60,60 +58,6 @@
   --shadow-inner-md: inset 0px 4px 20px 0px rgba(0, 0, 0, 0.05);
   --shadow-inner-sm: inset 0px 2px 10px 0px rgba(0, 0, 0, 0.05);
 
-  --spacing-shell: 1140px;
-
-  --shadow-md: 0 4px 6px -1px var(--shadow), 0 2px 4px -2px var(--shadow);
-  --shadow-xl: 0 20px 25px -5px var(--shadow), 0 8px 10px -6px var(--shadow);
-  --shadow-2xl: 0 25px 50px -12px var(--shadow);
-  --shadow-mockup: -12px 16px 48px var(--shadow-strong);
-
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
-  --animate-appear: appear 0.6s forwards ease-out;
-  --animate-appear-zoom: appear-zoom 0.6s forwards ease-out;
-
-  @keyframes accordion-down {
-    from {
-      height: 0;
-    }
-    to {
-      height: var(--radix-accordion-content-height);
-    }
-  }
-  @keyframes accordion-up {
-    from {
-      height: var(--radix-accordion-content-height);
-    }
-    to {
-      height: 0;
-    }
-  }
-  @keyframes appear {
-    0% {
-      opacity: 0;
-      transform: translateY(1rem);
-      filter: blur(0.5rem);
-    }
-    50% {
-      filter: blur(0);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-      filter: blur(0);
-    }
-  }
-  @keyframes appear-zoom {
-    0% {
-      opacity: 0;
-      transform: scale(0.5);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
   /* --text-xs: 0.875rem;
   --text-sm: 1rem;
   --text-base: 1.125rem;
@@ -122,33 +66,29 @@
 }
 
 :root {
-  --brand: hsl(86, 76%, 47%);
-  --brand-foreground: hsl(80, 100%, 50%);
   --radius: 1.25rem;
-  --shell-width: 1280px;
-  --background: hsl(45, 10%, 96%);
+  --background: hsl(0, 0%, 100%);
   --foreground: hsl(45, 0%, 25%);
   --card: hsl(0, 0%, 100%);
   --card-foreground: hsl(0, 0%, 20%);
   --popover: hsl(0, 0%, 100%);
   --popover-foreground: hsl(0, 0%, 20%);
-  /* --primary: hsl(86, 100%, 32%); */
-  --primary: hsl(86, 96%, 22%);
+  --primary: hsl(86, 100%, 32%);
   --primary-foreground: hsl(79, 100%, 97%);
   --primary-complement: hsl(276, 87%, 63%);
   --secondary: hsl(240, 5%, 95%);
   --secondary-foreground: hsl(240, 6%, 10%);
-  --muted: hsl(45, 12%, 93%);
+  --muted: hsl(45, 12%, 96%);
   --muted-foreground: hsl(240, 2%, 56%);
   /* --accent: hsl(240, 5%, 92%);  */
-  --accent: hsl(60, 12%, 90%);
+  --accent: hsl(60, 12%, 92%);
   --accent-foreground: hsl(240, 6%, 10%);
   --destructive: hsl(7, 93%, 58%);
   --destructive-foreground: hsl(0, 100%, 98%);
   --success: hsl(86, 100%, 32%);
   --success-foreground: hsl(79, 100%, 97%);
-  --border: hsl(45, 18%, 84%);
-  --input: hsl(45, 8%, 90%);
+  --border: hsl(45, 18%, 86%);
+  --input: hsl(45, 12%, 94%);
   --ring: hsl(80, 100%, 40%);
   --chart-1: hsl(142, 81%, 71%);
   --chart-2: hsl(144, 100%, 39%);
@@ -167,50 +107,40 @@
   --sidebar-border: hsl(45, 7%, 97%);
   /* --sidebar-border: hsl(45, 8%, 92%); */
   --sidebar-ring: hsl(80, 100%, 45%);
-
-  /* Shadows */
-  --shadow: #00000008;
-  --shadow-strong: #00000008;
 }
 
 .dark {
-  --brand: hsl(86, 96%, 36%);
-  --brand-foreground: hsl(80, 74%, 45%);
-  --background: hsl(213, 80%, 6%);
+  --background: hsl(212, 31%, 12%);
   --foreground: hsl(85, 26%, 91%);
-  --card: hsl(213, 39%, 11%);
+  --card: hsla(213, 29%, 16%, 0.986);
   --card-foreground: hsl(0, 0%, 98%);
-  --popover: hsl(213, 39%, 11%);
+  --popover: hsla(213, 29%, 16%, 0.986);
   --popover-foreground: hsl(0, 0%, 98%);
-  --primary: hsl(97, 78%, 65%);
-  --primary-foreground: hsl(80, 10%, 6%);
+  --primary: hsl(97, 74%, 59%);
   --primary-complement: hsl(276, 57%, 61%);
-  --secondary: hsl(213, 29%, 16%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsla(213, 29%, 16%, 0.986);
   --secondary-foreground: hsl(0, 0%, 98%);
-  --muted: hsl(214, 39%, 12%);
+  --muted: hsla(213, 29%, 16%, 0.986);
   --muted-foreground: hsl(240, 2%, 56%);
-  --accent: hsl(213, 29%, 16%);
+  --accent: hsla(213, 29%, 16%, 0.986);
   --accent-foreground: hsl(0, 0%, 98%);
   --destructive: hsl(7, 93%, 58%);
-  --border: hsl(212, 38%, 22%);
-  --input: hsl(213, 33%, 13%);
+  --border: hsl(45, 7%, 97%);
+  --input: hsl(45, 12%, 94%);
   --ring: hsl(80, 100%, 40%);
   --chart-1: hsl(142, 81%, 71%);
   --chart-2: hsl(144, 100%, 39%);
   --chart-3: hsl(142, 100%, 33%);
   --chart-4: hsl(144, 100%, 25%);
   --chart-5: hsl(148, 96%, 20%);
-  --sidebar: hsl(213, 80%, 6%);
-  --sidebar-foreground: hsl(85, 26%, 91%);
-  --sidebar-primary: hsl(97, 78%, 65%);
-  --sidebar-primary-foreground: hsl(80, 10%, 6%);
-  --sidebar-accent: hsla(213, 51%, 11%, 0.986);
-  --sidebar-accent-foreground: hsl(97, 78%, 65%);
-  --sidebar-border: hsl(213, 80%, 6%);
-
-  /* Shadows */
-  --shadow: #00000020;
-  --shadow-strong: #00000088;
+  --sidebar: hsl(45, 12%, 96%);
+  --sidebar-foreground: hsl(0, 0%, 21%);
+  --sidebar-primary: hsl(86, 100%, 32%);
+  --sidebar-primary-foreground: hsl(78, 92%, 95%);
+  --sidebar-accent: hsl(45, 12%, 88%);
+  --sidebar-accent-foreground: hsl(240, 6%, 10%);
+  --sidebar-border: hsl(45, 7%, 97%);
 }
 
 @layer base {

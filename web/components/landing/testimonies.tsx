@@ -1,86 +1,100 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import { cn } from "@/lib/utils";
-import { Star } from "lucide-react";
-import Image from "next/image";
 
 const testimonials = [
   {
-    name: "Ibu Siti",
-    business: "Warung Makan",
+    name: "Budi Santoso",
+    role: "Coffee Shop Owner",
     content:
-      "Qlaris membantu saya mengelola toko dengan mudah. Tidak perlu training lama, langsung bisa pakai! Sekarang saya lebih fokus masak dan layani pelanggan.",
-    rating: 5,
+      "Qlaris has greatly helped with my shop's financial records. It's very easy to use, even for a layperson like me!",
+    image: "/avatars/budi.jpg",
   },
   {
-    name: "Pak Budi",
-    business: "Minimarket",
+    name: "Siti Aminah",
+    role: "Boutique Owner",
     content:
-      "Fitur barcode dan stock alert sangat membantu. Saya bisa fokus melayani pelanggan tanpa khawatir kehabisan stok barang favorit.",
-    rating: 5,
+      "The stock feature is very accurate. I no longer need to worry about manual counting at the end of every month.",
+    image: "/avatars/siti.jpg",
   },
   {
-    name: "Mbak Ani",
-    business: "Kafe",
+    name: "Rudi Hartono",
+    role: "Restaurant Manager",
     content:
-      "QRIS payment sangat praktis. Pelanggan senang, saya juga untung karena laporan jelas. Recommended untuk UMKM!",
-    rating: 5,
+      "Daily sales reports are very complete. I can monitor restaurant turnover from anywhere in real-time.",
+    image: "/avatars/rudi.jpg",
+  },
+  {
+    name: "Dewi Lestari",
+    role: "Mini Market Cashier",
+    content:
+      "The checkout process is very fast with the barcode scanner. Customers don't need to queue for long when paying.",
+    image: "/avatars/dewi.jpg",
+  },
+  {
+    name: "Agus Setiawan",
+    role: "Workshop Owner",
+    content:
+      "The app interface is clean and not confusing. New employees can use it immediately without long training.",
+    image: "/avatars/agus.jpg",
+  },
+  {
+    name: "Nina Marlina",
+    role: "Franchise Owner",
+    content: "A stable and reliable cashier system. Highly recommended for fellow MSME owners.",
+    image: "/avatars/nina.jpg",
   },
 ];
 
 export function Testimonies() {
-  const { ref, isVisible } = useScrollAnimation();
+  const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
 
   return (
-    <section ref={ref} className="py-20">
-      <div className="container mx-auto px-4 lg:px-8">
-        {/* Section header */}
-        <div
-          className={cn(
-            "text-center max-w-3xl mx-auto mb-16 transition-all duration-700 ",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-          )}
-        >
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
-            Loved by Business Owners
+    <section className="py-24" ref={ref}>
+      <div className="container mx-auto px-4 lg:px-8 max-w-shell">
+        <div className="mb-16">
+          <h2
+            className={cn(
+              "text-3xl font-semibold tracking-tight sm:text-4xl mb-4 opacity-0",
+              isVisible && "animate-appear"
+            )}
+          >
+            Trusted by MSMEs
           </h2>
-          <p className="text-lg text-muted-foreground">
-            Hear what our customers have to say about Qlaris
+          <p
+            className={cn(
+              "text-lg text-muted-foreground opacity-0 delay-100",
+              isVisible && "animate-appear"
+            )}
+          >
+            What they say about their experience using Qlaris.
           </p>
         </div>
 
-        {/* Testimonials grid */}
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {testimonials.map((testimonial, index) => (
             <div
               key={testimonial.name}
               className={cn(
-                "rounded-2xl border bg-card p-8 transition-all duration-500  hover:shadow-lg",
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+                "rounded-2xl bg-muted dark:bg-muted/50 p-8 hover:bg-muted/80 transition-colors opacity-0",
+                isVisible && "animate-appear"
               )}
-              style={{
-                transitionDelay: isVisible ? `${index * 100}ms` : "0ms",
-              }}
+              style={{ animationDelay: `${index * 100 + 300}ms` }}
             >
-              {/* Rating */}
-              <div className="flex gap-1 mb-4">
-                {Array.from({ length: testimonial.rating }).map((_, i) => (
-                  <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                ))}
-              </div>
+              <p className="text-foreground leading-relaxed mb-8 font-medium">
+                "{testimonial.content}"
+              </p>
 
-              {/* Content */}
-              <p className="text-muted-foreground mb-6">{testimonial.content}</p>
-
-              {/* Author */}
               <div className="flex items-center gap-4">
-                <div className="relative h-12 w-12 rounded-full overflow-hidden bg-muted">
-                  <Image src="/hero.png" alt={testimonial.name} fill className="object-cover" />
-                </div>
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={testimonial.image} alt={testimonial.name} />
+                  <AvatarFallback>{testimonial.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
                 <div>
-                  <p className="font-semibold">{testimonial.name}</p>
-                  <p className="text-sm text-muted-foreground">{testimonial.business}</p>
+                  <p className="font-semibold text-sm text-foreground">{testimonial.name}</p>
+                  <p className="text-sm text-muted-foreground">{testimonial.role}</p>
                 </div>
               </div>
             </div>

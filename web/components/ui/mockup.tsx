@@ -26,12 +26,12 @@ function Mockup({ className, type, ...props }: MockupProps) {
 }
 
 const frameVariants = cva(
-  "bg-border/50 flex relative z-10 overflow-hidden rounded-2xl dark:bg-border/10",
+  "rounded-2xl bg-linear-to-b from-primary/15 to-background/0 p-12 pb-0 select-none fade-bottom",
   {
     variants: {
       size: {
-        small: "p-2",
-        large: "p-4",
+        small: "p-4",
+        large: "p-10",
       },
     },
     defaultVariants: {

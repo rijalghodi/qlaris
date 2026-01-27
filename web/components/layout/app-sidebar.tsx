@@ -121,7 +121,8 @@ export function AppSidebar() {
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname.startsWith(ROUTES.PRODUCTS)}
+                      // isActive={pathname.startsWith(ROUTES.PRODUCTS)}
+                      isActive={false}
                       title="Products"
                     >
                       <Link href={ROUTES.PRODUCTS}>

@@ -1,14 +1,14 @@
 "use client";
 
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
 interface ScreenshotProps {
-  srcLight: string;
-  srcDark?: string;
+  srcLight: string | StaticImageData;
+  srcDark?: string | StaticImageData;
   alt: string;
   width: number;
   height: number;
@@ -24,7 +24,7 @@ export default function Screenshot({
   className,
 }: ScreenshotProps) {
   const { resolvedTheme } = useTheme();
-  const [src, setSrc] = useState<string | null>(null);
+  const [src, setSrc] = useState<string | StaticImageData | null>(null);
 
   useEffect(() => {
     if (resolvedTheme) {
@@ -32,23 +32,21 @@ export default function Screenshot({
     }
   }, [resolvedTheme, srcLight, srcDark]);
 
-  if (!src) {
-    return (
-      <div
-        style={{ width, height }}
-        className={cn("bg-muted", className)}
-        aria-label={alt}
-      />
-    );
-  }
-
   return (
-    <Image
-      src={src}
-      alt={alt}
-      width={width}
-      height={height}
-      className={className}
-    />
+    <div className="overflow-hidden rounded-xs rounded-b-none">
+      {src ? (
+        <Image src={src} alt={alt} width={width} height={height} className="block h-auto w-auto" />
+      ) : (
+        <div
+          style={{ width, height }}
+          className="flex items-center justify-center text-muted-foreground"
+          aria-label={alt}
+        >
+          <span className="text-xl font-medium opacity-50">
+            {width} x {height}
+          </span>
+        </div>
+      )}
+    </div>
   );
 }

@@ -3,7 +3,7 @@ import { Hero } from "@/components/landing/hero";
 import { Features } from "@/components/landing/features";
 import { Testimonies } from "@/components/landing/testimonies";
 import { FAQ } from "@/components/landing/faq";
-import { LastOffer } from "@/components/landing/last-offer";
+import { CTA } from "@/components/landing/cta";
 
 export default function LandingPage() {
   return (
@@ -12,7 +12,7 @@ export default function LandingPage() {
       <Features />
       <Testimonies />
       <FAQ />
-      <LastOffer />
+      <CTA />
     </LandingShell>
   );
 }

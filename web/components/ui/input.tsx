@@ -30,7 +30,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         className={cn(
           // Base styles
           "relative flex gap-1 items-stretch w-full h-9 rounded-full border py-0",
-          "dark:bg-input/30 bg-input border-input",
+          "bg-input border-input",
           "transition-[color,box-shadow,border-color] [&_svg]:size-4 overflow-clip",
           // Focus state (when input inside is focused)
           "focus-within:bg-input/50 focus-within:border-ring focus-within:ring-ring focus-within:ring-1",

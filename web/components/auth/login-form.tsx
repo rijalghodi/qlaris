@@ -145,7 +145,7 @@ export function LoginForm() {
         className="h-10 w-full rounded-full"
         onClick={handleContinueWithGoogle}
       >
-        <IconGoogle className="mr-2 h-4 w-4" />
+        <IconGoogle className="mr-2" />
         Continue with Google
       </Button>
 
