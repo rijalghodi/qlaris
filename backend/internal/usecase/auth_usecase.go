@@ -456,12 +456,17 @@ func nextRequestAt(lastRequestAt *time.Time, ttlDuration time.Duration) *string 
 }
 
 func SetAuthCookies(c *fiber.Ctx, tokens *contract.TokenRes) {
+	sameSite := "Lax"
+	if !config.Env.App.IsDev {
+		sameSite = "None"
+	}
+
 	c.Cookie(&fiber.Cookie{
 		Name:     config.ACCESS_TOKEN_COOKIE_NAME,
 		Value:    tokens.AccessToken,
 		HTTPOnly: true,
 		Secure:   !config.Env.App.IsDev,
-		SameSite: "Lax",
+		SameSite: sameSite,
 		MaxAge:   int(config.JWT_ACCESS_TTL.Seconds()),
 		Path:     "/",
 	})
@@ -471,13 +476,18 @@ func SetAuthCookies(c *fiber.Ctx, tokens *contract.TokenRes) {
 		Value:    tokens.RefreshToken,
 		HTTPOnly: true,
 		Secure:   !config.Env.App.IsDev,
-		SameSite: "Lax",
+		SameSite: sameSite,
 		MaxAge:   int(config.JWT_REFRESH_TTL.Seconds()),
 		Path:     "/",
 	})
 }
 
 func ClearAuthCookies(c *fiber.Ctx) {
+	sameSite := "Lax"
+	if !config.Env.App.IsDev {
+		sameSite = "None"
+	}
+
 	c.Cookie(&fiber.Cookie{
 		Name:     config.ACCESS_TOKEN_COOKIE_NAME,
 		Value:    "",
@@ -485,7 +495,7 @@ func ClearAuthCookies(c *fiber.Ctx) {
 		MaxAge:   -1,
 		HTTPOnly: true,
 		Secure:   !config.Env.App.IsDev,
-		SameSite: "Lax",
+		SameSite: sameSite,
 	})
 
 	c.Cookie(&fiber.Cookie{
@@ -495,6 +505,6 @@ func ClearAuthCookies(c *fiber.Ctx) {
 		MaxAge:   -1,
 		HTTPOnly: true,
 		Secure:   !config.Env.App.IsDev,
-		SameSite: "Lax",
+		SameSite: sameSite,
 	})
 }
