@@ -18,10 +18,11 @@ export function DatumCard({ title, value, comparison, decoration }: Props) {
   return (
     <Card>
       <CardHeader>
-        <div>
-          <h2 className="text-base font-semibold mb-4">{title}</h2>
-        </div>
+        <h2 className="text-base font-semibold mb-4">{title}</h2>
         <p className="text-2xl leading-none tracking-tight font-semibold mb-2">{value}</p>
+        <CardAction>{decoration}</CardAction>
+      </CardHeader>
+      <CardContent>
         <p className="text-sm text-muted-foreground">
           <span
             className={cn("font-semibold", comparison?.isUp ? "text-success" : "text-destructive")}
@@ -35,8 +36,7 @@ export function DatumCard({ title, value, comparison, decoration }: Props) {
           </span>{" "}
           {comparison?.label}
         </p>
-        <CardAction>{decoration}</CardAction>
-      </CardHeader>
+      </CardContent>
     </Card>
   );
 }

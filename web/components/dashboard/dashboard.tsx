@@ -45,7 +45,7 @@ export function Dashboard() {
     <div className="space-y-6">
       {/*  Stats */}
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4 justify-start">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 justify-start">
           <DatumCard
             title="Today Sales"
             value={formatCurrency(summary.today.sales)}
