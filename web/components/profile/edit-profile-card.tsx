@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageInput } from "@/components/ui/image-input";
 
 import { useEditCurrentUser, type UserRes } from "@/services/api-user";
 
@@ -25,6 +26,7 @@ const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
   businessName: z.string().optional(),
   businessAddress: z.string().optional(),
+  image: z.string().optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -45,6 +47,7 @@ export function EditProfileCard({ user }: { user: UserRes }) {
       name: user.name || "",
       businessName: user.businessName || "",
       businessAddress: user.businessAddress || "",
+      image: user.image?.key || "",
     },
   });
 
@@ -61,6 +64,19 @@ export function EditProfileCard({ user }: { user: UserRes }) {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Profile Picture</FormLabel>
+                  <FormControl>
+                    <ImageInput {...field} defaultValueUrl={user.image?.url} folder="users" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="name"

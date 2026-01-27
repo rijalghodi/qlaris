@@ -78,7 +78,7 @@ export function Testimonies() {
             <div
               key={testimonial.name}
               className={cn(
-                "rounded-2xl bg-muted dark:bg-muted/50 p-8 hover:bg-muted/80 transition-colors opacity-0",
+                "rounded-2xl bg-card p-8 hover:bg-card/80 transition-colors opacity-0",
                 isVisible && "animate-appear"
               )}
               style={{ animationDelay: `${index * 100 + 300}ms` }}

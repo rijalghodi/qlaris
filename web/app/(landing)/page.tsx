@@ -7,12 +7,12 @@ import { CTA } from "@/components/landing/cta";
 
 export default function LandingPage() {
   return (
-    <LandingShell>
+    <>
       <Hero />
       <Features />
       <Testimonies />
       <FAQ />
       <CTA />
-    </LandingShell>
+    </>
   );
 }

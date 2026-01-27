@@ -1,5 +1,6 @@
 "use client";
 
+import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { LogoText } from "@/components/logos/logo-text";
 import { ROUTES } from "@/lib/routes";
 import { Gift } from "lucide-react";
@@ -11,9 +12,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       {/* Left side - Testimonial */}
       <div className="relative hidden flex-1 flex-col justify-between bg-muted dark:bg-muted/50 p-10 lg:flex">
         {/* Logo and Brand */}
-        <Link href={ROUTES.LANDING}>
-          <LogoText />
-        </Link>
+        <div className="flex justify-between items-center">
+          <Link href={ROUTES.LANDING}>
+            <LogoText />
+          </Link>
+          <ThemeSwitcher />
+        </div>
 
         {/* Testimonial */}
         <blockquote className="space-y-2">

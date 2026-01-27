@@ -20,6 +20,7 @@ import {
 import { ReactNode } from "react";
 import { Button } from "../ui/button";
 import { useGetCurrentUser } from "@/services/api-user";
+import { ThemeSwitcher } from "./theme-switcher";
 
 type Props = {
   trigger?: ReactNode;
@@ -71,6 +72,12 @@ export function ProfileDropdown({ trigger, defaultOpen, align }: Props) {
               <span>My Account</span>
             </Link>
           </DropdownMenuItem>
+          <DropdownMenuLabel>
+            <div className="flex items-center justify-between">
+              <span>Theme</span>
+              <ThemeSwitcher variant="buttons" />
+            </div>
+          </DropdownMenuLabel>
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />

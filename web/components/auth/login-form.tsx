@@ -141,7 +141,7 @@ export function LoginForm() {
       {/* OAuth Buttons */}
       <Button
         type="button"
-        variant="outline"
+        variant="secondary"
         className="h-10 w-full rounded-full"
         onClick={handleContinueWithGoogle}
       >
