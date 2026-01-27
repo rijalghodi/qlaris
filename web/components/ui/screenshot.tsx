@@ -24,7 +24,7 @@ export default function Screenshot({
   className,
 }: ScreenshotProps) {
   const { resolvedTheme } = useTheme();
-  const [src, setSrc] = useState<string | StaticImageData | null>(null);
+  const [src, setSrc] = useState<string | StaticImageData>(srcLight);
 
   useEffect(() => {
     if (resolvedTheme) {
