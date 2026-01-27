@@ -195,7 +195,7 @@
   --sidebar-primary-foreground: hsl(80, 10%, 6%);
   --sidebar-accent: hsl(210, 7%, 22%);
   --sidebar-accent-foreground: hsl(97, 78%, 65%);
-  --sidebar-border: hsl(213, 80%, 6%);
+  --sidebar-border: hsl(210, 7%, 11%);
 
   /* Shadows */
   --shadow: #00000020;

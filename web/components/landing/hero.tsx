@@ -1,16 +1,16 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { ROUTES } from "@/lib/routes";
 import { Section } from "../ui/section";
-import dashboardLight from "@/public/dashboard-light.png";
 import Screenshot from "../ui/screenshot";
 import { Mockup, MockupFrame } from "../ui/mockup";
 import Glow from "../ui/glow";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import { cn } from "@/lib/utils";
+import heroLight from "@/public/hero-light.png";
+import heroDark from "@/public/hero-dark.png";
 
 export function Hero() {
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
@@ -61,7 +61,13 @@ export function Hero() {
             size="small"
           >
             <Mockup type="responsive" className="bg-background/90 w-full rounded-xl border-0">
-              <Screenshot srcLight={dashboardLight} alt="App Dashboard" width={1248} height={765} />
+              <Screenshot
+                srcLight={heroLight}
+                srcDark={heroDark}
+                alt="App Dashboard"
+                width={1248}
+                height={765}
+              />
             </Mockup>
           </MockupFrame>
           <Glow
