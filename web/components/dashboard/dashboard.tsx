@@ -10,14 +10,37 @@ import { DollarSign, Receipt, TrendingUp, Loader2 } from "lucide-react";
 import { AlertCircle } from "lucide-react";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "../ui/empty";
 import { Spinner } from "../ui/spinner";
+import { Skeleton } from "../ui/skeleton";
+import { cn } from "@/lib/utils";
 
 export function Dashboard() {
   const { data, isLoading, error } = useDashboardSummary();
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Spinner className="size-8 animate-spin text-muted-foreground" />
+      <div className="space-y-4">
+        {/*  Stats */}
+        <div
+          className={cn(
+            "grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 justify-start",
+            "animate-in fade-in slide-in-from-bottom-4 duration-500"
+          )}
+        >
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-[120px]" />
+          ))}
+        </div>
+
+        {/* Latest Transactions and Top Products */}
+        <div
+          className={cn(
+            "grid gap-6 lg:grid-cols-2",
+            "animate-in fade-in slide-in-from-bottom-4 duration-700"
+          )}
+        >
+          <Skeleton className="h-[200px]" />
+          <Skeleton className="h-[200px]" />
+        </div>
       </div>
     );
   }
@@ -42,10 +65,10 @@ export function Dashboard() {
   const compareLastWeek = summary.thisWeek.compareLastWeek;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/*  Stats */}
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 justify-start">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 justify-start">
           <DatumCard
             title="Today Sales"
             value={formatCurrency(summary.today.sales)}
@@ -122,7 +145,7 @@ export function Dashboard() {
       </div>
 
       {/* Latest Transactions and Top Products */}
-      <div className="grid gap-6 lg:grid-cols-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="grid gap-4 lg:grid-cols-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <LastTransactionsCard transactions={summary.lastTransactions} />
         <TopProductsCard products={summary.topProducts} />
       </div>

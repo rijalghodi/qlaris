@@ -19,7 +19,7 @@ export default function Page() {
           <p className="text-muted-foreground text-sm">Give your best shot today!</p>
         </div>
         <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4  duration-500">
-          <Button variant="outline" size="lg" asChild className="rounded-full px-6 shadow-lg">
+          <Button variant="secondary" size="lg" asChild className="rounded-full px-6 shadow-lg">
             <Link href={ROUTES.PRODUCT_ADD}>
               <Box />
               New Product
