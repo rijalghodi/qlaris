@@ -12,8 +12,7 @@ import {
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ROUTES } from "@/lib/routes";
-import { Loader2, CheckCircle2, X } from "lucide-react";
-import { setAuthCookie } from "@/lib/auth-cookie";
+import { CheckCircle2, X } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 
 export function GoogleSuccess() {
@@ -33,11 +32,6 @@ export function GoogleSuccess() {
     }
 
     try {
-      setAuthCookie({
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-      });
-
       setSuccess(true);
       router.push(ROUTES.DASHBOARD);
     } catch (err) {
