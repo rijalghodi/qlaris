@@ -119,7 +119,7 @@ func (u *UserUsecase) EditPassword(userID string, req *contract.EditCurrentUserP
 }
 
 // === EDIT BUSINESS ===
-func (u *UserUsecase) UpsertBusiness(userID string, businessID string, req *contract.EditCurrentUserBusinessReq) (*contract.BusinessRes, error) {
+func (u *UserUsecase) EditBusiness(userID string, businessID string, req *contract.EditCurrentUserBusinessReq) (*contract.BusinessRes, error) {
 	user, err := u.userRepo.GetUserByID(userID)
 	if err != nil {
 		return nil, err

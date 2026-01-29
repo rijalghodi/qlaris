@@ -30,6 +30,7 @@ type UserRes struct {
 type EditCurrentUserReq struct {
 	Name  *string `json:"name" validate:"max=255"`
 	Image *string `json:"image"`
+	EditCurrentUserBusinessReq
 }
 
 // Edit password

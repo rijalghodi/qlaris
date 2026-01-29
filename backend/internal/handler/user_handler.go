@@ -29,14 +29,7 @@ func (h *UserHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	currentUserGroup.Get("", h.GetCurrentUser)
 	currentUserGroup.Put("", h.EditCurrentUser)
 	currentUserGroup.Put("/password", h.EditCurrentUserPassword)
-
-	// User CRUD - COMMENTED OUT, replaced with employee CRUD
-	// userGroup.Post("", h.CreateUser)
-	// userGroup.Get("", h.ListUser)
-	// userGroup.Put("/:id", h.UpdateUser)
-	// userGroup.Get("/:id", h.GetUser)
-	// userGroup.Delete("/:id", h.DeleteUser)
-	// userGroup.Put("/:id/", h.EditPassword)
+	currentUserGroup.Put("/business", h.EditCurrentUserBusiness)
 
 }
 
@@ -123,4 +116,37 @@ func (h *UserHandler) EditCurrentUserPassword(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse("Password updated successfully"))
+}
+
+// @Tags User
+// @Summary Edit current user business
+// @Description Change authenticated user's business
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body contract.EditCurrentUserBusinessReq true "Edit business request"
+// @Success 200 {object} util.BaseResponse
+// @Failure 400 {object} util.BaseResponse
+// @Failure 401 {object} util.BaseResponse
+// @Failure 500 {object} util.BaseResponse
+// @Router /users/current/business [put]
+func (h *UserHandler) EditCurrentUserBusiness(c *fiber.Ctx) error {
+	var req contract.EditCurrentUserBusinessReq
+	if err := c.BodyParser(&req); err != nil {
+		logger.Log.Warn("Failed to parse request body", zap.Error(err))
+		return err
+	}
+
+	if err := util.ValidateStruct(&req); err != nil {
+		logger.Log.Warn("Validation error", zap.Error(err))
+		return err
+	}
+
+	claims := middleware.GetAuthClaims(c)
+	res, err := h.userUsecase.EditBusiness(claims.ID, *claims.BusinessID, &req)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
 }
