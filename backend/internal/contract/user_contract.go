@@ -43,17 +43,15 @@ type CreateUserReq struct {
 	Email      string  `json:"email" validate:"required,email,max=255"`
 	Password   string  `json:"password" validate:"required,password"`
 	Name       string  `json:"name" validate:"required,max=255"`
-	Role       string  `json:"role" validate:"required,oneof=owner manager cashier"`
-	BusinessID *string `json:"businessId"`
+	Role       string  `json:"role" validate:"required,oneof=manager cashier"`
+	BusinessID string  `json:"businessId"`
 	Image      *string `json:"image"`
 }
 
 type UpdateUserReq struct {
-	Name            *string `json:"name" validate:"max=255"`
-	Role            *string `json:"role" validate:"oneof=owner manager cashier"`
-	Image           *string `json:"image"`
-	BusinessName    *string `json:"businessName" validate:"max=255"`
-	BusinessAddress *string `json:"businessAddress"`
+	Name  *string `json:"name" validate:"max=255"`
+	Role  *string `json:"role" validate:"oneof=manager cashier"`
+	Image *string `json:"image"`
 }
 
 // Edit business

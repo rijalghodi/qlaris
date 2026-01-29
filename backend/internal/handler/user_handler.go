@@ -85,7 +85,14 @@ func (h *UserHandler) EditCurrentUser(c *fiber.Ctx) error {
 	}
 
 	claims := middleware.GetAuthClaims(c)
-	user, err := h.userUsecase.EditCurrentUser(claims.ID, &req)
+
+	// BusinessID is required if editing business
+	businessID := ""
+	if claims.BusinessID != "" {
+		businessID = claims.BusinessID
+	}
+
+	user, err := h.userUsecase.EditCurrentUser(claims.ID, businessID, &req)
 	if err != nil {
 		return err
 	}
@@ -198,7 +205,7 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 		return err
 	}
 
-	user, err := h.userUsecase.UpdateUser(userID, &req)
+	user, err := h.userUsecase.UpdateUser(userID, claims.BusinessID, &req)
 	if err != nil {
 		return err
 	}

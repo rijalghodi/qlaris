@@ -16,7 +16,7 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 
 func (r *UserRepository) GetUserByGoogleID(googleID string) (*model.User, error) {
 	var user model.User
-	err := r.db.Where("google_id = ?", googleID).First(&user).Error
+	err := r.db.Preload("Roles.Business").Where("google_id = ?", googleID).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -28,7 +28,7 @@ func (r *UserRepository) GetUserByGoogleID(googleID string) (*model.User, error)
 
 func (r *UserRepository) GetUserByEmail(email string) (*model.User, error) {
 	var user model.User
-	err := r.db.Where("email = ?", email).First(&user).Error
+	err := r.db.Preload("Roles.Business").Where("email = ?", email).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -40,7 +40,7 @@ func (r *UserRepository) GetUserByEmail(email string) (*model.User, error) {
 
 func (r *UserRepository) GetUserByID(id string) (*model.User, error) {
 	var user model.User
-	err := r.db.Preload("Business").Where("id = ?", id).First(&user).Error
+	err := r.db.Preload("Roles.Business").Where("id = ?", id).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -52,7 +52,16 @@ func (r *UserRepository) GetUserByID(id string) (*model.User, error) {
 
 func (r *UserRepository) GetUserByIDAndBusinessID(id string, businessID string) (*model.User, error) {
 	var user model.User
-	err := r.db.Preload("Business").Where("id = ?", id).First(&user).Error
+	// We need to ensure the user belongs to the business.
+	// We can check this by joining or letting the preload handle it and then checking in code.
+	// But `GetUserByIDAndBusinessID` implies filtering.
+	// Since user has many roles, we want the user object IF they have a role in this business.
+
+	err := r.db.Preload("Roles.Business").
+		Joins("JOIN user_roles ON user_roles.user_id = users.id").
+		Where("users.id = ? AND user_roles.business_id = ?", id, businessID).
+		First(&user).Error
+
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -67,6 +76,10 @@ func (r *UserRepository) CreateUser(user *model.User) error {
 	return r.db.Create(user).Error
 }
 
+func (r *UserRepository) CreateUserRole(userRole *model.UserRole) error {
+	return r.db.Create(userRole).Error
+}
+
 func (r *UserRepository) UpdateUser(user *model.User) error {
 	return r.db.Save(user).Error
 }
@@ -79,10 +92,11 @@ func (r *UserRepository) ListUsers(businessID *string, page, pageSize int) ([]*m
 	var users []*model.User
 	var total int64
 
-	query := r.db.Model(&model.User{}).Preload("Business")
+	query := r.db.Model(&model.User{}).Preload("Roles.Business")
 
 	if businessID != nil {
-		query = query.Where("business_id = ?", *businessID)
+		query = query.Joins("JOIN user_roles ON user_roles.user_id = users.id").
+			Where("user_roles.business_id = ?", *businessID)
 	}
 
 	if err := query.Count(&total).Error; err != nil {

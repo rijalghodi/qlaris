@@ -3,6 +3,7 @@ package usecase
 import (
 	"app/internal/config"
 	"app/internal/contract"
+	"app/internal/middleware"
 	"app/internal/model"
 	"app/internal/repository"
 	"app/pkg/logger"
@@ -446,17 +447,34 @@ func (u *AuthUsecase) RefreshToken(c *fiber.Ctx, req *contract.RefreshTokenReq) 
 }
 
 func (u *AuthUsecase) SwitchBusiness(c *fiber.Ctx, businessID string) (*contract.TokenRes, error) {
-	// TODO: check if business exisit
+	// Get current user ID from context
+	claims := middleware.GetAuthClaims(c)
+	if claims.ID == "" {
+		return nil, fiber.NewError(fiber.StatusUnauthorized, "Please authenticate")
+	}
 
-	// TODO: check if user is member of business
+	// Check if user is member of business
+	user, err := u.userRepo.GetUserByIDAndBusinessID(claims.ID, businessID)
+	if err != nil {
+		logger.Log.Error("Failed to check user membership", zap.Error(err))
+		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to switch business")
+	}
 
-	// TODO: generate new token pair
+	if user == nil {
+		return nil, fiber.NewError(fiber.StatusForbidden, "You are not a member of this business")
+	}
 
-	// TODO: set new cookies
+	// Generate new token pair
+	tokens, err := u.generateTokenPair(claims.ID, businessID)
+	if err != nil {
+		logger.Log.Error("Failed to generate token pair", zap.Error(err))
+		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to generate tokens")
+	}
 
-	// TODO: return new token pair
+	// Set new cookies
+	SetAuthCookies(c, tokens)
 
-	return nil, nil
+	return tokens, nil
 }
 
 func (u *AuthUsecase) generateTokenPair(userID, businessID string) (*contract.TokenRes, error) {

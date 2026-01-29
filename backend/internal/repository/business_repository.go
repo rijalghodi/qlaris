@@ -33,3 +33,11 @@ func (r *BusinessRepository) CreateBusiness(business *model.Business) error {
 func (r *BusinessRepository) UpdateBusiness(business *model.Business) error {
 	return r.db.Save(business).Error
 }
+
+func (r *BusinessRepository) GetBusinessByID(id string) (*model.Business, error) {
+	var business model.Business
+	if err := r.db.First(&business, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	return &business, nil
+}
