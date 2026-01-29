@@ -1,65 +1,64 @@
 package contract
 
 // Current user
+type BusinessRes struct {
+	ID      string   `json:"id"`
+	Name    string   `json:"name"`
+	Address *string  `json:"address"`
+	Logo    *FileRes `json:"logo"`
+}
+
 type RoleRes struct {
-	Role         string `json:"role"`
-	BusinessName string `json:"businessName"`
-	BusinessID   string `json:"businessId"`
+	Role     string       `json:"role"`
+	Business *BusinessRes `json:"business,omitempty"`
 }
 
 type UserRes struct {
-	ID         string   `json:"id"`
-	Email      string   `json:"email"`
-	Name       string   `json:"name"`
-	ActiveRole *RoleRes `json:"activeRole,omitempty"`
-	// Role            string    `json:"role,omitempty"`
-	// BusinessID      string    `json:"businessId,omitempty"`
-	Roles           []RoleRes `json:"roles,omitempty"`
-	GoogleImage     *string   `json:"googleImage"`
-	Image           *FileRes  `json:"image"`
-	IsVerified      bool      `json:"isVerified"`
-	HasPassword     bool      `json:"hasPassword"`
-	BusinessName    *string   `json:"businessName,omitempty"`
-	BusinessAddress *string   `json:"businessAddress,omitempty"`
-	IsDataCompleted *bool     `json:"isDataCompleted,omitempty"`
-	CreatedAt       string    `json:"createdAt"`
-	UpdatedAt       string    `json:"updatedAt"`
+	ID          string    `json:"id"`
+	Email       string    `json:"email"`
+	Name        string    `json:"name"`
+	ActiveRole  *RoleRes  `json:"activeRole,omitempty"`
+	Roles       []RoleRes `json:"roles,omitempty"`
+	GoogleImage *string   `json:"googleImage"`
+	Image       *FileRes  `json:"image"`
+	IsVerified  bool      `json:"isVerified"`
+	HasPassword bool      `json:"hasPassword"`
+	CreatedAt   string    `json:"createdAt"`
+	UpdatedAt   string    `json:"updatedAt"`
 }
 
 type EditCurrentUserReq struct {
-	Name            *string `json:"name" validate:"max=255"`
-	Image           *string `json:"image"`
-	BusinessName    *string `json:"businessName" validate:"max=255"`
-	BusinessAddress *string `json:"businessAddress"`
-}
-
-// Edit password
-
-type EditPasswordReq struct {
-	CurrentPassword *string `json:"currentPassword" validate:"password"`
-	NewPassword     string  `json:"newPassword" validate:"required,password"`
-}
-
-// User
-type CreateUserReq struct {
-	Email    string  `json:"email" validate:"required,email,max=255"`
-	Password string  `json:"password" validate:"required,password"`
-	Name     string  `json:"name" validate:"required,max=255"`
-	Role     string  `json:"role" validate:"required,oneof=manager cashier"`
-	Image    *string `json:"image"`
-}
-
-type UpdateUserReq struct {
 	Name  *string `json:"name" validate:"max=255"`
-	Role  *string `json:"role" validate:"oneof=manager cashier"`
 	Image *string `json:"image"`
 }
 
+// Edit password
+type EditCurrentUserPasswordReq struct {
+	OldPassword *string `json:"oldPassword" validate:"password"`
+	NewPassword string  `json:"newPassword" validate:"required,password"`
+}
+
 // Edit business
-type EditBusinessReq struct {
+type EditCurrentUserBusinessReq struct {
 	Name          *string `json:"name" validate:"max=255"`
 	Address       *string `json:"address"`
 	Logo          *string `json:"logo"`
 	Category      *string `json:"category"`
 	EmployeeCount *int    `json:"employeeCount"`
+}
+
+// User (Employee)
+type CreateUserReq struct {
+	Email string  `json:"email" validate:"required,email,max=255"`
+	Pin   string  `json:"pin" validate:"required,numeric,len=6"`
+	Name  string  `json:"name" validate:"required,max=255"`
+	Role  string  `json:"role" validate:"required,oneof=manager cashier"`
+	Image *string `json:"image"`
+}
+
+type UpdateUserReq struct {
+	Name  *string `json:"name" validate:"max=255"`
+	Role  *string `json:"role" validate:"oneof=manager cashier"`
+	Pin   *string `json:"pin" validate:"omitempty,numeric,len=6"`
+	Image *string `json:"image"`
 }

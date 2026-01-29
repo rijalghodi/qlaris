@@ -45,7 +45,9 @@ ADD COLUMN category VARCHAR(32) CHECK (
     'barbershop',
     'printing',
     'other'
-  )
+  ),
+  ADD COLUMN code TEXT NOT NULL UNIQUE
+  DEFAULT upper(substr(gen_random_uuid()::text, 1, 6));
 );
 
 -- +migrate Down

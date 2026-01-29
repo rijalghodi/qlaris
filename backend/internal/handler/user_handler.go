@@ -31,7 +31,7 @@ func (h *UserHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	currentUserGroup.Put("", h.EditCurrentUser)
 	currentUserGroup.Put("/password", h.EditCurrentUserPassword)
 
-	// User
+	// User (employee)
 	userGroup.Post("", h.CreateUser)
 	userGroup.Get("", h.ListUser)
 	userGroup.Put("/:id", h.UpdateUser)
@@ -107,7 +107,7 @@ func (h *UserHandler) EditCurrentUser(c *fiber.Ctx) error {
 // @Failure 500 {object} util.BaseResponse
 // @Router /users/current/password [put]
 func (h *UserHandler) EditCurrentUserPassword(c *fiber.Ctx) error {
-	var req contract.EditPasswordReq
+	var req contract.EditCurrentUserPasswordReq
 	if err := c.BodyParser(&req); err != nil {
 		logger.Log.Warn("Failed to parse request body", zap.Error(err))
 		return err
@@ -319,7 +319,7 @@ func (h *UserHandler) EditPassword(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "User ID is required")
 	}
 
-	var req contract.EditPasswordReq
+	var req contract.EditCurrentUserPasswordReq
 	if err := c.BodyParser(&req); err != nil {
 		logger.Log.Warn("Failed to parse request body", zap.Error(err))
 		return err

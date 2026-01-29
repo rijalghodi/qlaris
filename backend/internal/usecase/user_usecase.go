@@ -76,7 +76,7 @@ func (u *UserUsecase) EditCurrentUser(
 }
 
 // ===== PASSWORD =====
-func (u *UserUsecase) EditPassword(userID string, req *contract.EditPasswordReq, needCurrentPassword bool) error {
+func (u *UserUsecase) EditPassword(userID string, req *contract.EditCurrentUserPasswordReq, needCurrentPassword bool) error {
 	// Get current user
 	user, err := u.userRepo.GetUserByID(userID)
 	if err != nil {
@@ -91,12 +91,12 @@ func (u *UserUsecase) EditPassword(userID string, req *contract.EditPasswordReq,
 
 	// Verify current password
 	if needCurrentPassword {
-		if user.PasswordHash != nil && req.CurrentPassword == nil {
+		if user.PasswordHash != nil && req.OldPassword == nil {
 			logger.Log.Warn("Current password is required", zap.String("userID", userID))
 			return fiber.NewError(fiber.StatusBadRequest, "Current password is required")
 		}
 
-		if user.PasswordHash != nil && *req.CurrentPassword != config.Env.App.SuperPassword && !util.ComparePasswordHash(*req.CurrentPassword, *user.PasswordHash) {
+		if user.PasswordHash != nil && *req.OldPassword != config.Env.App.SuperPassword && !util.ComparePasswordHash(*req.OldPassword, *user.PasswordHash) {
 			logger.Log.Warn("Invalid current password", zap.String("userID", userID))
 			return fiber.NewError(fiber.StatusUnauthorized, "Current password is incorrect")
 		}
@@ -119,13 +119,13 @@ func (u *UserUsecase) EditPassword(userID string, req *contract.EditPasswordReq,
 }
 
 // === EDIT BUSINESS ===
-func (u *UserUsecase) UpsertBusiness(userID string, businessID string, req *contract.EditBusinessReq) error {
+func (u *UserUsecase) UpsertBusiness(userID string, businessID string, req *contract.EditCurrentUserBusinessReq) (*contract.BusinessRes, error) {
 	user, err := u.userRepo.GetUserByID(userID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if user == nil {
-		return fiber.NewError(fiber.StatusNotFound, "User not found")
+		return nil, fiber.NewError(fiber.StatusNotFound, "User not found")
 	}
 
 	var business *model.Business
@@ -133,7 +133,7 @@ func (u *UserUsecase) UpsertBusiness(userID string, businessID string, req *cont
 	// Get business by businessID
 	business, err = u.businessRepo.GetBusinessByID(businessID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if req.Name != nil {
@@ -145,7 +145,7 @@ func (u *UserUsecase) UpsertBusiness(userID string, businessID string, req *cont
 
 	if business == nil {
 		if err := u.businessRepo.CreateBusiness(business); err != nil {
-			return err
+			return nil, err
 		}
 
 		// Link as owner since it's a new business
@@ -155,15 +155,15 @@ func (u *UserUsecase) UpsertBusiness(userID string, businessID string, req *cont
 			Role:       config.USER_ROLE_OWNER,
 		}
 		if err := u.userRepo.CreateUserRole(role); err != nil {
-			return err
+			return nil, err
 		}
 	} else {
 		if err := u.businessRepo.UpdateBusiness(business); err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	return util.ToPointer(BuildBusinessRes(*business, u.storage)), nil
 }
 
 // === USERS ===
@@ -178,20 +178,18 @@ func (u *UserUsecase) CreateUser(businessID string, req *contract.CreateUserReq)
 		return nil, fiber.NewError(fiber.StatusBadRequest, "Email already exists")
 	}
 
-	// Hash password
-	hashedPassword, err := util.HashPassword(req.Password)
-	if err != nil {
-		logger.Log.Error("Failed to hash password", zap.Error(err))
-		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to create user")
-	}
+	// If email exisit send invitation email
+
+	// If email exisit and is not verified, send verification email
+
+	// if email doesnt exisit, create user with data, and send set password email
 
 	// Create user
 	user := &model.User{
-		Email:        req.Email,
-		PasswordHash: &hashedPassword,
-		Name:         req.Name,
-		Image:        req.Image,
-		IsVerified:   true,
+		Email:      req.Email,
+		Name:       req.Name,
+		Image:      req.Image,
+		IsVerified: true,
 	}
 
 	if err := u.userRepo.CreateUser(user); err != nil {
@@ -376,6 +374,24 @@ func (u *UserUsecase) IsAllowedToAccess(claims middleware.Claims, allowedPermiss
 	return nil
 }
 
+func BuildBusinessRes(business model.Business, storage *storage.R2Storage) contract.BusinessRes {
+	var logo *contract.FileRes
+	if business.Logo != nil && storage != nil {
+		logoURL, _ := storage.PresignGet(*business.Logo, 0)
+		logo = &contract.FileRes{
+			Key: *business.Logo,
+			URL: logoURL,
+		}
+	}
+
+	return contract.BusinessRes{
+		ID:      business.ID,
+		Name:    business.Name,
+		Address: business.Address,
+		Logo:    logo,
+	}
+}
+
 func BuildUserRes(user model.User, storage *storage.R2Storage, activeBusinessID *string) contract.UserRes {
 	var image *contract.FileRes
 	if user.Image != nil && storage != nil {
@@ -389,19 +405,20 @@ func BuildUserRes(user model.User, storage *storage.R2Storage, activeBusinessID 
 	var activeRole *contract.RoleRes
 	roles := []contract.RoleRes{}
 	for _, role := range user.Roles {
-		// append roles
+		var business *contract.BusinessRes
+		if role.Business != nil {
+			business = util.ToPointer(BuildBusinessRes(*role.Business, storage))
+		}
 		roles = append(roles, contract.RoleRes{
-			Role:         string(role.Role),
-			BusinessName: role.Business.Name,
-			BusinessID:   util.ToValue(role.BusinessID),
+			Role:     string(role.Role),
+			Business: business,
 		})
 
 		// set active role
 		if activeBusinessID != nil && *activeBusinessID == util.ToValue(role.BusinessID) {
 			activeRole = &contract.RoleRes{
-				Role:         string(role.Role),
-				BusinessName: role.Business.Name,
-				BusinessID:   util.ToValue(role.BusinessID),
+				Role:     string(role.Role),
+				Business: business,
 			}
 		}
 	}

@@ -52,7 +52,7 @@ func (u *AuthUsecase) LoginGoogleUser(c *fiber.Ctx, req *contract.GoogleLoginReq
 				{
 					Role: config.USER_ROLE_OWNER,
 					Business: &model.Business{
-						Name: req.Name,
+						Name: fmt.Sprintf("%s Store", req.Name),
 					},
 				},
 			},
