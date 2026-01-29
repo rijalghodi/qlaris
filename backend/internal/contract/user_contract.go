@@ -14,17 +14,17 @@ type RoleRes struct {
 }
 
 type UserRes struct {
-	ID          string    `json:"id"`
-	Email       string    `json:"email"`
-	Name        string    `json:"name"`
-	ActiveRole  *RoleRes  `json:"activeRole,omitempty"`
-	Roles       []RoleRes `json:"roles,omitempty"`
-	GoogleImage *string   `json:"googleImage"`
-	Image       *FileRes  `json:"image"`
-	IsVerified  bool      `json:"isVerified"`
-	HasPassword bool      `json:"hasPassword"`
-	CreatedAt   string    `json:"createdAt"`
-	UpdatedAt   string    `json:"updatedAt"`
+	ID          string       `json:"id"`
+	Email       string       `json:"email"`
+	Name        string       `json:"name"`
+	Role        string       `json:"role"`
+	Business    *BusinessRes `json:"business,omitempty"`
+	GoogleImage *string      `json:"googleImage"`
+	Image       *FileRes     `json:"image"`
+	IsVerified  bool         `json:"isVerified"`
+	HasPassword bool         `json:"hasPassword"`
+	CreatedAt   string       `json:"createdAt"`
+	UpdatedAt   string       `json:"updatedAt"`
 }
 
 type EditCurrentUserReq struct {

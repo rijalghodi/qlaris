@@ -8,9 +8,8 @@ import (
 )
 
 type JWTClaims struct {
-	ID               string `json:"sub"`
-	Type             string `json:"type"`
-	ActiveBusinessID string `json:"active_business_id"`
+	ID   string `json:"sub"`
+	Type string `json:"type"`
 }
 
 func VerifyToken(tokenStr, secret string) (JWTClaims, error) {
@@ -32,18 +31,16 @@ func VerifyToken(tokenStr, secret string) (JWTClaims, error) {
 		return JWTClaims{}, errors.New("invalid token sub")
 	}
 
-	activeBusinessID, _ := claims["active_business_id"].(string)
 	tokenType, _ := claims["type"].(string)
 
-	return JWTClaims{ID: id, ActiveBusinessID: activeBusinessID, Type: tokenType}, nil
+	return JWTClaims{ID: id, Type: tokenType}, nil
 }
 
-func GenerateToken(userID string, activeBusinessID *string, tokenType, secret string, expiresAt time.Time) (string, error) {
+func GenerateToken(userID string, tokenType, secret string, expiresAt time.Time) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub":                userID,
-		"active_business_id": ToValue(activeBusinessID),
-		"type":               tokenType,
-		"exp":                expiresAt.Unix(),
+		"sub":  userID,
+		"type": tokenType,
+		"exp":  expiresAt.Unix(),
 	})
 	return token.SignedString([]byte(secret))
 }

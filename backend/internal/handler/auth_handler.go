@@ -35,6 +35,7 @@ func (h *AuthHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	authGroup.Get("/google/login", h.GoogleLogin)
 	authGroup.Get("/google/callback", h.GoogleCallback)
 	authGroup.Post("/login", h.Login)
+	authGroup.Post("/login-employee", h.LoginEmployee)
 	authGroup.Post("/register", h.Register)
 	authGroup.Post("/send-verification", h.SendVerificationEmail)
 	authGroup.Post("/verify-email", h.VerifyEmail)
@@ -162,6 +163,35 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	}
 
 	res, err := h.authUsecase.Login(c, &req)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
+}
+
+// @Tags Auth
+// @Summary Login Employee
+// @Description Authenticate employee with email and password
+// @Accept json
+// @Produce json
+// @Param request body contract.LoginEmployeeReq true "Login employee request"
+// @Success 200 {object} util.BaseResponse{data=contract.LoginEmployeeRes}
+// @Failure 401 {object} util.BaseResponse
+// @Router /auth/login-employee [post]
+func (h *AuthHandler) LoginEmployee(c *fiber.Ctx) error {
+	var req contract.LoginEmployeeReq
+	if err := c.BodyParser(&req); err != nil {
+		logger.Log.Warn("Failed to parse request body", zap.Error(err))
+		return err
+	}
+
+	if err := util.ValidateStruct(&req); err != nil {
+		logger.Log.Warn("Validation error", zap.Error(err))
+		return err
+	}
+
+	res, err := h.authUsecase.LoginEmployee(c, &req)
 	if err != nil {
 		return err
 	}

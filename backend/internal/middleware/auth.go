@@ -11,22 +11,16 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserRole struct {
-	Role       config.UserRole `json:"role"`
-	BusinessID *string         `json:"business_id"`
-}
-
 type Claims struct {
-	ID         string          `json:"id"`
-	Roles      []UserRole      `json:"roles"`
-	Type       string          `json:"type"`
-	Role       config.UserRole `json:"role"`
-	BusinessID *string         `json:"business_id"`
+	ID         string           `json:"id"`
+	Type       config.TokenType `json:"type"`
+	Role       config.JwtRole   `json:"role"`
+	BusinessID *string          `json:"business_id"`
 }
 
 func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// Extract token from Authorization header
+		// Extract token from cookie
 		token := extractToken(c)
 		if token == "" {
 			logger.Log.Warn("Token not found")
@@ -40,39 +34,28 @@ func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 			return fiber.NewError(fiber.StatusUnauthorized, "Please authenticate")
 		}
 
+		if config.TokenType(jwtClaims.Type) != config.TokenTypeAccess {
+			logger.Log.Warn("Invalid token type")
+			return fiber.NewError(fiber.StatusUnauthorized, "Please authenticate")
+		}
+
 		claims := Claims{
 			ID:   jwtClaims.ID,
-			Type: jwtClaims.Type,
+			Type: config.TokenType(jwtClaims.Type),
 		}
 
-		// get user from DB with roles
-		user := &model.User{}
-		if err := db.Preload("Roles").First(user, "id = ?", claims.ID).Error; err != nil {
-			logger.Log.Warn("User not found", "error", err, "user_id", claims.ID)
+		// try to get employee or user
+		var employee model.Employee
+		var user model.User
+		if err := db.Preload("Business").First(&employee, "id = ?", jwtClaims.ID).Error; err == nil {
+			claims.BusinessID = &employee.BusinessID
+			claims.Role = config.JwtRole(employee.Role)
+		} else if err := db.Preload("Business").First(&user, "id = ?", jwtClaims.ID).Error; err == nil {
+			claims.BusinessID = user.BusinessID
+			claims.Role = config.JwtRole(user.Role)
+		} else {
+			logger.Log.Warn("User not found", "error", err, "user_id", jwtClaims.ID)
 			return fiber.NewError(fiber.StatusUnauthorized, "Please authenticate")
-		}
-
-		// Map model roles to claims roles
-		var userRoles []UserRole
-		for _, r := range user.Roles {
-			userRoles = append(userRoles, UserRole{
-				Role:       r.Role,
-				BusinessID: r.BusinessID,
-			})
-		}
-		claims.Roles = userRoles
-
-		if len(userRoles) == 0 {
-			return fiber.NewError(fiber.StatusUnauthorized, "Please authenticate")
-		}
-
-		// find role with current business id
-		for _, userRole := range userRoles {
-			if userRole.BusinessID != nil && *userRole.BusinessID == jwtClaims.ActiveBusinessID {
-				claims.Role = userRole.Role
-				claims.BusinessID = userRole.BusinessID
-				break
-			}
 		}
 
 		hasPermission := false

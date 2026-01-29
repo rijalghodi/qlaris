@@ -62,6 +62,21 @@ type LoginRes struct {
 	UserRes
 }
 
+type LoginEmployeeReq struct {
+	BusinessCode string `json:"businessCode" validate:"required"`
+	Pin          string `json:"pin" validate:"required"`
+	EmployeeID   string `json:"employeeId" validate:"required"`
+}
+
+type LoginEmployeeRes struct {
+	ID           string   `json:"id"`
+	Name         string   `json:"name"`
+	Role         string   `json:"role"`
+	BusinessID   string   `json:"businessId"`
+	BusinessName string   `json:"businessName"`
+	Image        *FileRes `json:"image"`
+}
+
 type RegisterReq struct {
 	Email    string `json:"email" validate:"required,email,max=50"`
 	Password string `json:"password" validate:"required,min=8,max=50"`

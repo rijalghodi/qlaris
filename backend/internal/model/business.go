@@ -5,6 +5,7 @@ import "time"
 type Business struct {
 	ID            string    `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
 	Name          string    `gorm:"type:text;not null" json:"name"`
+	Code          string    `gorm:"type:text;not null" json:"code"`
 	Address       *string   `gorm:"type:text" json:"address,omitempty"`
 	Logo          *string   `gorm:"type:text" json:"logo,omitempty"`
 	EmployeeCount *int      `gorm:"type:int" json:"employee_count,omitempty"`
