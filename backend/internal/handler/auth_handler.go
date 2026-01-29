@@ -41,6 +41,7 @@ func (h *AuthHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	authGroup.Post("/forgot-password", h.ForgotPassword)
 	authGroup.Post("/reset-password", h.ResetPassword)
 	authGroup.Post("/refresh-token", h.RefreshToken)
+	authGroup.Post("/switch-business", h.SwitchBusiness)
 	authGroup.Post("/logout", h.Logout)
 }
 
@@ -354,6 +355,35 @@ func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
 	res, err := h.authUsecase.RefreshToken(c, &req)
 	if err != nil {
 		logger.Log.Warn("Failed to refresh token: %v", err)
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
+}
+
+// @Tags Auth
+// @Summary Switch business
+// @Description Switch business
+// @Accept json
+// @Produce json
+// @Param request body contract.SwitchBusinessReq true "Switch business request"
+// @Success 200 {object} util.BaseResponse{data=contract.SwitchBusinessRes}
+// @Failure 401 {object} util.BaseResponse
+// @Router /auth/switch-business [post]
+func (h *AuthHandler) SwitchBusiness(c *fiber.Ctx) error {
+	var req contract.SwitchBusinessReq
+	if err := c.BodyParser(&req); err != nil {
+		logger.Log.Warn("Failed to parse request body: %v", err)
+		return err
+	}
+
+	if err := util.ValidateStruct(&req); err != nil {
+		logger.Log.Warn("Validation error: %v", err)
+		return err
+	}
+
+	res, err := h.authUsecase.SwitchBusiness(c, req.BusinessID)
+	if err != nil {
+		logger.Log.Warn("Failed to switch business: %v", err)
 		return err
 	}
 	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))

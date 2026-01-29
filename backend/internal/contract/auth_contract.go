@@ -21,7 +21,7 @@ type RefreshTokenReq struct {
 }
 
 type RefreshTokenRes struct {
-	UserRes
+	TokenRes
 }
 
 type GoogleLoginReq struct {
@@ -87,4 +87,13 @@ type VerifyEmailReq struct {
 
 type VerifyEmailRes struct {
 	UserRes
+}
+
+// === Switch business ===
+type SwitchBusinessReq struct {
+	BusinessID string `json:"businessId" validate:"required"`
+}
+
+type SwitchBusinessRes struct {
+	TokenRes
 }

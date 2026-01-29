@@ -261,7 +261,7 @@ func (h *UserHandler) ListUser(c *fiber.Ctx) error {
 		return err
 	}
 
-	users, total, err := h.userUsecase.ListUsers(claims.BusinessID, queries.Page, queries.PageSize)
+	users, total, err := h.userUsecase.ListUsers(&claims.BusinessID, queries.Page, queries.PageSize)
 	if err != nil {
 		return err
 	}

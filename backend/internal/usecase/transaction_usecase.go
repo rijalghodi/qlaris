@@ -293,12 +293,8 @@ func (u *TransactionUsecase) IsAllowedToAccess(claims middleware.Claims, allowed
 	scope := permission.Scope()
 
 	if scope == config.PERMISSION_SCOPE_ORG {
-		if claims.BusinessID == nil {
-			return fiber.NewError(fiber.StatusNotFound, "Need businessID to access transaction")
-		}
-
 		if transactionID != nil {
-			transaction, err := u.transactionRepo.GetTransactionByIDAndBusinessID(*transactionID, *claims.BusinessID)
+			transaction, err := u.transactionRepo.GetTransactionByIDAndBusinessID(*transactionID, claims.BusinessID)
 			if err != nil {
 				logger.Log.Error("Failed to get transaction", zap.Error(err), zap.String("transactionID", *transactionID))
 				return fiber.NewError(fiber.StatusInternalServerError, "Failed to get transaction")

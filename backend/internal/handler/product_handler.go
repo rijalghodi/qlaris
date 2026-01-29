@@ -58,15 +58,12 @@ func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 	}
 
 	claims := middleware.GetAuthClaims(c)
-	if claims.BusinessID == nil {
-		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
-	}
 
 	if err := h.productUsecase.IsAllowedToAccess(claims, []config.Permission{config.CREATE_PRODUCT_ANY, config.CREATE_PRODUCT_ORG}, nil); err != nil {
 		return err
 	}
 
-	product, err := h.productUsecase.CreateProduct(*claims.BusinessID, &req)
+	product, err := h.productUsecase.CreateProduct(claims.BusinessID, &req)
 	if err != nil {
 		return err
 	}
@@ -165,10 +162,6 @@ func (h *ProductHandler) GetProduct(c *fiber.Ctx) error {
 func (h *ProductHandler) ListProducts(c *fiber.Ctx) error {
 	claims := middleware.GetAuthClaims(c)
 
-	if claims.BusinessID == nil {
-		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
-	}
-
 	queries, err := util.ParsePaginationQueries(c)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -189,7 +182,7 @@ func (h *ProductHandler) ListProducts(c *fiber.Ctx) error {
 		return err
 	}
 
-	products, total, err := h.productUsecase.ListProducts(*claims.BusinessID, queries.Page, queries.PageSize, queries.Search, req.IsActive, req.CategoryID)
+	products, total, err := h.productUsecase.ListProducts(claims.BusinessID, queries.Page, queries.PageSize, queries.Search, req.IsActive, req.CategoryID)
 	if err != nil {
 		return err
 	}

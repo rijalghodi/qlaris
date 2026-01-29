@@ -59,32 +59,32 @@ func (u *UserUsecase) EditCurrentUser(
 	}
 
 	// ---- Business upsert (only if provided) ----
-	if req.BusinessName != nil || req.BusinessAddress != nil {
-		business := user.Business
-		if business == nil {
-			business = &model.Business{}
-		}
+	// if req.BusinessName != nil || req.BusinessAddress != nil {
+	// 	business := user.Business
+	// 	if business == nil {
+	// 		business = &model.Business{}
+	// 	}
 
-		if req.BusinessName != nil {
-			business.Name = *req.BusinessName
-		}
-		if req.BusinessAddress != nil {
-			business.Address = req.BusinessAddress
-		}
+	// 	if req.BusinessName != nil {
+	// 		business.Name = *req.BusinessName
+	// 	}
+	// 	if req.BusinessAddress != nil {
+	// 		business.Address = req.BusinessAddress
+	// 	}
 
-		if business == nil {
-			err = u.businessRepo.CreateBusiness(business)
-		} else {
-			err = u.businessRepo.UpdateBusiness(business)
-		}
-		if err != nil {
-			logger.Log.Error("Upsert business failed", zap.Error(err), zap.String("userID", userID))
-			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to save business")
-		}
+	// 	if business == nil {
+	// 		err = u.businessRepo.CreateBusiness(business)
+	// 	} else {
+	// 		err = u.businessRepo.UpdateBusiness(business)
+	// 	}
+	// 	if err != nil {
+	// 		logger.Log.Error("Upsert business failed", zap.Error(err), zap.String("userID", userID))
+	// 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to save business")
+	// 	}
 
-		user.Business = business
-		user.BusinessID = &business.ID
-	}
+	// 	user.Business = business
+	// 	user.BusinessID = &business.ID
+	// }
 
 	// ---- User update ----
 	if req.Name != nil {
@@ -144,8 +144,12 @@ func (u *UserUsecase) EditPassword(userID string, req *contract.EditPasswordReq,
 	return nil
 }
 
-func BuildUserRes(user model.User, storage *storage.R2Storage) contract.UserRes {
+// TODO: Upsert business
+func (u *UserUsecase) UpsertBusiness(userID string, req *contract.EditBusinessReq) error {
+	return nil
+}
 
+func BuildUserRes(user model.User, storage *storage.R2Storage) contract.UserRes {
 	var image *contract.FileRes
 	if user.Image != nil && storage != nil {
 		imageURL, _ := storage.PresignGet(*user.Image, 0)
@@ -155,11 +159,19 @@ func BuildUserRes(user model.User, storage *storage.R2Storage) contract.UserRes 
 		}
 	}
 
+	roles := []contract.RoleRes{}
+	for _, role := range user.Roles {
+		roles = append(roles, contract.RoleRes{
+			Role:         string(role.Role),
+			BusinessName: role.Business.Name,
+		})
+	}
+
 	userRes := contract.UserRes{
 		ID:          user.ID,
 		Email:       user.Email,
 		Name:        user.Name,
-		Role:        string(user.Role),
+		Roles:       roles,
 		GoogleImage: user.GoogleImage,
 		HasPassword: user.PasswordHash != nil,
 		Image:       image,
@@ -168,15 +180,15 @@ func BuildUserRes(user model.User, storage *storage.R2Storage) contract.UserRes 
 		UpdatedAt:   user.UpdatedAt.Format(time.RFC3339),
 	}
 
-	if user.Business != nil {
-		userRes.BusinessName = &user.Business.Name
-		userRes.BusinessAddress = user.Business.Address
-		if user.Business.Name != "" {
-			userRes.IsDataCompleted = util.ToPointer(true)
-		} else {
-			userRes.IsDataCompleted = util.ToPointer(false)
-		}
-	}
+	// if user.Business != nil {
+	// 	userRes.BusinessName = &user.Business.Name
+	// 	userRes.BusinessAddress = user.Business.Address
+	// 	if user.Business.Name != "" {
+	// 		userRes.IsDataCompleted = util.ToPointer(true)
+	// 	} else {
+	// 		userRes.IsDataCompleted = util.ToPointer(false)
+	// 	}
+	// }
 
 	return userRes
 }
@@ -222,7 +234,7 @@ func (u *UserUsecase) IsAllowedToAccess(claims middleware.Claims, allowedPermiss
 	return nil
 }
 
-func (u *UserUsecase) CreateUser(businessID *string, req *contract.CreateUserReq) (*contract.UserRes, error) {
+func (u *UserUsecase) CreateUser(businessID string, req *contract.CreateUserReq) (*contract.UserRes, error) {
 	// Check if email already exists
 	existingUser, err := u.userRepo.GetUserByEmail(req.Email)
 	if err != nil {
@@ -245,10 +257,10 @@ func (u *UserUsecase) CreateUser(businessID *string, req *contract.CreateUserReq
 		Email:        req.Email,
 		PasswordHash: &hashedPassword,
 		Name:         req.Name,
-		Role:         config.UserRole(req.Role),
-		BusinessID:   businessID,
-		Image:        req.Image,
-		IsVerified:   true,
+		// Role:         config.UserRole(req.Role),
+		// BusinessID:   businessID,
+		Image:      req.Image,
+		IsVerified: true,
 	}
 
 	// Handle business if provided

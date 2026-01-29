@@ -8,9 +8,9 @@ import (
 )
 
 type JWTClaims struct {
-	ID   string `json:"sub"`
-	Role string `json:"role"`
-	Type string `json:"type"`
+	ID               string `json:"sub"`
+	Type             string `json:"type"`
+	ActiveBusinessID string `json:"active_business_id"`
 }
 
 func VerifyToken(tokenStr, secret string) (JWTClaims, error) {
@@ -32,18 +32,18 @@ func VerifyToken(tokenStr, secret string) (JWTClaims, error) {
 		return JWTClaims{}, errors.New("invalid token sub")
 	}
 
-	role, _ := claims["role"].(string)
+	activeBusinessID, _ := claims["active_business_id"].(string)
 	tokenType, _ := claims["type"].(string)
 
-	return JWTClaims{ID: id, Role: role, Type: tokenType}, nil
+	return JWTClaims{ID: id, ActiveBusinessID: activeBusinessID, Type: tokenType}, nil
 }
 
-func GenerateToken(userID, role, tokenType, secret string, expiresAt time.Time) (string, error) {
+func GenerateToken(userID, activeBusinessID, tokenType, secret string, expiresAt time.Time) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub":  userID,
-		"role": role,
-		"type": tokenType,
-		"exp":  expiresAt.Unix(),
+		"sub":                userID,
+		"active_business_id": activeBusinessID,
+		"type":               tokenType,
+		"exp":                expiresAt.Unix(),
 	})
 	return token.SignedString([]byte(secret))
 }

@@ -24,6 +24,7 @@ import { useEditCurrentUser, type UserRes } from "@/services/api-user";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  email: z.string().optional(),
   businessName: z.string().optional(),
   businessAddress: z.string().optional(),
   image: z.string().optional(),
@@ -45,6 +46,7 @@ export function EditProfileCard({ user }: { user: UserRes }) {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: user.name || "",
+      email: user.email || "",
       businessName: user.businessName || "",
       businessAddress: user.businessAddress || "",
       image: user.image?.key || "",
@@ -85,6 +87,19 @@ export function EditProfileCard({ user }: { user: UserRes }) {
                   <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Your Name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Your Email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

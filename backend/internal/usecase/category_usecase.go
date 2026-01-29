@@ -152,12 +152,8 @@ func (u *CategoryUsecase) IsAllowedToAccess(claims middleware.Claims, allowedPer
 	scope := permission.Scope()
 
 	if scope == config.PERMISSION_SCOPE_ORG {
-		if claims.BusinessID == nil {
-			return fiber.NewError(fiber.StatusNotFound, "Need businessID to access category")
-		}
-
 		if categoryID != nil {
-			category, err := u.categoryRepo.GetCategoryByIDAndBusinessID(*categoryID, *claims.BusinessID)
+			category, err := u.categoryRepo.GetCategoryByIDAndBusinessID(*categoryID, claims.BusinessID)
 			if err != nil {
 				logger.Log.Error("Failed to get category", zap.Error(err), zap.String("categoryID", *categoryID))
 				return fiber.NewError(fiber.StatusInternalServerError, "Failed to get category")

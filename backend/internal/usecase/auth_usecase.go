@@ -45,9 +45,16 @@ func (u *AuthUsecase) LoginGoogleUser(c *fiber.Ctx, req *contract.GoogleLoginReq
 		user := &model.User{
 			Name:        req.Name,
 			Email:       req.Email,
-			Role:        config.USER_ROLE_OWNER,
 			IsVerified:  req.VerifiedEmail,
 			GoogleImage: googleImage,
+			Roles: []model.UserRole{
+				{
+					Role: config.USER_ROLE_OWNER,
+					Business: model.Business{
+						Name: req.Name,
+					},
+				},
+			},
 		}
 
 		if err := u.userRepo.CreateUser(user); err != nil {
@@ -55,7 +62,28 @@ func (u *AuthUsecase) LoginGoogleUser(c *fiber.Ctx, req *contract.GoogleLoginReq
 			return nil, err
 		}
 
-		tokens, err := u.tokenUsecase.GenerateTokenPair(user.ID)
+		// // create business for user
+		// business := &model.Business{
+		// 	ID:   uuid.New().String(),
+		// 	Name: req.Name,
+		// }
+		// if err := u.businessRepo.CreateBusiness(business); err != nil {
+		// 	logger.Log.Errorf("Failed to create business: %+v", err)
+		// 	return nil, err
+		// }
+
+		// // create user role for user
+		// userRole := &model.UserRole{
+		// 	UserID:       user.ID,
+		// 	BusinessID: business.ID,
+		// 	Role:         config.USER_ROLE_OWNER,
+		// }
+		// if err := u.userRepo.CreateUserRole(userRole); err != nil {
+		// 	logger.Log.Errorf("Failed to create user role: %+v", err)
+		// 	return nil, err
+		// }
+
+		tokens, err := u.tokenUsecase.GenerateTokenPair(user.ID, "")
 		if err != nil {
 			logger.Log.Error("Failed to generate token pair", zap.Error(err), zap.String("userID", user.ID))
 			return nil, err
@@ -78,7 +106,7 @@ func (u *AuthUsecase) LoginGoogleUser(c *fiber.Ctx, req *contract.GoogleLoginReq
 		return nil, err
 	}
 
-	tokens, err := u.tokenUsecase.GenerateTokenPair(userFromDB.ID)
+	tokens, err := u.tokenUsecase.GenerateTokenPair(userFromDB.ID, "")
 	if err != nil {
 		logger.Log.Error("Failed to generate token pair", zap.Error(err), zap.String("userID", userFromDB.ID))
 		return nil, err
@@ -126,7 +154,7 @@ func (u *AuthUsecase) Login(c *fiber.Ctx, req *contract.LoginReq) (*contract.Log
 		return nil, fiber.NewError(fiber.StatusUnauthorized, "Invalid email or password")
 	}
 
-	tokens, err := u.generateTokenPair(user.ID, string(user.Role))
+	tokens, err := u.generateTokenPair(user.ID, string(user.Roles[0].BusinessID))
 	if err != nil {
 		logger.Log.Error("Failed to generate token pair", zap.Error(err), zap.String("userID", user.ID))
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
@@ -165,7 +193,14 @@ func (u *AuthUsecase) Register(req *contract.RegisterReq) (*contract.RegisterRes
 		Email:        req.Email,
 		PasswordHash: &hashedPassword,
 		IsVerified:   false,
-		Role:         config.USER_ROLE_OWNER,
+		Roles: []model.UserRole{
+			{
+				Role: config.USER_ROLE_OWNER,
+				Business: model.Business{
+					ID: uuid.New().String(),
+				},
+			},
+		},
 	}
 
 	if err := u.userRepo.CreateUser(newUser); err != nil {
@@ -215,7 +250,7 @@ func (u *AuthUsecase) SendVerificationEmail(email string) (*contract.SendVerific
 		}
 	}
 
-	verifyToken, err := u.generateVerificationToken(user.ID, string(user.Role))
+	verifyToken, err := u.generateVerificationToken(user.ID)
 	if err != nil {
 		logger.Log.Error("Failed to generate verification token", zap.Error(err), zap.String("userID", user.ID))
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
@@ -269,7 +304,7 @@ func (u *AuthUsecase) VerifyEmail(c *fiber.Ctx, token string) (*contract.VerifyE
 	}
 
 	// add token to response
-	tokens, err := u.generateTokenPair(user.ID, string(user.Role))
+	tokens, err := u.generateTokenPair(user.ID, string(user.Roles[0].BusinessID))
 	if err != nil {
 		logger.Log.Error("Failed to generate token pair", zap.Error(err), zap.String("userID", user.ID))
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
@@ -308,7 +343,7 @@ func (u *AuthUsecase) ForgotPassword(req *contract.ForgotPasswordReq) (*contract
 		}
 	}
 
-	resetToken, err := u.generateResetPasswordToken(user.ID, string(user.Role))
+	resetToken, err := u.generateResetPasswordToken(user.ID)
 	if err != nil {
 		logger.Log.Error("Failed to generate reset password token", zap.Error(err), zap.String("userID", user.ID))
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
@@ -381,51 +416,58 @@ func (u *AuthUsecase) RefreshToken(c *fiber.Ctx, req *contract.RefreshTokenReq) 
 		return nil, fiber.NewError(fiber.StatusUnauthorized, "Invalid token type")
 	}
 
-	user, err := u.userRepo.GetUserByID(claims.ID)
+	// user, err := u.userRepo.GetUserByID(claims.ID)
+	// if err != nil {
+	// 	logger.Log.Error("Failed to get user by ID", zap.Error(err), zap.String("userID", claims.ID))
+	// 	return nil, fiber.NewError(fiber.StatusInternalServerError)
+	// }
+
+	// if user == nil {
+	// 	logger.Log.Warn("User not found for token refresh", zap.String("userID", claims.ID))
+	// 	return nil, fiber.NewError(fiber.StatusNotFound, "User not found")
+	// }
+
+	tokens, err := u.generateTokenPair(claims.ID, string(claims.ActiveBusinessID))
 	if err != nil {
-		logger.Log.Error("Failed to get user by ID", zap.Error(err), zap.String("userID", claims.ID))
+		logger.Log.Error("Failed to generate token pair", zap.Error(err), zap.String("userID", claims.ID))
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	if user == nil {
-		logger.Log.Warn("User not found for token refresh", zap.String("userID", claims.ID))
-		return nil, fiber.NewError(fiber.StatusNotFound, "User not found")
-	}
-
-	tokens, err := u.generateTokenPair(user.ID, string(user.Role))
-	if err != nil {
-		logger.Log.Error("Failed to generate token pair", zap.Error(err), zap.String("userID", user.ID))
+	if tokens == nil {
+		logger.Log.Error("Failed to generate token pair", zap.Error(err), zap.String("userID", claims.ID))
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
 	SetAuthCookies(c, tokens)
 
-	userRes := BuildUserRes(util.ToValue(user), u.storage)
-
 	return &contract.RefreshTokenRes{
-		UserRes: userRes,
+		TokenRes: *tokens,
 	}, nil
 }
 
-func (u *AuthUsecase) GetUserByID(id string) (*contract.UserRes, error) {
-	user, err := u.userRepo.GetUserByID(id)
-	if err != nil {
-		logger.Log.Error("Failed to get user by ID", zap.Error(err), zap.String("userID", id))
-		return nil, fiber.NewError(fiber.StatusInternalServerError)
-	}
+func (u *AuthUsecase) SwitchBusiness(c *fiber.Ctx, businessID string) (*contract.TokenRes, error) {
+	// TODO: check if business exisit
 
-	return util.ToPointer(BuildUserRes(util.ToValue(user), u.storage)), nil
+	// TODO: check if user is member of business
+
+	// TODO: generate new token pair
+
+	// TODO: set new cookies
+
+	// TODO: return new token pair
+
+	return nil, nil
 }
 
-func (u *AuthUsecase) generateTokenPair(userID, role string) (*contract.TokenRes, error) {
+func (u *AuthUsecase) generateTokenPair(userID, businessID string) (*contract.TokenRes, error) {
 	accessExpiresAt := time.Now().Add(config.JWT_ACCESS_TTL)
-	accessToken, err := util.GenerateToken(userID, role, config.TokenTypeAccess, config.Env.JWT.Secret, accessExpiresAt)
+	accessToken, err := util.GenerateToken(userID, businessID, config.TokenTypeAccess, config.Env.JWT.Secret, accessExpiresAt)
 	if err != nil {
 		return nil, err
 	}
 
 	refreshExpiresAt := time.Now().Add(config.JWT_REFRESH_TTL)
-	refreshToken, err := util.GenerateToken(userID, role, config.TokenTypeRefresh, config.Env.JWT.Secret, refreshExpiresAt)
+	refreshToken, err := util.GenerateToken(userID, businessID, config.TokenTypeRefresh, config.Env.JWT.Secret, refreshExpiresAt)
 	if err != nil {
 		return nil, err
 	}
@@ -438,14 +480,14 @@ func (u *AuthUsecase) generateTokenPair(userID, role string) (*contract.TokenRes
 	}, nil
 }
 
-func (u *AuthUsecase) generateVerificationToken(userID, role string) (string, error) {
+func (u *AuthUsecase) generateVerificationToken(userID string) (string, error) {
 	expiresAt := time.Now().Add(config.REQUEST_VERIFICATION_TTL)
-	return util.GenerateToken(userID, role, config.TokenTypeVerifyEmail, config.Env.JWT.Secret, expiresAt)
+	return util.GenerateToken(userID, "", config.TokenTypeVerifyEmail, config.Env.JWT.Secret, expiresAt)
 }
 
-func (u *AuthUsecase) generateResetPasswordToken(userID, role string) (string, error) {
+func (u *AuthUsecase) generateResetPasswordToken(userID string) (string, error) {
 	expiresAt := time.Now().Add(config.REQUEST_RESET_PASSWORD_TTL)
-	return util.GenerateToken(userID, role, config.TokenTypeResetPassword, config.Env.JWT.Secret, expiresAt)
+	return util.GenerateToken(userID, "", config.TokenTypeResetPassword, config.Env.JWT.Secret, expiresAt)
 }
 
 func nextRequestAt(lastRequestAt *time.Time, ttlDuration time.Duration) *string {
