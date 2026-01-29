@@ -15,7 +15,7 @@ CREATE TABLE employees (
 
 ALTER TABLE businesses
 ADD COLUMN logo TEXT,
-ADD COLUMN employee_count SMALLINT NOT NULL DEFAULT 0 CHECK (employee_count >= 0),
+ADD COLUMN employee_count SMALLINT DEFAULT 0 CHECK (employee_count >= 0),
 ADD COLUMN category VARCHAR(32) CHECK (
   category IN (
     'cafe',
@@ -35,6 +35,11 @@ ADD COLUMN category VARCHAR(32) CHECK (
 ),
 ADD COLUMN code VARCHAR(16) NOT NULL UNIQUE
   DEFAULT upper(substr(gen_random_uuid()::text, 1, 6));
+
+-- seed the company code
+UPDATE businesses 
+SET code = upper(substr(gen_random_uuid()::text, 1, 6))
+WHERE code IS NULL;
 
 -- +migrate Down
 
