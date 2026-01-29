@@ -13,7 +13,7 @@ import (
 
 type UserRole struct {
 	Role       config.UserRole `json:"role"`
-	BusinessID string          `json:"business_id"`
+	BusinessID *string         `json:"business_id"`
 }
 
 type Claims struct {
@@ -21,7 +21,7 @@ type Claims struct {
 	Roles      []UserRole      `json:"roles"`
 	Type       string          `json:"type"`
 	Role       config.UserRole `json:"role"`
-	BusinessID string          `json:"business_id"`
+	BusinessID *string         `json:"business_id"`
 }
 
 func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
@@ -68,7 +68,7 @@ func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 
 		// find role with current business id
 		for _, userRole := range userRoles {
-			if userRole.BusinessID == jwtClaims.ActiveBusinessID {
+			if userRole.BusinessID != nil && *userRole.BusinessID == jwtClaims.ActiveBusinessID {
 				claims.Role = userRole.Role
 				claims.BusinessID = userRole.BusinessID
 				break
@@ -76,12 +76,12 @@ func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 		}
 
 		hasPermission := false
-		if slices.Contains(roles, string(claims.Role)) {
+		if len(roles) == 0 || slices.Contains(roles, string(claims.Role)) {
 			hasPermission = true
 		}
 
 		if !hasPermission {
-			logger.Log.Warn("Role not allowed", "roles:", claims.Roles, "allowed_roles:", roles)
+			logger.Log.Warn("Role not allowed", "role:", claims.Role, "allowed_roles:", roles)
 			return fiber.NewError(fiber.StatusForbidden, "You are not authorized to access this resource")
 		}
 

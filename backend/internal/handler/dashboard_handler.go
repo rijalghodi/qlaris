@@ -38,7 +38,7 @@ func (h *DashboardHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 func (h *DashboardHandler) GetDashboardSummary(c *fiber.Ctx) error {
 	claims := middleware.GetAuthClaims(c)
 
-	summary, err := h.dashboardUsecase.GetDashboardSummary(claims.BusinessID)
+	summary, err := h.dashboardUsecase.GetDashboardSummary(*claims.BusinessID)
 	if err != nil {
 		return err
 	}

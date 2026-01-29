@@ -19,5 +19,5 @@ type User struct {
 	DeletedAt              *time.Time `gorm:"index" json:"deleted_at,omitempty"`
 
 	// Relations
-	Roles []UserRole `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"-"`
+	Roles []Role `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"-"`
 }

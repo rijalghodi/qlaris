@@ -1,5 +1,23 @@
 package contract
 
+// type UserAuthRes struct {
+// 	ID              string    `json:"id"`
+// 	Email           string    `json:"email"`
+// 	Name            string    `json:"name"`
+// 	Role            string    `json:"role,omitempty"`
+// 	BusinessID      string    `json:"businessId,omitempty"`
+// 	Roles           []RoleRes `json:"roles,omitempty"`
+// 	GoogleImage     *string   `json:"googleImage"`
+// 	Image           *FileRes  `json:"image"`
+// 	IsVerified      bool      `json:"isVerified"`
+// 	HasPassword     bool      `json:"hasPassword"`
+// 	BusinessName    *string   `json:"businessName,omitempty"`
+// 	BusinessAddress *string   `json:"businessAddress,omitempty"`
+// 	IsDataCompleted *bool     `json:"isDataCompleted,omitempty"`
+// 	CreatedAt       string    `json:"createdAt"`
+// 	UpdatedAt       string    `json:"updatedAt"`
+// }
+
 type TokenRes struct {
 	AccessToken           string `json:"accessToken"`
 	AccessTokenExpiresAt  string `json:"accessTokenExpiresAt"`
@@ -32,7 +50,6 @@ type GoogleLoginReq struct {
 }
 
 type GoogleLoginRes struct {
-	TokenRes
 	UserRes
 }
 

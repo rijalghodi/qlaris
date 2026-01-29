@@ -175,7 +175,7 @@ func (u *ProductUsecase) IsAllowedToAccess(claims middleware.Claims, allowedPerm
 
 	if scope == config.PERMISSION_SCOPE_ORG {
 		if productID != nil {
-			product, err := u.productRepo.GetProductByIDAndBusinessID(*productID, claims.BusinessID)
+			product, err := u.productRepo.GetProductByIDAndBusinessID(*productID, *claims.BusinessID)
 			if err != nil {
 				logger.Log.Error("Failed to get product", zap.Error(err), zap.String("productID", *productID))
 				return fiber.NewError(fiber.StatusInternalServerError, "Failed to get product")

@@ -38,10 +38,10 @@ func VerifyToken(tokenStr, secret string) (JWTClaims, error) {
 	return JWTClaims{ID: id, ActiveBusinessID: activeBusinessID, Type: tokenType}, nil
 }
 
-func GenerateToken(userID, activeBusinessID, tokenType, secret string, expiresAt time.Time) (string, error) {
+func GenerateToken(userID string, activeBusinessID *string, tokenType, secret string, expiresAt time.Time) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub":                userID,
-		"active_business_id": activeBusinessID,
+		"active_business_id": ToValue(activeBusinessID),
 		"type":               tokenType,
 		"exp":                expiresAt.Unix(),
 	})

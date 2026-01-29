@@ -62,7 +62,7 @@ func (h *TransactionHandler) CreateTransaction(c *fiber.Ctx) error {
 		return err
 	}
 
-	transaction, err := h.transactionUsecase.CreateTransaction(claims.ID, claims.BusinessID, &req)
+	transaction, err := h.transactionUsecase.CreateTransaction(claims.ID, *claims.BusinessID, &req)
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func (h *TransactionHandler) ListTransactions(c *fiber.Ctx) error {
 		return err
 	}
 
-	transactions, total, err := h.transactionUsecase.ListTransactions(claims.BusinessID, queries.Page, queries.PageSize, queries.Search)
+	transactions, total, err := h.transactionUsecase.ListTransactions(*claims.BusinessID, queries.Page, queries.PageSize, queries.Search)
 	if err != nil {
 		return err
 	}
@@ -171,7 +171,7 @@ func (h *TransactionHandler) UpdateTransaction(c *fiber.Ctx) error {
 		return err
 	}
 
-	transaction, err := h.transactionUsecase.UpdateTransaction(claims.ID, claims.BusinessID, transactionID, &req)
+	transaction, err := h.transactionUsecase.UpdateTransaction(claims.ID, *claims.BusinessID, transactionID, &req)
 	if err != nil {
 		return err
 	}
@@ -216,7 +216,7 @@ func (h *TransactionHandler) PayTransaction(c *fiber.Ctx) error {
 		return err
 	}
 
-	transaction, err := h.transactionUsecase.PayTransaction(claims.ID, claims.BusinessID, transactionID, &req)
+	transaction, err := h.transactionUsecase.PayTransaction(claims.ID, *claims.BusinessID, transactionID, &req)
 	if err != nil {
 		return err
 	}

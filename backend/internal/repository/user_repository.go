@@ -76,7 +76,7 @@ func (r *UserRepository) CreateUser(user *model.User) error {
 	return r.db.Create(user).Error
 }
 
-func (r *UserRepository) CreateUserRole(userRole *model.UserRole) error {
+func (r *UserRepository) CreateUserRole(userRole *model.Role) error {
 	return r.db.Create(userRole).Error
 }
 
@@ -88,15 +88,15 @@ func (r *UserRepository) UpdateUserPassword(userID, hashedPassword string) error
 	return r.db.Model(&model.User{}).Where("id = ?", userID).Update("password_hash", hashedPassword).Error
 }
 
-func (r *UserRepository) ListUsers(businessID *string, page, pageSize int) ([]*model.User, int64, error) {
+func (r *UserRepository) ListUsers(businessID string, page, pageSize int) ([]*model.User, int64, error) {
 	var users []*model.User
 	var total int64
 
 	query := r.db.Model(&model.User{}).Preload("Roles.Business")
 
-	if businessID != nil {
+	if businessID != "" {
 		query = query.Joins("JOIN user_roles ON user_roles.user_id = users.id").
-			Where("user_roles.business_id = ?", *businessID)
+			Where("user_roles.business_id = ?", businessID)
 	}
 
 	if err := query.Count(&total).Error; err != nil {

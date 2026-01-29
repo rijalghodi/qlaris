@@ -29,7 +29,8 @@ func NewUserUsecase(userRepo *repository.UserRepository, businessRepo *repositor
 	}
 }
 
-func (u *UserUsecase) GetCurrentUser(userID string) (*contract.UserRes, error) {
+// ===== CURRENT USER =====
+func (u *UserUsecase) GetCurrentUser(userID string, businessID *string) (*contract.UserRes, error) {
 	user, err := u.userRepo.GetUserByID(userID)
 	if err != nil {
 		logger.Log.Error("Failed to get user by ID", zap.Error(err), zap.String("userID", userID))
@@ -41,12 +42,11 @@ func (u *UserUsecase) GetCurrentUser(userID string) (*contract.UserRes, error) {
 		return nil, fiber.NewError(fiber.StatusNotFound, "User not found")
 	}
 
-	return util.ToPointer(BuildUserRes(*user, u.storage)), nil
+	return util.ToPointer(BuildUserRes(*user, u.storage, businessID)), nil
 }
 
 func (u *UserUsecase) EditCurrentUser(
 	userID string,
-	businessID string,
 	req *contract.EditCurrentUserReq,
 ) (*contract.UserRes, error) {
 
@@ -57,17 +57,6 @@ func (u *UserUsecase) EditCurrentUser(
 	}
 	if user == nil {
 		return nil, fiber.NewError(fiber.StatusNotFound, "User not found")
-	}
-
-	// ---- Business upsert (only if provided) ----
-	if req.BusinessName != nil || req.BusinessAddress != nil {
-		businessReq := &contract.EditBusinessReq{
-			Name:    req.BusinessName,
-			Address: req.BusinessAddress,
-		}
-		if err := u.UpsertBusiness(userID, businessID, businessReq); err != nil {
-			return nil, err
-		}
 	}
 
 	// ---- User update ----
@@ -83,9 +72,10 @@ func (u *UserUsecase) EditCurrentUser(
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to update user")
 	}
 
-	return util.ToPointer(BuildUserRes(*user, u.storage)), nil
+	return util.ToPointer(BuildUserRes(*user, u.storage, nil)), nil
 }
 
+// ===== PASSWORD =====
 func (u *UserUsecase) EditPassword(userID string, req *contract.EditPasswordReq, needCurrentPassword bool) error {
 	// Get current user
 	user, err := u.userRepo.GetUserByID(userID)
@@ -128,7 +118,7 @@ func (u *UserUsecase) EditPassword(userID string, req *contract.EditPasswordReq,
 	return nil
 }
 
-// Upsert business
+// === EDIT BUSINESS ===
 func (u *UserUsecase) UpsertBusiness(userID string, businessID string, req *contract.EditBusinessReq) error {
 	user, err := u.userRepo.GetUserByID(userID)
 	if err != nil {
@@ -140,32 +130,10 @@ func (u *UserUsecase) UpsertBusiness(userID string, businessID string, req *cont
 
 	var business *model.Business
 
-	// If businessID provided, user wants to update existing business
-	if businessID != "" {
-		// Check permission: User must be OWNER of this business
-		isOwner := false
-		for _, r := range user.Roles {
-			if r.BusinessID == businessID && r.Role == config.USER_ROLE_OWNER {
-				isOwner = true
-				break
-			}
-		}
-
-		if !isOwner {
-			return fiber.NewError(fiber.StatusForbidden, "You don't have permission to update this business")
-		}
-
-		b, err := u.businessRepo.GetBusinessByID(businessID)
-		if err != nil {
-			return err
-		}
-		if b == nil {
-			return fiber.NewError(fiber.StatusNotFound, "Business not found")
-		}
-		business = b
-	} else {
-		// Create new business
-		business = &model.Business{}
+	// Get business by businessID
+	business, err = u.businessRepo.GetBusinessByID(businessID)
+	if err != nil {
+		return err
 	}
 
 	if req.Name != nil {
@@ -175,15 +143,15 @@ func (u *UserUsecase) UpsertBusiness(userID string, businessID string, req *cont
 		business.Address = req.Address
 	}
 
-	if business.ID == "" {
+	if business == nil {
 		if err := u.businessRepo.CreateBusiness(business); err != nil {
 			return err
 		}
 
 		// Link as owner since it's a new business
-		role := &model.UserRole{
+		role := &model.Role{
 			UserID:     userID,
-			BusinessID: business.ID,
+			BusinessID: util.ToPointer(business.ID),
 			Role:       config.USER_ROLE_OWNER,
 		}
 		if err := u.userRepo.CreateUserRole(role); err != nil {
@@ -198,6 +166,7 @@ func (u *UserUsecase) UpsertBusiness(userID string, businessID string, req *cont
 	return nil
 }
 
+// === USERS ===
 func (u *UserUsecase) CreateUser(businessID string, req *contract.CreateUserReq) (*contract.UserRes, error) {
 	// Check if email already exists
 	existingUser, err := u.userRepo.GetUserByEmail(req.Email)
@@ -231,9 +200,9 @@ func (u *UserUsecase) CreateUser(businessID string, req *contract.CreateUserReq)
 	}
 
 	// Create Role
-	userRole := &model.UserRole{
+	userRole := &model.Role{
 		UserID:     user.ID,
-		BusinessID: businessID,
+		BusinessID: util.ToPointer(businessID),
 		Role:       config.UserRole(req.Role),
 	}
 	if err := u.userRepo.CreateUserRole(userRole); err != nil {
@@ -242,7 +211,7 @@ func (u *UserUsecase) CreateUser(businessID string, req *contract.CreateUserReq)
 	// Reload user with roles
 	user, _ = u.userRepo.GetUserByID(user.ID)
 
-	return util.ToPointer(BuildUserRes(*user, u.storage)), nil
+	return util.ToPointer(BuildUserRes(*user, u.storage, nil)), nil
 }
 
 func (u *UserUsecase) UpdateUser(userID string, businessID string, req *contract.UpdateUserReq) (*contract.UserRes, error) {
@@ -270,11 +239,11 @@ func (u *UserUsecase) UpdateUser(userID string, businessID string, req *contract
 	}
 
 	// Update Role if provided
-	if req.Role != nil && businessID != "" {
+	if req.Role != nil {
 		// Find role for this business
-		var userRole *model.UserRole
+		var userRole *model.Role
 		for _, r := range user.Roles {
-			if r.BusinessID == businessID {
+			if util.ToValue(r.BusinessID) == businessID {
 				userRole = &r
 				break
 			}
@@ -283,7 +252,7 @@ func (u *UserUsecase) UpdateUser(userID string, businessID string, req *contract
 		if userRole != nil {
 			exists := false
 			for _, r := range user.Roles {
-				if r.BusinessID == businessID && string(r.Role) == *req.Role {
+				if util.ToValue(r.BusinessID) == businessID && string(r.Role) == *req.Role {
 					exists = true
 					break
 				}
@@ -291,9 +260,9 @@ func (u *UserUsecase) UpdateUser(userID string, businessID string, req *contract
 
 			if !exists {
 				// Create new role
-				newRole := &model.UserRole{
+				newRole := &model.Role{
 					UserID:     userID,
-					BusinessID: businessID,
+					BusinessID: util.ToPointer(businessID),
 					Role:       config.UserRole(*req.Role),
 				}
 				if err := u.userRepo.CreateUserRole(newRole); err != nil {
@@ -302,9 +271,9 @@ func (u *UserUsecase) UpdateUser(userID string, businessID string, req *contract
 			}
 		} else {
 			// Create new role assignment
-			newRole := &model.UserRole{
+			newRole := &model.Role{
 				UserID:     userID,
-				BusinessID: businessID,
+				BusinessID: util.ToPointer(businessID),
 				Role:       config.UserRole(*req.Role),
 			}
 			if err := u.userRepo.CreateUserRole(newRole); err != nil {
@@ -313,7 +282,7 @@ func (u *UserUsecase) UpdateUser(userID string, businessID string, req *contract
 		}
 	}
 
-	return util.ToPointer(BuildUserRes(*user, u.storage)), nil
+	return util.ToPointer(BuildUserRes(*user, u.storage, nil)), nil
 }
 
 func (u *UserUsecase) GetUser(userID string) (*contract.UserRes, error) {
@@ -327,10 +296,10 @@ func (u *UserUsecase) GetUser(userID string) (*contract.UserRes, error) {
 		return nil, fiber.NewError(fiber.StatusNotFound, "User not found")
 	}
 
-	return util.ToPointer(BuildUserRes(*user, u.storage)), nil
+	return util.ToPointer(BuildUserRes(*user, u.storage, nil)), nil
 }
 
-func (u *UserUsecase) ListUsers(businessID *string, page, pageSize int) ([]contract.UserRes, int64, error) {
+func (u *UserUsecase) ListUsers(businessID string, page, pageSize int) ([]contract.UserRes, int64, error) {
 	users, total, err := u.userRepo.ListUsers(businessID, page, pageSize)
 	if err != nil {
 		logger.Log.Error("Failed to list users", zap.Error(err))
@@ -339,7 +308,7 @@ func (u *UserUsecase) ListUsers(businessID *string, page, pageSize int) ([]contr
 
 	userResList := make([]contract.UserRes, 0, len(users))
 	for _, user := range users {
-		userResList = append(userResList, BuildUserRes(*user, u.storage))
+		userResList = append(userResList, BuildUserRes(*user, u.storage, nil))
 	}
 
 	return userResList, total, nil
@@ -364,12 +333,12 @@ func (u *UserUsecase) IsAllowedToAccess(claims middleware.Claims, allowedPermiss
 	scope := permission.Scope()
 
 	if scope == config.PERMISSION_SCOPE_ORG {
-		if claims.BusinessID == "" {
+		if claims.BusinessID == nil {
 			return fiber.NewError(fiber.StatusNotFound, "Need businessID to access user")
 		}
 
 		if targetUserID != nil {
-			user, err := u.userRepo.GetUserByIDAndBusinessID(*targetUserID, claims.BusinessID)
+			user, err := u.userRepo.GetUserByIDAndBusinessID(*targetUserID, *claims.BusinessID)
 			if err != nil {
 				logger.Log.Error("Failed to get user", zap.Error(err), zap.String("userID", *targetUserID))
 				return fiber.NewError(fiber.StatusInternalServerError, "Failed to get user")
@@ -383,7 +352,7 @@ func (u *UserUsecase) IsAllowedToAccess(claims middleware.Claims, allowedPermiss
 			// Verify user belongs to business
 			belongs := false
 			for _, r := range user.Roles {
-				if r.BusinessID == claims.BusinessID {
+				if util.ToValue(r.BusinessID) == *claims.BusinessID {
 					belongs = true
 					break
 				}
@@ -407,7 +376,7 @@ func (u *UserUsecase) IsAllowedToAccess(claims middleware.Claims, allowedPermiss
 	return nil
 }
 
-func BuildUserRes(user model.User, storage *storage.R2Storage) contract.UserRes {
+func BuildUserRes(user model.User, storage *storage.R2Storage, activeBusinessID *string) contract.UserRes {
 	var image *contract.FileRes
 	if user.Image != nil && storage != nil {
 		imageURL, _ := storage.PresignGet(*user.Image, 0)
@@ -417,18 +386,31 @@ func BuildUserRes(user model.User, storage *storage.R2Storage) contract.UserRes 
 		}
 	}
 
+	var activeRole *contract.RoleRes
 	roles := []contract.RoleRes{}
 	for _, role := range user.Roles {
+		// append roles
 		roles = append(roles, contract.RoleRes{
 			Role:         string(role.Role),
 			BusinessName: role.Business.Name,
+			BusinessID:   util.ToValue(role.BusinessID),
 		})
+
+		// set active role
+		if activeBusinessID != nil && *activeBusinessID == util.ToValue(role.BusinessID) {
+			activeRole = &contract.RoleRes{
+				Role:         string(role.Role),
+				BusinessName: role.Business.Name,
+				BusinessID:   util.ToValue(role.BusinessID),
+			}
+		}
 	}
 
 	userRes := contract.UserRes{
 		ID:          user.ID,
 		Email:       user.Email,
 		Name:        user.Name,
+		ActiveRole:  activeRole,
 		Roles:       roles,
 		GoogleImage: user.GoogleImage,
 		HasPassword: user.PasswordHash != nil,

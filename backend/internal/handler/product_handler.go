@@ -63,7 +63,7 @@ func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 		return err
 	}
 
-	product, err := h.productUsecase.CreateProduct(claims.BusinessID, &req)
+	product, err := h.productUsecase.CreateProduct(*claims.BusinessID, &req)
 	if err != nil {
 		return err
 	}
@@ -182,7 +182,7 @@ func (h *ProductHandler) ListProducts(c *fiber.Ctx) error {
 		return err
 	}
 
-	products, total, err := h.productUsecase.ListProducts(claims.BusinessID, queries.Page, queries.PageSize, queries.Search, req.IsActive, req.CategoryID)
+	products, total, err := h.productUsecase.ListProducts(*claims.BusinessID, queries.Page, queries.PageSize, queries.Search, req.IsActive, req.CategoryID)
 	if err != nil {
 		return err
 	}

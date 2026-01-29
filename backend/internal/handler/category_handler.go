@@ -63,7 +63,7 @@ func (h *CategoryHandler) CreateCategory(c *fiber.Ctx) error {
 		return err
 	}
 
-	category, err := h.categoryUsecase.CreateCategory(claims.BusinessID, &req)
+	category, err := h.categoryUsecase.CreateCategory(*claims.BusinessID, &req)
 	if err != nil {
 		return err
 	}
@@ -171,7 +171,7 @@ func (h *CategoryHandler) ListCategories(c *fiber.Ctx) error {
 		return err
 	}
 
-	categories, total, err := h.categoryUsecase.ListCategories(claims.BusinessID, queries.Page, queries.PageSize)
+	categories, total, err := h.categoryUsecase.ListCategories(*claims.BusinessID, queries.Page, queries.PageSize)
 	if err != nil {
 		return err
 	}
@@ -239,7 +239,7 @@ func (h *CategoryHandler) SortCategories(c *fiber.Ctx) error {
 		return err
 	}
 
-	if err := h.categoryUsecase.SortCategories(claims.BusinessID, &req); err != nil {
+	if err := h.categoryUsecase.SortCategories(*claims.BusinessID, &req); err != nil {
 		return err
 	}
 

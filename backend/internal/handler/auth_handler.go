@@ -130,18 +130,12 @@ func (h *AuthHandler) GoogleCallback(c *fiber.Ctx) error {
 		return errJSON
 	}
 
-	res, err := h.authUsecase.LoginGoogleUser(c, googleUser)
+	_, err = h.authUsecase.LoginGoogleUser(c, googleUser)
 	if err != nil {
 		return err
 	}
 
-	googleLoginURL := fmt.Sprintf("%s?accessToken=%s&refreshToken=%s",
-		config.Env.GoogleOAuth.ClientCallbackURI, res.TokenRes.AccessToken, res.TokenRes.RefreshToken)
-
-	usecase.SetAuthCookies(c, &contract.TokenRes{
-		AccessToken:  res.TokenRes.AccessToken,
-		RefreshToken: res.TokenRes.RefreshToken,
-	})
+	googleLoginURL := fmt.Sprintf(config.Env.GoogleOAuth.ClientCallbackURI)
 
 	return c.Status(fiber.StatusSeeOther).Redirect(googleLoginURL)
 }

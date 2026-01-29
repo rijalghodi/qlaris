@@ -53,7 +53,7 @@ func (h *UserHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 // @Router /users/current [get]
 func (h *UserHandler) GetCurrentUser(c *fiber.Ctx) error {
 	claims := middleware.GetAuthClaims(c)
-	user, err := h.userUsecase.GetCurrentUser(claims.ID)
+	user, err := h.userUsecase.GetCurrentUser(claims.ID, claims.BusinessID)
 	if err != nil {
 		return err
 	}
@@ -86,13 +86,7 @@ func (h *UserHandler) EditCurrentUser(c *fiber.Ctx) error {
 
 	claims := middleware.GetAuthClaims(c)
 
-	// BusinessID is required if editing business
-	businessID := ""
-	if claims.BusinessID != "" {
-		businessID = claims.BusinessID
-	}
-
-	user, err := h.userUsecase.EditCurrentUser(claims.ID, businessID, &req)
+	user, err := h.userUsecase.EditCurrentUser(claims.ID, &req)
 	if err != nil {
 		return err
 	}
@@ -161,7 +155,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		return err
 	}
 
-	user, err := h.userUsecase.CreateUser(claims.BusinessID, &req)
+	user, err := h.userUsecase.CreateUser(*claims.BusinessID, &req)
 	if err != nil {
 		return err
 	}
@@ -205,7 +199,7 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 		return err
 	}
 
-	user, err := h.userUsecase.UpdateUser(userID, claims.BusinessID, &req)
+	user, err := h.userUsecase.UpdateUser(userID, *claims.BusinessID, &req)
 	if err != nil {
 		return err
 	}
@@ -268,7 +262,7 @@ func (h *UserHandler) ListUser(c *fiber.Ctx) error {
 		return err
 	}
 
-	users, total, err := h.userUsecase.ListUsers(&claims.BusinessID, queries.Page, queries.PageSize)
+	users, total, err := h.userUsecase.ListUsers(*claims.BusinessID, queries.Page, queries.PageSize)
 	if err != nil {
 		return err
 	}
