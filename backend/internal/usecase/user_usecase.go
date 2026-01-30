@@ -59,7 +59,22 @@ func (u *UserUsecase) EditCurrentUser(
 		return nil, fiber.NewError(fiber.StatusNotFound, "User not found")
 	}
 
-	// ---- User update ----
+	// --- update business
+	if req.BusinessAddress != nil || req.BusinessName != nil || req.BusinessLogo != nil || req.BusinessCategory != nil || req.BusinessEmployeeSize != nil {
+		if _, err := u.EditBusiness(userID, *user.BusinessID, &contract.EditCurrentUserBusinessReq{
+			Name:         req.BusinessName,
+			Code:         req.BusinessCode,
+			Address:      req.BusinessAddress,
+			Logo:         req.BusinessLogo,
+			Category:     req.BusinessCategory,
+			EmployeeSize: req.BusinessEmployeeSize,
+		}); err != nil {
+			logger.Log.Error("Update business failed", zap.Error(err), zap.String("userID", userID))
+			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to update business")
+		}
+	}
+
+	// --- User update
 	if req.Name != nil {
 		user.Name = *req.Name
 	}
@@ -139,8 +154,20 @@ func (u *UserUsecase) EditBusiness(userID string, businessID string, req *contra
 	if req.Name != nil {
 		business.Name = *req.Name
 	}
+	if req.Code != nil {
+		business.Code = *req.Code
+	}
 	if req.Address != nil {
 		business.Address = req.Address
+	}
+	if req.Category != nil {
+		business.Category = req.Category
+	}
+	if req.EmployeeSize != nil {
+		business.EmployeeSize = req.EmployeeSize
+	}
+	if req.Logo != nil {
+		business.Logo = req.Logo
 	}
 
 	if business == nil {
@@ -213,24 +240,14 @@ func BuildBusinessRes(business model.Business, storage *storage.R2Storage) contr
 		}
 	}
 
-	// Get employee count
-	var employeeCount *string
-	if business.EmployeeCount != nil {
-		for _, v := range config.EmployeeCountMap {
-			if *business.EmployeeCount >= v.Min && *business.EmployeeCount <= v.Max {
-				employeeCount = &v.Name
-				break
-			}
-		}
-	}
-
 	return contract.BusinessRes{
-		ID:            business.ID,
-		Name:          business.Name,
-		Address:       business.Address,
-		EmployeeCount: employeeCount,
-		Category:      business.Category,
-		Logo:          logo,
+		ID:           business.ID,
+		Name:         business.Name,
+		Code:         business.Code,
+		Address:      business.Address,
+		EmployeeSize: business.EmployeeSize,
+		Category:     business.Category,
+		Logo:         logo,
 	}
 }
 

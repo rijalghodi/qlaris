@@ -10,7 +10,7 @@ import { EditProfileCard } from "@/components/profile/edit-profile-card";
 import { EditPasswordCard } from "@/components/profile/edit-password-card";
 import { DeleteAccountCard } from "@/components/profile/delete-account-card";
 
-export default function MePage() {
+export default function AccountPage() {
   const { data: userResponse, isLoading, error } = useGetCurrentUser();
   const user = userResponse?.data;
 

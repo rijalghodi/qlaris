@@ -167,9 +167,9 @@
   --brand-foreground: oklch(0.764 0.192 127.816);
   --background: oklch(0.225 0.005 248.043);
   --foreground: oklch(0.942 0.017 125.292);
-  --card: oklch(0.299 0.007 248.075);
+  --card: oklch(0.294 0.007 248.075);
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.299 0.007 248.075);
+  --popover: oklch(0.294 0.007 248.075);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.858 0.193 135.221);
   --primary-foreground: oklch(0.174 0.006 122.086);

@@ -18,7 +18,15 @@ CREATE TABLE employees (
 
 ALTER TABLE businesses
 ADD COLUMN logo TEXT,
-ADD COLUMN employee_count SMALLINT DEFAULT 0 CHECK (employee_count >= 0),
+ADD COLUMN employee_size VARCHAR(32) CHECK (
+  employee_size IN (
+    '0',
+    '1-5',
+    '6-10',
+    '11-25',
+    '26+'
+  )
+),
 ADD COLUMN category VARCHAR(32) CHECK (
   category IN (
     'cafe',
@@ -43,7 +51,7 @@ DEFAULT floor(random() * 1000000)::text;
 
 ALTER TABLE businesses
 DROP COLUMN IF EXISTS logo,
-DROP COLUMN IF EXISTS employee_count,
+DROP COLUMN IF EXISTS employee_size,
 DROP COLUMN IF EXISTS category,
 DROP COLUMN IF EXISTS code;
 

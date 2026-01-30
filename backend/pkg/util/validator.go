@@ -8,16 +8,18 @@ import (
 )
 
 var customMessages = map[string]string{
-	"required": "Field %s must be filled",
-	"email":    "Invalid email address for field %s",
-	"min":      "Field %s must have a minimum length of %s characters",
-	"max":      "Field %s must have a maximum length of %s characters",
-	"len":      "Field %s must be exactly %s characters long",
-	"number":   "Field %s must be a number",
-	"positive": "Field %s must be a positive number",
-	"alphanum": "Field %s must contain only alphanumeric characters",
-	"oneof":    "Invalid value for field %s",
-	"password": "Field %s must contain at least 8 characters",
+	"required":          "Field %s must be filled",
+	"email":             "Invalid email address for field %s",
+	"min":               "Field %s must have a minimum length of %s characters",
+	"max":               "Field %s must have a maximum length of %s characters",
+	"len":               "Field %s must be exactly %s characters long",
+	"number":            "Field %s must be a number",
+	"positive":          "Field %s must be a positive number",
+	"alphanum":          "Field %s must contain only alphanumeric characters",
+	"oneof":             "Invalid value for field %s",
+	"password":          "Field %s must contain at least 8 characters",
+	"employee_count":    "Invalid value for field %s",
+	"business_category": "Invalid value for field %s",
 }
 
 func CustomErrorMessages(err error) map[string]string {
@@ -79,10 +81,62 @@ func Password(fl validator.FieldLevel) bool {
 	// return hasLetter && hasNumber
 }
 
+func EmployeeSize(fl validator.FieldLevel) bool {
+	val := fl.Field().String()
+
+	allowedVal := []string{
+		"0",
+		"1-5",
+		"6-10",
+		"11-25",
+		"26+",
+	}
+	for _, v := range allowedVal {
+		if val == v {
+			return true
+		}
+	}
+
+	return false
+}
+
+func BusinessCategory(fl validator.FieldLevel) bool {
+	val := fl.Field().String()
+
+	allowedVal := []string{
+		"cafe",
+		"restaurant",
+		"food_stall",
+		"retail",
+		"grocery",
+		"minimarket",
+		"bakery",
+		"pharmacy",
+		"fashion",
+		"laundry",
+		"barbershop",
+		"printing",
+		"other",
+	}
+	for _, v := range allowedVal {
+		if val == v {
+			return true
+		}
+	}
+
+	return false
+}
+
 func Validator() *validator.Validate {
 	validate := validator.New()
 
 	if err := validate.RegisterValidation("password", Password); err != nil {
+		return nil
+	}
+	if err := validate.RegisterValidation("employee_size", EmployeeSize); err != nil {
+		return nil
+	}
+	if err := validate.RegisterValidation("business_category", BusinessCategory); err != nil {
 		return nil
 	}
 

@@ -15,8 +15,9 @@ export type FileRes = {
 export type BusinessRes = {
   id: string;
   name: string;
+  code: string;
   address?: string;
-  employeeCount?: string;
+  employeeSize?: string;
   category?: string;
   logo?: FileRes;
 };
@@ -38,6 +39,11 @@ export type UserRes = {
 export type EditCurrentUserReq = {
   name?: string;
   image?: string;
+  businessName?: string;
+  businessAddress?: string;
+  businessLogo?: string;
+  businessCategory?: string;
+  businessEmployeeSize?: string;
 };
 
 export type EditCurrentUserBusinessReq = {
@@ -45,7 +51,7 @@ export type EditCurrentUserBusinessReq = {
   address?: string;
   logo?: string;
   category?: string;
-  employeeCount?: number;
+  employeeSize?: string;
 };
 
 export type EditPasswordReq = {

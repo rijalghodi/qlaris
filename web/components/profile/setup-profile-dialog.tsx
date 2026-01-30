@@ -24,7 +24,7 @@ type FormData = {
   name: string;
   businessName: string;
   businessAddress: string;
-  employeeCount: string;
+  employeeSize: string;
   businessCategory: string;
 };
 
@@ -56,7 +56,7 @@ const STEPS = [
   { id: 1, title: "Your Name", field: "name" as const },
   { id: 2, title: "Business Name", field: "businessName" as const },
   { id: 3, title: "Business Address", field: "businessAddress" as const },
-  { id: 4, title: "Employee Count", field: "employeeCount" as const },
+  { id: 4, title: "Employee Count", field: "employeeSize" as const },
   { id: 5, title: "Business Type", field: "businessCategory" as const },
 ];
 
@@ -82,7 +82,7 @@ export function SetupProfileDialog({
       name: userData?.data?.name || "",
       businessName: userData?.data?.business?.name || "",
       businessAddress: userData?.data?.business?.address || "",
-      employeeCount: userData?.data?.business?.employeeCount,
+      employeeSize: userData?.data?.business?.employeeSize,
       businessCategory: userData?.data?.business?.category,
     },
   });
@@ -115,7 +115,7 @@ export function SetupProfileDialog({
     editBusiness.mutate({
       name: data.businessName,
       address: data.businessAddress,
-      employeeCount: Number(data.employeeCount),
+      employeeSize: data.employeeSize,
       category: data.businessCategory,
     });
   };
@@ -236,11 +236,11 @@ export function SetupProfileDialog({
             <SelectInput
               placeholder="Select employee count"
               options={EMPLOYEE_COUNT}
-              value={watch("employeeCount")}
-              onChange={(value) => setValue("employeeCount", value || "0")}
+              value={watch("employeeSize")}
+              onChange={(value) => setValue("employeeSize", value || "0")}
             />
-            {errors.employeeCount && (
-              <p className="text-sm text-destructive">{errors.employeeCount.message}</p>
+            {errors.employeeSize && (
+              <p className="text-sm text-destructive">{errors.employeeSize.message}</p>
             )}
           </div>
         )}
