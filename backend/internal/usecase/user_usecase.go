@@ -268,7 +268,7 @@ func BuildUserRes(user model.User, storage *storage.R2Storage) contract.UserRes 
 
 	userRes := contract.UserRes{
 		ID:          user.ID,
-		Email:       user.Email,
+		Email:       util.ToValue(user.Email),
 		Name:        user.Name,
 		Role:        string(user.Role),
 		Business:    business,

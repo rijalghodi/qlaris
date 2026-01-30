@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"app/internal/config"
 	"app/internal/model"
 
 	"gorm.io/gorm"
@@ -77,7 +78,7 @@ func (r *UserRepository) UpdateUserPassword(userID, hashedPassword string) error
 	return r.db.Model(&model.User{}).Where("id = ?", userID).Update("password_hash", hashedPassword).Error
 }
 
-func (r *UserRepository) ListUsers(businessID string, page, pageSize int) ([]*model.User, int64, error) {
+func (r *UserRepository) ListUsers(businessID string, page, pageSize int, role []config.UserRole) ([]*model.User, int64, error) {
 	var users []*model.User
 	var total int64
 
@@ -85,6 +86,10 @@ func (r *UserRepository) ListUsers(businessID string, page, pageSize int) ([]*mo
 
 	if businessID != "" {
 		query = query.Where("business_id = ?", businessID)
+	}
+
+	if len(role) > 0 {
+		query = query.Where("role IN ?", role)
 	}
 
 	if err := query.Count(&total).Error; err != nil {

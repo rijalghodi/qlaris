@@ -51,7 +51,7 @@ func (u *AuthUsecase) LoginGoogleUser(
 	if err != nil || user == nil {
 		user = &model.User{
 			Name:        req.Name,
-			Email:       req.Email,
+			Email:       &req.Email,
 			IsVerified:  req.VerifiedEmail,
 			GoogleImage: googleImage,
 			Role:        config.USER_ROLE_OWNER,
@@ -180,18 +180,15 @@ func (u *AuthUsecase) ListLoginableEmployees(businessCode string) ([]contract.Lo
 		return nil, fiber.NewError(fiber.StatusNotFound, "Business not found")
 	}
 
-	// Get all users for this business with is_active = true
-	users, _, err := u.userRepo.ListUsers(business.ID, 1, 1000) // Get up to 1000 employees
+	users, _, err := u.userRepo.ListUsers(business.ID, 1, 1000, []config.UserRole{config.USER_ROLE_CASHIER, config.USER_ROLE_MANAGER})
 	if err != nil {
 		logger.Log.Error("Failed to list employees", zap.Error(err), zap.String("businessID", business.ID))
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	// Filter and build response
 	var employees []contract.LoginableEmployeeRes
 	for _, user := range users {
-		// Only include active employees (cashier or manager)
-		if user.IsActive && (user.Role == config.USER_ROLE_CASHIER || user.Role == config.USER_ROLE_MANAGER) {
+		if user.IsActive {
 			var image *contract.FileRes
 			if user.Image != nil && u.storage != nil {
 				imageURL, _ := u.storage.PresignGet(*user.Image, 0)
@@ -234,7 +231,7 @@ func (u *AuthUsecase) Register(req *contract.RegisterReq) (*contract.RegisterRes
 	newUser := &model.User{
 		ID:           uuid.New().String(),
 		Name:         req.Name,
-		Email:        req.Email,
+		Email:        &req.Email,
 		PasswordHash: &hashedPassword,
 		IsVerified:   false,
 		Role:         config.USER_ROLE_OWNER,
@@ -249,9 +246,9 @@ func (u *AuthUsecase) Register(req *contract.RegisterReq) (*contract.RegisterRes
 	}
 
 	// Send Verification Email
-	verifyEmailRes, err := u.SendVerificationEmail(newUser.Email)
+	verifyEmailRes, err := u.SendVerificationEmail(util.ToValue(newUser.Email))
 	if err != nil {
-		logger.Log.Error("Failed to send verification email", zap.Error(err), zap.String("email", newUser.Email))
+		logger.Log.Error("Failed to send verification email", zap.Error(err), zap.String("email", util.ToValue(newUser.Email)))
 	}
 
 	return &contract.RegisterRes{
@@ -296,8 +293,8 @@ func (u *AuthUsecase) SendVerificationEmail(email string) (*contract.SendVerific
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	if err := u.emailUsecase.SendVerificationEmail(user.Email, verifyToken); err != nil {
-		logger.Log.Error("Failed to send verification email", zap.Error(err), zap.String("email", user.Email))
+	if err := u.emailUsecase.SendVerificationEmail(util.ToValue(user.Email), verifyToken); err != nil {
+		logger.Log.Error("Failed to send verification email", zap.Error(err), zap.String("email", util.ToValue(user.Email)))
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
@@ -389,8 +386,8 @@ func (u *AuthUsecase) ForgotPassword(req *contract.ForgotPasswordReq) (*contract
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	if err := u.emailUsecase.SendResetPasswordEmail(user.Email, resetToken); err != nil {
-		logger.Log.Error("Failed to send reset password email", zap.Error(err), zap.String("email", user.Email))
+	if err := u.emailUsecase.SendResetPasswordEmail(util.ToValue(user.Email), resetToken); err != nil {
+		logger.Log.Error("Failed to send reset password email", zap.Error(err), zap.String("email", util.ToValue(user.Email)))
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 

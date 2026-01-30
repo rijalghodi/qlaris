@@ -107,7 +107,7 @@ func (u *EmployeeUsecase) GetEmployee(employeeID, businessID string) (*contract.
 }
 
 func (u *EmployeeUsecase) ListEmployees(businessID string, page, pageSize int) ([]contract.EmployeeRes, int64, error) {
-	employees, total, err := u.userRepo.ListUsers(businessID, page, pageSize)
+	employees, total, err := u.userRepo.ListUsers(businessID, page, pageSize, []config.UserRole{config.USER_ROLE_CASHIER, config.USER_ROLE_MANAGER})
 	if err != nil {
 		logger.Log.Error("Failed to list employees", zap.Error(err))
 		return nil, 0, fiber.NewError(fiber.StatusInternalServerError, "Failed to list employees")

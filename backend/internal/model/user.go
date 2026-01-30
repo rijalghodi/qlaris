@@ -8,7 +8,7 @@ import (
 type User struct {
 	ID                     string          `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
 	Name                   string          `gorm:"type:varchar(255);not null" json:"name"`
-	Email                  string          `gorm:"type:varchar(255);not null" json:"email"`
+	Email                  *string         `gorm:"type:varchar(255)" json:"email"`
 	Role                   config.UserRole `gorm:"type:user_role;not null" json:"role"`
 	BusinessID             *string         `gorm:"type:uuid" json:"business_id"`
 	PasswordHash           *string         `gorm:"type:text" json:"-"`
