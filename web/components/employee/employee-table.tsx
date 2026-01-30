@@ -53,22 +53,6 @@ export function EmployeeTable({ employees, isLoading, onDelete, onEdit }: Employ
       },
     },
     {
-      id: "email",
-      header: () => <div className="text-sm font-semibold">Email</div>,
-      cell: ({ row }) => {
-        const email = row.original.email;
-        return <div className="text-sm font-normal">{email || "-"}</div>;
-      },
-    },
-    {
-      id: "phone",
-      header: () => <div className="text-sm font-semibold">Phone</div>,
-      cell: ({ row }) => {
-        const phone = row.original.phone;
-        return <div className="text-sm font-normal">{phone || "-"}</div>;
-      },
-    },
-    {
       id: "status",
       header: () => <div className="text-sm font-semibold">Status</div>,
       cell: ({ row }) => {

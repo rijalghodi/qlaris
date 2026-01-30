@@ -1,20 +1,11 @@
 -- +migrate Up
 
-CREATE TYPE employee_role AS ENUM ('manager', 'cashier');
+ALTER TABLE users
+ADD COLUMN pin_hash TEXT,
+ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT true;
 
-CREATE TABLE employees (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
-  role employee_role NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  image TEXT,
-  pin_hash TEXT NOT NULL,
-  phone VARCHAR(20),
-  email VARCHAR(255),
-  is_active BOOLEAN NOT NULL DEFAULT true,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
+ALTER TABLE users
+ALTER COLUMN email DROP NOT NULL;
 
 ALTER TABLE businesses
 ADD COLUMN logo TEXT,
@@ -55,5 +46,6 @@ DROP COLUMN IF EXISTS employee_size,
 DROP COLUMN IF EXISTS category,
 DROP COLUMN IF EXISTS code;
 
-DROP TABLE IF EXISTS employees;
-DROP TYPE IF EXISTS employee_role;
+ALTER TABLE users
+DROP COLUMN IF EXISTS pin_hash,
+DROP COLUMN IF EXISTS is_active;

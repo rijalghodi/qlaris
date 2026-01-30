@@ -19,17 +19,15 @@ import (
 
 type AuthUsecase struct {
 	userRepo     *repository.UserRepository
-	employeeRepo *repository.EmployeeRepository
 	businessRepo *repository.BusinessRepository
 	emailUsecase *EmailUsecase
 	tokenUsecase *TokenUsecase
 	storage      *storage.R2Storage
 }
 
-func NewAuthUsecase(userRepo *repository.UserRepository, employeeRepo *repository.EmployeeRepository, businessRepo *repository.BusinessRepository, emailUsecase *EmailUsecase, tokenUsecase *TokenUsecase, storage *storage.R2Storage) *AuthUsecase {
+func NewAuthUsecase(userRepo *repository.UserRepository, businessRepo *repository.BusinessRepository, emailUsecase *EmailUsecase, tokenUsecase *TokenUsecase, storage *storage.R2Storage) *AuthUsecase {
 	return &AuthUsecase{
 		userRepo:     userRepo,
-		employeeRepo: employeeRepo,
 		businessRepo: businessRepo,
 		emailUsecase: emailUsecase,
 		tokenUsecase: tokenUsecase,
@@ -126,8 +124,8 @@ func (u *AuthUsecase) Login(c *fiber.Ctx, req *contract.LoginReq) (*contract.Log
 		UserRes: userRes,
 	}, nil
 }
-func (u *AuthUsecase) LoginEmployee(c *fiber.Ctx, req *contract.LoginEmployeeReq) (*contract.LoginEmployeeRes, error) {
-	// Get business by code
+func (u *AuthUsecase) LoginEmployee(c *fiber.Ctx, req *contract.LoginEmployeeReq) (*contract.LoginRes, error) {
+
 	business, err := u.businessRepo.GetBusinessByCode(req.BusinessCode)
 	if err != nil {
 		logger.Log.Error("Failed to query business by code", zap.Error(err), zap.String("code", req.BusinessCode))
@@ -138,48 +136,35 @@ func (u *AuthUsecase) LoginEmployee(c *fiber.Ctx, req *contract.LoginEmployeeReq
 		return nil, fiber.NewError(fiber.StatusUnauthorized, "Invalid business code")
 	}
 
-	// Get employee by ID and verify they belong to this business
-	employee, err := u.employeeRepo.GetEmployeeByIDAndBusinessID(req.EmployeeID, business.ID)
+	user, err := u.userRepo.GetUserByID(req.EmployeeID)
 	if err != nil {
 		logger.Log.Error("Failed to get employee", zap.Error(err), zap.String("employeeID", req.EmployeeID))
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	if employee == nil {
+	if user == nil || user.PinHash == nil {
 		return nil, fiber.NewError(fiber.StatusUnauthorized, "Invalid employee ID or PIN")
 	}
 
-	// Verify PIN
-	if !util.ComparePasswordHash(req.Pin, employee.PinHash) {
-		return nil, fiber.NewError(fiber.StatusUnauthorized, "Invalid employee ID or PIN")
+	if !user.IsActive {
+		return nil, fiber.NewError(fiber.StatusUnauthorized, "Employee is not active")
 	}
 
-	// Generate tokens
-	tokens, err := u.generateTokenPair(employee.ID)
+	if !util.ComparePasswordHash(req.Pin, *user.PinHash) {
+		return nil, fiber.NewError(fiber.StatusUnauthorized, "Invalid employee ID or PIN")
+	}
+	tokens, err := u.generateTokenPair(user.ID)
 	if err != nil {
-		logger.Log.Error("Failed to generate token pair", zap.Error(err), zap.String("employeeID", employee.ID))
+		logger.Log.Error("Failed to generate token pair", zap.Error(err), zap.String("employeeID", user.ID))
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
 	SetAuthCookies(c, tokens)
 
-	// Build response
-	var image *contract.FileRes
-	if employee.Image != nil && u.storage != nil {
-		imageURL, _ := u.storage.PresignGet(*employee.Image, 0)
-		image = &contract.FileRes{
-			Key: *employee.Image,
-			URL: imageURL,
-		}
-	}
+	userRes := BuildUserRes(util.ToValue(user), u.storage)
 
-	return &contract.LoginEmployeeRes{
-		ID:           employee.ID,
-		Name:         employee.Name,
-		Role:         string(employee.Role),
-		BusinessID:   employee.BusinessID,
-		BusinessName: business.Name,
-		Image:        image,
+	return &contract.LoginRes{
+		UserRes: userRes,
 	}, nil
 }
 

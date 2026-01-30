@@ -94,7 +94,7 @@ export function AddEmployeeForm() {
           <CardHeader className="border-b pb-4!">
             <div className="flex items-center gap-2">
               <User className="size-4 text-primary" />
-              <h2 className="text-base font-semibold">Employee Information</h2>
+              <h2 className="text-base font-semibold">Personal Information</h2>
             </div>
           </CardHeader>
 
@@ -132,34 +132,6 @@ export function AddEmployeeForm() {
                       ]}
                       {...field}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="e.g., john@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., 081234567890" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -212,7 +184,7 @@ export function AddEmployeeForm() {
               control={form.control}
               name="isActive"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-input">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Active Status</FormLabel>
                     <FormDescription>Enable or disable employee access</FormDescription>

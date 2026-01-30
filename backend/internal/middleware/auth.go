@@ -14,7 +14,7 @@ import (
 type Claims struct {
 	ID         string           `json:"id"`
 	Type       config.TokenType `json:"type"`
-	Role       config.JwtRole   `json:"role"`
+	Role       config.UserRole  `json:"role"`
 	BusinessID *string          `json:"business_id"`
 }
 
@@ -45,16 +45,22 @@ func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 		}
 
 		// try to get employee or user
-		var employee model.Employee
 		var user model.User
-		if err := db.Preload("Business").First(&employee, "id = ?", jwtClaims.ID).Error; err == nil {
-			claims.BusinessID = &employee.BusinessID
-			claims.Role = config.JwtRole(employee.Role)
-		} else if err := db.Preload("Business").First(&user, "id = ?", jwtClaims.ID).Error; err == nil {
+		if err := db.Preload("Business").First(&user, "id = ?", jwtClaims.ID).Error; err == nil {
 			claims.BusinessID = user.BusinessID
-			claims.Role = config.JwtRole(user.Role)
+			claims.Role = user.Role
 		} else {
 			logger.Log.Warn("User not found", "error", err, "user_id", jwtClaims.ID)
+			return fiber.NewError(fiber.StatusUnauthorized, "Please authenticate")
+		}
+
+		if (user.Role == config.USER_ROLE_CASHIER || user.Role == config.USER_ROLE_MANAGER) && !user.IsActive {
+			logger.Log.Warn("Employee is not active", "user_id", jwtClaims.ID)
+			return fiber.NewError(fiber.StatusUnauthorized, "Please authenticate")
+		}
+
+		if user.Role == config.USER_ROLE_OWNER && !user.IsVerified {
+			logger.Log.Warn("Owner is not verified", "user_id", jwtClaims.ID)
 			return fiber.NewError(fiber.StatusUnauthorized, "Please authenticate")
 		}
 

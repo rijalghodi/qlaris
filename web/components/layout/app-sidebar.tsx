@@ -29,6 +29,7 @@ import {
   Tags,
   Users,
   UsersIcon,
+  UsersRound,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -167,7 +168,7 @@ export function AppSidebar() {
                       title="Employees"
                     >
                       <Link href={ROUTES.EMPLOYEES}>
-                        <Users />
+                        <UsersRound />
                         <span>Employees</span>
                       </Link>
                     </SidebarMenuButton>

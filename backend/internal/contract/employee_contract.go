@@ -16,8 +16,6 @@ type CreateEmployeeReq struct {
 	Pin      string  `json:"pin" validate:"required,numeric,len=6"`
 	Role     string  `json:"role" validate:"required,oneof=cashier manager"`
 	Image    *string `json:"image"`
-	Phone    *string `json:"phone"`
-	Email    *string `json:"email"`
 	IsActive *bool   `json:"isActive"`
 }
 
@@ -26,7 +24,5 @@ type UpdateEmployeeReq struct {
 	Role     *string `json:"role" validate:"oneof=cashier manager"`
 	Image    *string `json:"image"`
 	Pin      *string `json:"pin" validate:"numeric,len=6"`
-	Phone    *string `json:"phone"`
-	Email    *string `json:"email"`
 	IsActive *bool   `json:"isActive"`
 }

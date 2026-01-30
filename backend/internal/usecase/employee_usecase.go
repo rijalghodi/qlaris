@@ -15,14 +15,14 @@ import (
 )
 
 type EmployeeUsecase struct {
-	employeeRepo *repository.EmployeeRepository
-	storage      *storage.R2Storage
+	userRepo *repository.UserRepository
+	storage  *storage.R2Storage
 }
 
-func NewEmployeeUsecase(employeeRepo *repository.EmployeeRepository, storage *storage.R2Storage) *EmployeeUsecase {
+func NewEmployeeUsecase(userRepo *repository.UserRepository, storage *storage.R2Storage) *EmployeeUsecase {
 	return &EmployeeUsecase{
-		employeeRepo: employeeRepo,
-		storage:      storage,
+		userRepo: userRepo,
+		storage:  storage,
 	}
 }
 
@@ -35,27 +35,27 @@ func (u *EmployeeUsecase) CreateEmployee(businessID string, req *contract.Create
 	}
 
 	// Create employee
-	employee := &model.Employee{
+	employee := &model.User{
 		Name:       req.Name,
-		Role:       config.EmployeeRole(req.Role),
-		BusinessID: businessID,
-		PinHash:    hashedPin,
+		Role:       config.UserRole(req.Role),
+		BusinessID: &businessID,
+		PinHash:    &hashedPin,
 		Image:      req.Image,
 	}
 
-	if err := u.employeeRepo.CreateEmployee(employee); err != nil {
+	if err := u.userRepo.CreateUser(employee); err != nil {
 		logger.Log.Error("Failed to create employee", zap.Error(err))
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to create employee")
 	}
 
 	// Reload with relations
-	employee, _ = u.employeeRepo.GetEmployeeByID(employee.ID)
+	employee, _ = u.userRepo.GetUserByID(employee.ID)
 
 	return util.ToPointer(BuildEmployeeRes(*employee, u.storage)), nil
 }
 
 func (u *EmployeeUsecase) UpdateEmployee(employeeID, businessID string, req *contract.UpdateEmployeeReq) (*contract.EmployeeRes, error) {
-	employee, err := u.employeeRepo.GetEmployeeByIDAndBusinessID(employeeID, businessID)
+	employee, err := u.userRepo.GetUserByIDAndBusinessID(employeeID, businessID)
 	if err != nil {
 		logger.Log.Error("Failed to get employee", zap.Error(err), zap.String("employeeID", employeeID))
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to get employee")
@@ -70,7 +70,7 @@ func (u *EmployeeUsecase) UpdateEmployee(employeeID, businessID string, req *con
 		employee.Name = *req.Name
 	}
 	if req.Role != nil {
-		employee.Role = config.EmployeeRole(*req.Role)
+		employee.Role = config.UserRole(*req.Role)
 	}
 	if req.Image != nil {
 		employee.Image = req.Image
@@ -81,10 +81,10 @@ func (u *EmployeeUsecase) UpdateEmployee(employeeID, businessID string, req *con
 			logger.Log.Error("Failed to hash PIN", zap.Error(err))
 			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to create employee")
 		}
-		employee.PinHash = hashedPin
+		employee.PinHash = &hashedPin
 	}
 
-	if err := u.employeeRepo.UpdateEmployee(employee); err != nil {
+	if err := u.userRepo.UpdateUser(employee); err != nil {
 		logger.Log.Error("Failed to update employee", zap.Error(err), zap.String("employeeID", employeeID))
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to update employee")
 	}
@@ -92,34 +92,8 @@ func (u *EmployeeUsecase) UpdateEmployee(employeeID, businessID string, req *con
 	return util.ToPointer(BuildEmployeeRes(*employee, u.storage)), nil
 }
 
-// func (u *EmployeeUsecase) UpdateEmployeePin(employeeID, businessID string, req *contract.UpdateEmployeePinReq) error {
-// 	employee, err := u.employeeRepo.GetEmployeeByIDAndBusinessID(employeeID, businessID)
-// 	if err != nil {
-// 		logger.Log.Error("Failed to get employee", zap.Error(err), zap.String("employeeID", employeeID))
-// 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get employee")
-// 	}
-
-// 	if employee == nil {
-// 		return fiber.NewError(fiber.StatusNotFound, "Employee not found")
-// 	}
-
-// 	// Hash new PIN
-// 	hashedPin, err := util.HashPassword(req.Pin)
-// 	if err != nil {
-// 		logger.Log.Error("Failed to hash PIN", zap.Error(err))
-// 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to update PIN")
-// 	}
-
-// 	if err := u.employeeRepo.UpdateEmployeePin(employeeID, hashedPin); err != nil {
-// 		logger.Log.Error("Failed to update PIN", zap.Error(err), zap.String("employeeID", employeeID))
-// 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to update PIN")
-// 	}
-
-// 	return nil
-// }
-
 func (u *EmployeeUsecase) GetEmployee(employeeID, businessID string) (*contract.EmployeeRes, error) {
-	employee, err := u.employeeRepo.GetEmployeeByIDAndBusinessID(employeeID, businessID)
+	employee, err := u.userRepo.GetUserByIDAndBusinessID(employeeID, businessID)
 	if err != nil {
 		logger.Log.Error("Failed to get employee", zap.Error(err), zap.String("employeeID", employeeID))
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to get employee")
@@ -133,7 +107,7 @@ func (u *EmployeeUsecase) GetEmployee(employeeID, businessID string) (*contract.
 }
 
 func (u *EmployeeUsecase) ListEmployees(businessID string, page, pageSize int) ([]contract.EmployeeRes, int64, error) {
-	employees, total, err := u.employeeRepo.ListEmployees(businessID, page, pageSize)
+	employees, total, err := u.userRepo.ListUsers(businessID, page, pageSize)
 	if err != nil {
 		logger.Log.Error("Failed to list employees", zap.Error(err))
 		return nil, 0, fiber.NewError(fiber.StatusInternalServerError, "Failed to list employees")
@@ -148,7 +122,7 @@ func (u *EmployeeUsecase) ListEmployees(businessID string, page, pageSize int) (
 }
 
 func (u *EmployeeUsecase) DeleteEmployee(employeeID, businessID string) error {
-	employee, err := u.employeeRepo.GetEmployeeByIDAndBusinessID(employeeID, businessID)
+	employee, err := u.userRepo.GetUserByIDAndBusinessID(employeeID, businessID)
 	if err != nil {
 		logger.Log.Error("Failed to get employee", zap.Error(err), zap.String("employeeID", employeeID))
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get employee")
@@ -158,7 +132,7 @@ func (u *EmployeeUsecase) DeleteEmployee(employeeID, businessID string) error {
 		return fiber.NewError(fiber.StatusNotFound, "Employee not found")
 	}
 
-	if err := u.employeeRepo.DeleteEmployee(employeeID); err != nil {
+	if err := u.userRepo.DeleteUser(employeeID); err != nil {
 		logger.Log.Error("Failed to delete employee", zap.Error(err), zap.String("employeeID", employeeID))
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to delete employee")
 	}
@@ -181,7 +155,7 @@ func (u *EmployeeUsecase) IsAllowedToAccess(claims middleware.Claims, allowedPer
 		}
 
 		if targetEmployeeID != nil {
-			employee, err := u.employeeRepo.GetEmployeeByIDAndBusinessID(*targetEmployeeID, *claims.BusinessID)
+			employee, err := u.userRepo.GetUserByIDAndBusinessID(*targetEmployeeID, *claims.BusinessID)
 			if err != nil {
 				logger.Log.Error("Failed to get employee", zap.Error(err), zap.String("employeeID", *targetEmployeeID))
 				return fiber.NewError(fiber.StatusInternalServerError, "Failed to get employee")
@@ -207,7 +181,7 @@ func (u *EmployeeUsecase) IsAllowedToAccess(claims middleware.Claims, allowedPer
 	return nil
 }
 
-func BuildEmployeeRes(employee model.Employee, storage *storage.R2Storage) contract.EmployeeRes {
+func BuildEmployeeRes(employee model.User, storage *storage.R2Storage) contract.EmployeeRes {
 	var image *contract.FileRes
 	if employee.Image != nil && storage != nil {
 		imageURL, _ := storage.PresignGet(*employee.Image, 0)
@@ -218,8 +192,8 @@ func BuildEmployeeRes(employee model.Employee, storage *storage.R2Storage) contr
 	}
 
 	var business *contract.BusinessRes
-	if employee.Business.ID != "" {
-		business = util.ToPointer(BuildBusinessRes(employee.Business, storage))
+	if employee.Business != nil && employee.Business.ID != "" {
+		business = util.ToPointer(BuildBusinessRes(*employee.Business, storage))
 	}
 
 	return contract.EmployeeRes{

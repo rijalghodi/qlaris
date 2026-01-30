@@ -41,8 +41,8 @@ const (
 	PAY_TRANSACTION_ANY    Permission = "pay_transaction:any"
 )
 
-var RolePermissionMap = map[JwtRole][]Permission{
-	JWT_ROLE_SUPERADMIN: {
+var RolePermissionMap = map[UserRole][]Permission{
+	USER_ROLE_SUPERADMIN: {
 		CREATE_USER_ANY,
 		READ_USER_ANY,
 		EDIT_USER_ANY,
@@ -56,7 +56,7 @@ var RolePermissionMap = map[JwtRole][]Permission{
 		UPDATE_TRANSACTION_ANY,
 		PAY_TRANSACTION_ANY,
 	},
-	JWT_ROLE_OWNER: {
+	USER_ROLE_OWNER: {
 		CREATE_USER_ORG,
 		READ_USER_ORG,
 		EDIT_USER_ORG,
@@ -70,7 +70,7 @@ var RolePermissionMap = map[JwtRole][]Permission{
 		UPDATE_TRANSACTION_ORG,
 		PAY_TRANSACTION_ORG,
 	},
-	JWT_ROLE_EMPLOYEE: {
+	USER_ROLE_CASHIER: {
 		READ_USER_SELF,
 		EDIT_USER_SELF,
 		CREATE_PRODUCT_ORG,
@@ -82,7 +82,7 @@ var RolePermissionMap = map[JwtRole][]Permission{
 		UPDATE_TRANSACTION_ORG,
 		PAY_TRANSACTION_ORG,
 	},
-	JWT_ROLE_USER: {
+	USER_ROLE_MANAGER: {
 		READ_USER_SELF,
 		EDIT_USER_SELF,
 		READ_PRODUCT_ORG,
@@ -107,7 +107,7 @@ func (p Permission) Scope() PermissionScope {
 	return ""
 }
 
-func DoesRoleAllowedToAccess(role JwtRole, permissions []Permission) (bool, *Permission) {
+func DoesRoleAllowedToAccess(role UserRole, permissions []Permission) (bool, *Permission) {
 	for _, p := range RolePermissionMap[role] {
 		for _, permission := range permissions {
 			if p == permission {

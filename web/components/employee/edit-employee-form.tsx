@@ -40,8 +40,6 @@ const employeeSchema = z.object({
     required_error: "Role is required",
   }),
   image: z.string().optional().or(z.literal("")),
-  phone: z.string().optional().or(z.literal("")),
-  email: z.string().email("Invalid email address").optional().or(z.literal("")),
   isActive: z.boolean().optional(),
 });
 
@@ -63,8 +61,6 @@ export function EditEmployeeForm({ employeeId, defaultValues }: EditEmployeeForm
       pin: "",
       role: defaultValues?.role || EmployeeRole.CASHIER,
       image: defaultValues?.image?.key || "",
-      phone: defaultValues?.phone || "",
-      email: defaultValues?.email || "",
       isActive: defaultValues?.isActive ?? true,
     },
   });
@@ -87,8 +83,6 @@ export function EditEmployeeForm({ employeeId, defaultValues }: EditEmployeeForm
       pin: data.pin || undefined,
       role: data.role,
       image: data.image || undefined,
-      phone: data.phone || undefined,
-      email: data.email || undefined,
       isActive: data.isActive,
     };
     updateEmployee({ id: employeeId, data: payload });
@@ -147,34 +141,6 @@ export function EditEmployeeForm({ employeeId, defaultValues }: EditEmployeeForm
 
             <FormField
               control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="e.g., john@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., 081234567890" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="image"
               render={({ field }) => (
                 <FormItem className="col-span-2">
@@ -219,7 +185,7 @@ export function EditEmployeeForm({ employeeId, defaultValues }: EditEmployeeForm
               control={form.control}
               name="isActive"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex flex-row items-center justify-between rounded-lg bg-input border p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Active Status</FormLabel>
                     <FormDescription>Enable or disable employee access</FormDescription>

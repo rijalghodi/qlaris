@@ -18,22 +18,8 @@ type UserRole string
 const (
 	USER_ROLE_OWNER      UserRole = "owner"
 	USER_ROLE_SUPERADMIN UserRole = "superadmin"
-)
-
-type EmployeeRole string
-
-const (
-	EMPLOYEE_ROLE_CASHIER EmployeeRole = "cashier"
-	EMPLOYEE_ROLE_MANAGER EmployeeRole = "manager"
-)
-
-type JwtRole string
-
-const (
-	JWT_ROLE_USER       JwtRole = "user"
-	JWT_ROLE_EMPLOYEE   JwtRole = "employee"
-	JWT_ROLE_SUPERADMIN JwtRole = "superadmin"
-	JWT_ROLE_OWNER      JwtRole = "owner"
+	USER_ROLE_CASHIER    UserRole = "cashier"
+	USER_ROLE_MANAGER    UserRole = "manager"
 )
 
 type BarcodeType string
