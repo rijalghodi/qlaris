@@ -27,7 +27,7 @@ export function DeleteAccountCard({ userId }: { userId: string }) {
       variant: "destructive",
       confirmLabel: "Delete Account",
       onConfirm: () => {
-        deleteUser(userId);
+        deleteUser();
       },
     });
   };

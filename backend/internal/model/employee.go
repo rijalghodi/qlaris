@@ -12,6 +12,9 @@ type Employee struct {
 	BusinessID string              `gorm:"type:uuid;not null" json:"business_id"`
 	PinHash    string              `gorm:"type:text;not null" json:"-"` // Hidden from JSON, stores hashed password
 	Image      *string             `gorm:"type:text" json:"image,omitempty"`
+	Phone      *string             `gorm:"type:varchar(20)" json:"phone,omitempty"`
+	Email      *string             `gorm:"type:varchar(255)" json:"email,omitempty"`
+	IsActive   bool                `gorm:"not null;default:true" json:"isActive"`
 	CreatedAt  time.Time           `gorm:"not null;default:now()" json:"created_at"`
 	UpdatedAt  time.Time           `gorm:"not null;default:now()" json:"updated_at"`
 

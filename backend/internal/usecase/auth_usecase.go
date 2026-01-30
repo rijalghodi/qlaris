@@ -37,22 +37,28 @@ func NewAuthUsecase(userRepo *repository.UserRepository, employeeRepo *repositor
 	}
 }
 
-func (u *AuthUsecase) LoginGoogleUser(c *fiber.Ctx, req *contract.GoogleLoginReq) (*contract.GoogleLoginRes, error) {
-	userFromDB, err := u.userRepo.GetUserByEmail(req.Email)
+func (u *AuthUsecase) LoginGoogleUser(
+	c *fiber.Ctx,
+	req *contract.GoogleLoginReq,
+) (*contract.GoogleLoginRes, error) {
 
-	if userFromDB == nil || err != nil {
-		var googleImage *string
-		if req.Picture != "" {
-			googleImage = &req.Picture
+	googleImage := func() *string {
+		if req.Picture == "" {
+			return nil
 		}
-		user := &model.User{
+		return &req.Picture
+	}()
+
+	user, err := u.userRepo.GetUserByEmail(req.Email)
+	if err != nil || user == nil {
+		user = &model.User{
 			Name:        req.Name,
 			Email:       req.Email,
 			IsVerified:  req.VerifiedEmail,
 			GoogleImage: googleImage,
 			Role:        config.USER_ROLE_OWNER,
 			Business: &model.Business{
-				Name: fmt.Sprintf("%s Store", req.Name),
+				Name: "My store",
 			},
 		}
 
@@ -60,62 +66,30 @@ func (u *AuthUsecase) LoginGoogleUser(c *fiber.Ctx, req *contract.GoogleLoginReq
 			logger.Log.Errorf("Failed to create user: %+v", err)
 			return nil, err
 		}
+	} else {
+		user.IsVerified = req.VerifiedEmail
+		user.GoogleImage = googleImage
 
-		// // create business for user
-		// business := &model.Business{
-		// 	ID:   uuid.New().String(),
-		// 	Name: req.Name,
-		// }
-		// if err := u.businessRepo.CreateBusiness(business); err != nil {
-		// 	logger.Log.Errorf("Failed to create business: %+v", err)
-		// 	return nil, err
-		// }
-
-		// // create user role for user
-		// userRole := &model.UserRole{
-		// 	UserID:       user.ID,
-		// 	BusinessID: business.ID,
-		// 	Role:         config.USER_ROLE_OWNER,
-		// }
-		// if err := u.userRepo.CreateUserRole(userRole); err != nil {
-		// 	logger.Log.Errorf("Failed to create user role: %+v", err)
-		// 	return nil, err
-		// }
-
-		tokens, err := u.generateTokenPair(userFromDB.ID)
-		if err != nil {
-			logger.Log.Error("Failed to generate token pair", zap.Error(err), zap.String("userID", user.ID))
+		if err := u.userRepo.UpdateUser(user); err != nil {
+			logger.Log.Errorf("Failed to update user: %+v", err)
 			return nil, err
 		}
-
-		SetAuthCookies(c, tokens)
-
-		return &contract.GoogleLoginRes{
-			UserRes: BuildUserRes(util.ToValue(user), u.storage),
-		}, nil
 	}
 
-	userFromDB.IsVerified = req.VerifiedEmail
-	var googleImage *string
-	if req.Picture != "" {
-		googleImage = &req.Picture
-	}
-	userFromDB.GoogleImage = googleImage
-	if err := u.userRepo.UpdateUser(userFromDB); err != nil {
-		logger.Log.Errorf("Failed to update user: %+v", err)
-		return nil, err
-	}
-
-	tokens, err := u.generateTokenPair(userFromDB.ID)
+	tokens, err := u.generateTokenPair(user.ID)
 	if err != nil {
-		logger.Log.Error("Failed to generate token pair", zap.Error(err), zap.String("userID", userFromDB.ID))
+		logger.Log.Error(
+			"Failed to generate token pair",
+			zap.Error(err),
+			zap.String("userID", user.ID),
+		)
 		return nil, err
 	}
 
 	SetAuthCookies(c, tokens)
 
 	return &contract.GoogleLoginRes{
-		UserRes: BuildUserRes(util.ToValue(userFromDB), u.storage),
+		UserRes: BuildUserRes(util.ToValue(user), u.storage),
 	}, nil
 }
 
@@ -235,8 +209,7 @@ func (u *AuthUsecase) Register(req *contract.RegisterReq) (*contract.RegisterRes
 		IsVerified:   false,
 		Role:         config.USER_ROLE_OWNER,
 		Business: &model.Business{
-			ID:   uuid.New().String(),
-			Name: fmt.Sprintf("%s Store", req.Name),
+			Name: "My store",
 		},
 	}
 

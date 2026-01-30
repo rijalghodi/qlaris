@@ -35,17 +35,7 @@ export function GoogleSuccess() {
   const [success, setSuccess] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!accessToken || !refreshToken) {
-      setError("No access token or refresh token found");
-      return;
-    }
-
     try {
-      setAuthCookie({
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-      });
-
       setSuccess(true);
       router.push(ROUTES.DASHBOARD);
     } catch (err) {

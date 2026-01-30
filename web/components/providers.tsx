@@ -8,7 +8,7 @@ import { BarcodeScanProvider } from "./ui/barcode-scan-dialog";
 import { Toaster } from "./ui/sonner";
 import { DialogManagerProvider } from "./ui/dialog-manager";
 import { AddCategoryDialog } from "./category/add-category-dialog";
-import { SetupMeDialog } from "./profile/setup-profile-dialog";
+import { SetupProfileDialog } from "./profile/setup-profile-dialog";
 import { ConfirmDialog } from "./ui/dialog-confirm";
 import { EditCategoryDialog } from "./category/edit-category-dialog";
 import { SortCategoryDialog } from "./category/sort-category-dialog";
@@ -28,7 +28,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             addCategory: AddCategoryDialog,
             editCategory: EditCategoryDialog,
             sortCategory: SortCategoryDialog,
-            setupMe: SetupMeDialog,
+            setupProfile: SetupProfileDialog,
           }}
         >
           <ConfirmationProvider>

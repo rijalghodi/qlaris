@@ -2,10 +2,12 @@ package contract
 
 // Current user
 type BusinessRes struct {
-	ID      string   `json:"id"`
-	Name    string   `json:"name"`
-	Address *string  `json:"address"`
-	Logo    *FileRes `json:"logo"`
+	ID            string   `json:"id"`
+	Name          string   `json:"name"`
+	Address       *string  `json:"address"`
+	EmployeeCount *string  `json:"employeeCount"`
+	Category      *string  `json:"category"`
+	Logo          *FileRes `json:"logo"`
 }
 
 type RoleRes struct {
@@ -50,16 +52,16 @@ type EditCurrentUserBusinessReq struct {
 
 // User (Employee)
 type CreateUserReq struct {
-	Email string  `json:"email" validate:"required,email,max=255"`
-	Pin   string  `json:"pin" validate:"required,numeric,len=6"`
-	Name  string  `json:"name" validate:"required,max=255"`
-	Role  string  `json:"role" validate:"required,oneof=manager cashier"`
-	Image *string `json:"image"`
+	Email    string  `json:"email" validate:"required,email,max=255"`
+	Name     string  `json:"name" validate:"max=255"`
+	Password string  `json:"password" validate:"password"`
+	Role     string  `json:"role" validate:"required,oneof=owner superadmin"`
+	Image    *string `json:"image"`
 }
 
 type UpdateUserReq struct {
-	Name  *string `json:"name" validate:"max=255"`
-	Role  *string `json:"role" validate:"oneof=manager cashier"`
-	Pin   *string `json:"pin" validate:"omitempty,numeric,len=6"`
-	Image *string `json:"image"`
+	Name     string  `json:"name" validate:"max=255"`
+	Password string  `json:"password" validate:"password"`
+	Role     string  `json:"role" validate:"required,oneof=owner superadmin"`
+	Image    *string `json:"image"`
 }

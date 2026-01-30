@@ -30,7 +30,6 @@ func (h *EmployeeHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	employeeGroup.Get("/:id", h.GetEmployee)
 	employeeGroup.Put("/:id", h.UpdateEmployee)
 	employeeGroup.Delete("/:id", h.DeleteEmployee)
-	employeeGroup.Put("/:id/pin", h.UpdateEmployeePin)
 }
 
 // @Tags Employees
@@ -114,48 +113,48 @@ func (h *EmployeeHandler) UpdateEmployee(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(employee))
 }
 
-// @Tags Employees
-// @Summary Update employee PIN
-// @Description Update employee's PIN code
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Employee ID"
-// @Param request body contract.UpdateEmployeePinReq true "Update PIN request"
-// @Success 200 {object} util.BaseResponse
-// @Failure 400 {object} util.BaseResponse
-// @Failure 401 {object} util.BaseResponse
-// @Failure 404 {object} util.BaseResponse
-// @Failure 500 {object} util.BaseResponse
-// @Router /employees/{id}/pin [put]
-func (h *EmployeeHandler) UpdateEmployeePin(c *fiber.Ctx) error {
-	employeeID := c.Params("id")
-	if employeeID == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "Employee ID is required")
-	}
+// // @Tags Employees
+// // @Summary Update employee PIN
+// // @Description Update employee's PIN code
+// // @Accept json
+// // @Produce json
+// // @Security BearerAuth
+// // @Param id path string true "Employee ID"
+// // @Param request body contract.UpdateEmployeePinReq true "Update PIN request"
+// // @Success 200 {object} util.BaseResponse
+// // @Failure 400 {object} util.BaseResponse
+// // @Failure 401 {object} util.BaseResponse
+// // @Failure 404 {object} util.BaseResponse
+// // @Failure 500 {object} util.BaseResponse
+// // @Router /employees/{id}/pin [put]
+// func (h *EmployeeHandler) UpdateEmployeePin(c *fiber.Ctx) error {
+// 	employeeID := c.Params("id")
+// 	if employeeID == "" {
+// 		return fiber.NewError(fiber.StatusBadRequest, "Employee ID is required")
+// 	}
 
-	var req contract.UpdateEmployeePinReq
-	if err := c.BodyParser(&req); err != nil {
-		logger.Log.Warn("Failed to parse request body", zap.Error(err))
-		return err
-	}
+// 	var req contract.UpdateEmployeePinReq
+// 	if err := c.BodyParser(&req); err != nil {
+// 		logger.Log.Warn("Failed to parse request body", zap.Error(err))
+// 		return err
+// 	}
 
-	if err := util.ValidateStruct(&req); err != nil {
-		logger.Log.Warn("Validation error", zap.Error(err))
-		return err
-	}
+// 	if err := util.ValidateStruct(&req); err != nil {
+// 		logger.Log.Warn("Validation error", zap.Error(err))
+// 		return err
+// 	}
 
-	claims := middleware.GetAuthClaims(c)
-	if err := h.employeeUsecase.IsAllowedToAccess(claims, []config.Permission{config.EDIT_USER_ANY, config.EDIT_USER_ORG, config.EDIT_USER_SELF}, &employeeID); err != nil {
-		return err
-	}
+// 	claims := middleware.GetAuthClaims(c)
+// 	if err := h.employeeUsecase.IsAllowedToAccess(claims, []config.Permission{config.EDIT_USER_ANY, config.EDIT_USER_ORG, config.EDIT_USER_SELF}, &employeeID); err != nil {
+// 		return err
+// 	}
 
-	if err := h.employeeUsecase.UpdateEmployeePin(employeeID, *claims.BusinessID, &req); err != nil {
-		return err
-	}
+// 	if err := h.employeeUsecase.UpdateEmployeePin(employeeID, *claims.BusinessID, &req); err != nil {
+// 		return err
+// 	}
 
-	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse("PIN updated successfully"))
-}
+// 	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse("PIN updated successfully"))
+// }
 
 // @Tags Employees
 // @Summary Get employee

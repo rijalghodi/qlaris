@@ -10,27 +10,18 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ROUTES } from "@/lib/routes";
 import { CheckCircle2, X } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 
 export function GoogleSuccess() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const accessToken = searchParams.get("accessToken");
-  const refreshToken = searchParams.get("refreshToken");
 
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!accessToken || !refreshToken) {
-      setError("No access token or refresh token found");
-      return;
-    }
-
     try {
       setSuccess(true);
       router.push(ROUTES.DASHBOARD);
@@ -38,7 +29,7 @@ export function GoogleSuccess() {
       setError("Failed to set authentication cookies");
       console.error(err);
     }
-  }, [accessToken, refreshToken, router]);
+  }, [router]);
 
   // Loading State (initial state)
   if (!success && !error) {

@@ -76,10 +76,6 @@ func (r *UserRepository) CreateUser(user *model.User) error {
 	return r.db.Create(user).Error
 }
 
-func (r *UserRepository) CreateUserRole(userRole *model.Role) error {
-	return r.db.Create(userRole).Error
-}
-
 func (r *UserRepository) UpdateUser(user *model.User) error {
 	return r.db.Save(user).Error
 }

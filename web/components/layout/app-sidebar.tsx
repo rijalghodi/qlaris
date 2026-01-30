@@ -27,6 +27,7 @@ import {
   Sparkles,
   SquareActivityIcon,
   Tags,
+  Users,
   UsersIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -154,6 +155,20 @@ export function AppSidebar() {
                       <Link href={ROUTES.TRANSACTIONS}>
                         <File />
                         <span>Transaction History</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={
+                        pathname.startsWith(ROUTES.EMPLOYEES) && pathname !== ROUTES.EMPLOYEES
+                      }
+                      title="Employees"
+                    >
+                      <Link href={ROUTES.EMPLOYEES}>
+                        <Users />
+                        <span>Employees</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

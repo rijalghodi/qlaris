@@ -75,6 +75,14 @@ func (u *EmployeeUsecase) UpdateEmployee(employeeID, businessID string, req *con
 	if req.Image != nil {
 		employee.Image = req.Image
 	}
+	if req.Pin != nil {
+		hashedPin, err := util.HashPassword(*req.Pin)
+		if err != nil {
+			logger.Log.Error("Failed to hash PIN", zap.Error(err))
+			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to create employee")
+		}
+		employee.PinHash = hashedPin
+	}
 
 	if err := u.employeeRepo.UpdateEmployee(employee); err != nil {
 		logger.Log.Error("Failed to update employee", zap.Error(err), zap.String("employeeID", employeeID))
@@ -84,31 +92,31 @@ func (u *EmployeeUsecase) UpdateEmployee(employeeID, businessID string, req *con
 	return util.ToPointer(BuildEmployeeRes(*employee, u.storage)), nil
 }
 
-func (u *EmployeeUsecase) UpdateEmployeePin(employeeID, businessID string, req *contract.UpdateEmployeePinReq) error {
-	employee, err := u.employeeRepo.GetEmployeeByIDAndBusinessID(employeeID, businessID)
-	if err != nil {
-		logger.Log.Error("Failed to get employee", zap.Error(err), zap.String("employeeID", employeeID))
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get employee")
-	}
+// func (u *EmployeeUsecase) UpdateEmployeePin(employeeID, businessID string, req *contract.UpdateEmployeePinReq) error {
+// 	employee, err := u.employeeRepo.GetEmployeeByIDAndBusinessID(employeeID, businessID)
+// 	if err != nil {
+// 		logger.Log.Error("Failed to get employee", zap.Error(err), zap.String("employeeID", employeeID))
+// 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get employee")
+// 	}
 
-	if employee == nil {
-		return fiber.NewError(fiber.StatusNotFound, "Employee not found")
-	}
+// 	if employee == nil {
+// 		return fiber.NewError(fiber.StatusNotFound, "Employee not found")
+// 	}
 
-	// Hash new PIN
-	hashedPin, err := util.HashPassword(req.Pin)
-	if err != nil {
-		logger.Log.Error("Failed to hash PIN", zap.Error(err))
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to update PIN")
-	}
+// 	// Hash new PIN
+// 	hashedPin, err := util.HashPassword(req.Pin)
+// 	if err != nil {
+// 		logger.Log.Error("Failed to hash PIN", zap.Error(err))
+// 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to update PIN")
+// 	}
 
-	if err := u.employeeRepo.UpdateEmployeePin(employeeID, hashedPin); err != nil {
-		logger.Log.Error("Failed to update PIN", zap.Error(err), zap.String("employeeID", employeeID))
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to update PIN")
-	}
+// 	if err := u.employeeRepo.UpdateEmployeePin(employeeID, hashedPin); err != nil {
+// 		logger.Log.Error("Failed to update PIN", zap.Error(err), zap.String("employeeID", employeeID))
+// 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to update PIN")
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 func (u *EmployeeUsecase) GetEmployee(employeeID, businessID string) (*contract.EmployeeRes, error) {
 	employee, err := u.employeeRepo.GetEmployeeByIDAndBusinessID(employeeID, businessID)
@@ -220,6 +228,7 @@ func BuildEmployeeRes(employee model.Employee, storage *storage.R2Storage) contr
 		Role:      string(employee.Role),
 		Business:  business,
 		Image:     image,
+		IsActive:  employee.IsActive,
 		CreatedAt: employee.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt: employee.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}

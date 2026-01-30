@@ -9,6 +9,9 @@ CREATE TABLE employees (
   name VARCHAR(255) NOT NULL,
   image TEXT,
   pin_hash TEXT NOT NULL,
+  phone VARCHAR(20),
+  email VARCHAR(255),
+  is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -34,12 +37,7 @@ ADD COLUMN category VARCHAR(32) CHECK (
   )
 ),
 ADD COLUMN code VARCHAR(16) NOT NULL UNIQUE
-  DEFAULT upper(substr(gen_random_uuid()::text, 1, 6));
-
--- seed the company code
-UPDATE businesses 
-SET code = upper(substr(gen_random_uuid()::text, 1, 6))
-WHERE code IS NULL;
+DEFAULT floor(random() * 1000000)::text;
 
 -- +migrate Down
 

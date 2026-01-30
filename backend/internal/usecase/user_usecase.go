@@ -147,16 +147,6 @@ func (u *UserUsecase) EditBusiness(userID string, businessID string, req *contra
 		if err := u.businessRepo.CreateBusiness(business); err != nil {
 			return nil, err
 		}
-
-		// Link as owner since it's a new business
-		role := &model.Role{
-			UserID:     userID,
-			BusinessID: util.ToPointer(business.ID),
-			Role:       config.USER_ROLE_OWNER,
-		}
-		if err := u.userRepo.CreateUserRole(role); err != nil {
-			return nil, err
-		}
 	} else {
 		if err := u.businessRepo.UpdateBusiness(business); err != nil {
 			return nil, err
@@ -223,11 +213,24 @@ func BuildBusinessRes(business model.Business, storage *storage.R2Storage) contr
 		}
 	}
 
+	// Get employee count
+	var employeeCount *string
+	if business.EmployeeCount != nil {
+		for _, v := range config.EmployeeCountMap {
+			if *business.EmployeeCount >= v.Min && *business.EmployeeCount <= v.Max {
+				employeeCount = &v.Name
+				break
+			}
+		}
+	}
+
 	return contract.BusinessRes{
-		ID:      business.ID,
-		Name:    business.Name,
-		Address: business.Address,
-		Logo:    logo,
+		ID:            business.ID,
+		Name:          business.Name,
+		Address:       business.Address,
+		EmployeeCount: employeeCount,
+		Category:      business.Category,
+		Logo:          logo,
 	}
 }
 

@@ -6,3 +6,8 @@ export enum Role {
   ADMIN = "superadmin",
   USER = "owner",
 }
+
+export enum EmployeeRole {
+  CASHIER = "cashier",
+  MANAGER = "manager",
+}
