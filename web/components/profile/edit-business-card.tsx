@@ -42,7 +42,13 @@ const businessSchema = z.object({
 
 type BusinessFormData = z.infer<typeof businessSchema>;
 
-export function EditBusinessCard({ user }: { user: UserRes }) {
+export function EditBusinessCard({
+  user,
+  readOnly = false,
+}: {
+  user: UserRes;
+  readOnly?: boolean;
+}) {
   const { mutate: updateBusiness, isPending } = useEditCurrentUserBusiness({
     onSuccess: () => {
       toast.success("Business information updated successfully");
@@ -95,6 +101,7 @@ export function EditBusinessCard({ user }: { user: UserRes }) {
                       defaultValueUrl={user.business?.logo?.url}
                       folder="businesses"
                       className="rounded-full w-24 h-24 sm:w-28 sm:h-28"
+                      readOnly={readOnly}
                     />
                   </FormControl>
                   <FormMessage />
@@ -110,7 +117,7 @@ export function EditBusinessCard({ user }: { user: UserRes }) {
                   <FormItem>
                     <FormLabel>Business Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Business Name" {...field} />
+                      <Input placeholder="Business Name" {...field} readOnly={readOnly} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -123,7 +130,7 @@ export function EditBusinessCard({ user }: { user: UserRes }) {
                   <FormItem>
                     <FormLabel>Business Code</FormLabel>
                     <FormControl>
-                      <Input placeholder="Business Code" {...field} />
+                      <Input placeholder="Business Code" {...field} readOnly={readOnly} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -138,6 +145,7 @@ export function EditBusinessCard({ user }: { user: UserRes }) {
                     <SelectInput
                       placeholder="Select category"
                       options={BUSINESS_CATEGORIES}
+                      disabled={readOnly}
                       {...field}
                     />
 
@@ -151,7 +159,12 @@ export function EditBusinessCard({ user }: { user: UserRes }) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Employee Number</FormLabel>
-                    <SelectInput placeholder="Select size" options={EMPLOYEE_COUNT} {...field} />
+                    <SelectInput
+                      placeholder="Select size"
+                      options={EMPLOYEE_COUNT}
+                      disabled={readOnly}
+                      {...field}
+                    />
                     <FormMessage />
                   </FormItem>
                 )}
@@ -165,19 +178,21 @@ export function EditBusinessCard({ user }: { user: UserRes }) {
                 <FormItem>
                   <FormLabel>Business Address</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Business Address" {...field} />
+                    <Textarea placeholder="Business Address" {...field} readOnly={readOnly} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <div className="flex justify-end">
-              <Button type="submit" disabled={!form.formState.isDirty || isPending}>
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Changes
-              </Button>
-            </div>
+            {!readOnly && (
+              <div className="flex justify-end">
+                <Button type="submit" disabled={!form.formState.isDirty || isPending}>
+                  {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save Changes
+                </Button>
+              </div>
+            )}
           </form>
         </Form>
       </CardContent>

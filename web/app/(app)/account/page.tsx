@@ -10,10 +10,14 @@ import { EditProfileCard } from "@/components/profile/edit-profile-card";
 import { EditBusinessCard } from "@/components/profile/edit-business-card";
 import { EditPasswordCard } from "@/components/profile/edit-password-card";
 import { DeleteAccountCard } from "@/components/profile/delete-account-card";
+import { employeeRoles } from "@/lib/constant";
 
 export default function AccountPage() {
   const { data: userResponse, isLoading, error } = useGetCurrentUser();
   const user = userResponse?.data;
+
+  // Check if user is an employee (cashier or manager)
+  const isEmployee = user && employeeRoles.includes(user.role);
 
   if (isLoading) {
     return (
@@ -45,10 +49,14 @@ export default function AccountPage() {
       </div>
 
       <div className="grid gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <EditProfileCard user={user} />
-        <EditBusinessCard user={user} />
-        <EditPasswordCard />
-        <DeleteAccountCard userId={user.id} />
+        <EditProfileCard user={user} readOnly={isEmployee} />
+        {!isEmployee && (
+          <>
+            <EditBusinessCard user={user} />
+            <EditPasswordCard />
+            <DeleteAccountCard userId={user.id} />
+          </>
+        )}
       </div>
     </div>
   );

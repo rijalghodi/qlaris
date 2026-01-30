@@ -28,7 +28,7 @@ const profileSchema = z.object({
 
 type ProfileFormData = z.infer<typeof profileSchema>;
 
-export function EditProfileCard({ user }: { user: UserRes }) {
+export function EditProfileCard({ user, readOnly = false }: { user: UserRes; readOnly?: boolean }) {
   const { mutate: updateProfile, isPending } = useEditCurrentUser({
     onSuccess: () => {
       toast.success("Profile updated successfully");
@@ -74,6 +74,7 @@ export function EditProfileCard({ user }: { user: UserRes }) {
                       defaultValueUrl={user.image?.url || user.googleImage}
                       folder="users"
                       className="rounded-full w-24 h-24 sm:w-28 sm:h-28"
+                      readOnly={readOnly}
                     />
                   </FormControl>
                   <FormMessage />
@@ -87,19 +88,21 @@ export function EditProfileCard({ user }: { user: UserRes }) {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Your Name" {...field} />
+                    <Input placeholder="Your Name" {...field} readOnly={readOnly} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <div className="flex justify-end">
-              <Button type="submit" disabled={!form.formState.isDirty || isPending}>
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Changes
-              </Button>
-            </div>
+            {!readOnly && (
+              <div className="flex justify-end">
+                <Button type="submit" disabled={!form.formState.isDirty || isPending}>
+                  {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save Changes
+                </Button>
+              </div>
+            )}
           </form>
         </Form>
       </CardContent>

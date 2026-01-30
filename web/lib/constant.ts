@@ -9,6 +9,8 @@ export enum Role {
   MANAGER = "manager",
 }
 
+export const employeeRoles = [Role.CASHIER, Role.MANAGER];
+
 export const BUSINESS_CATEGORIES = [
   { label: "Cafe", value: "cafe" },
   { label: "Restaurant", value: "restaurant" },
