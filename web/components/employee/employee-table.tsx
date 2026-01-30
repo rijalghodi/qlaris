@@ -7,7 +7,7 @@ import type { ColumnDef } from "@/components/ui/data-table";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import type { Employee } from "@/services/api-employee";
 import { Badge } from "@/components/ui/badge";
-import { EmployeeRole } from "@/lib/constant";
+import { Role } from "@/lib/constant";
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -46,8 +46,8 @@ export function EmployeeTable({ employees, isLoading, onDelete, onEdit }: Employ
       cell: ({ row }) => {
         const role = row.original.role;
         return (
-          <Badge variant={role === EmployeeRole.MANAGER ? "default" : "secondary"}>
-            {role === EmployeeRole.MANAGER ? "Manager" : "Cashier"}
+          <Badge variant={role === Role.MANAGER ? "default" : "secondary"}>
+            {role === Role.MANAGER ? "Manager" : "Cashier"}
           </Badge>
         );
       },

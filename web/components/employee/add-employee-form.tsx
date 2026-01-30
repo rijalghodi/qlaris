@@ -25,7 +25,7 @@ import { User, Lock } from "lucide-react";
 import { ImageInput } from "../ui/image-input-2";
 import { Switch } from "../ui/switch";
 import { SelectInput } from "../ui/select-input";
-import { EmployeeRole } from "@/lib/constant";
+import { Role } from "@/lib/constant";
 import { InputOTP } from "../ui/input-otp";
 
 const employeeSchema = z.object({
@@ -34,7 +34,7 @@ const employeeSchema = z.object({
     .string()
     .length(6, "PIN must be exactly 6 digits")
     .regex(/^\d+$/, "PIN must contain only numbers"),
-  role: z.enum([EmployeeRole.CASHIER, EmployeeRole.MANAGER], {
+  role: z.enum([Role.CASHIER, Role.MANAGER], {
     required_error: "Role is required",
   }),
   image: z.string().optional().or(z.literal("")),
@@ -54,7 +54,7 @@ export function AddEmployeeForm() {
     defaultValues: {
       name: "",
       pin: "",
-      role: EmployeeRole.CASHIER,
+      role: undefined,
       image: "",
       phone: "",
       email: "",
@@ -127,8 +127,8 @@ export function AddEmployeeForm() {
                     <SelectInput
                       placeholder="Select role"
                       options={[
-                        { label: "Cashier", value: EmployeeRole.CASHIER },
-                        { label: "Manager", value: EmployeeRole.MANAGER },
+                        { label: "Cashier", value: Role.CASHIER },
+                        { label: "Manager", value: Role.MANAGER },
                       ]}
                       {...field}
                     />

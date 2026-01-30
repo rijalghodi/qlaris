@@ -168,6 +168,51 @@ func (u *AuthUsecase) LoginEmployee(c *fiber.Ctx, req *contract.LoginEmployeeReq
 	}, nil
 }
 
+func (u *AuthUsecase) ListLoginableEmployees(businessCode string) ([]contract.LoginableEmployeeRes, error) {
+	// Get business by code
+	business, err := u.businessRepo.GetBusinessByCode(businessCode)
+	if err != nil {
+		logger.Log.Error("Failed to query business by code", zap.Error(err), zap.String("code", businessCode))
+		return nil, fiber.NewError(fiber.StatusInternalServerError)
+	}
+
+	if business == nil {
+		return nil, fiber.NewError(fiber.StatusNotFound, "Business not found")
+	}
+
+	// Get all users for this business with is_active = true
+	users, _, err := u.userRepo.ListUsers(business.ID, 1, 1000) // Get up to 1000 employees
+	if err != nil {
+		logger.Log.Error("Failed to list employees", zap.Error(err), zap.String("businessID", business.ID))
+		return nil, fiber.NewError(fiber.StatusInternalServerError)
+	}
+
+	// Filter and build response
+	var employees []contract.LoginableEmployeeRes
+	for _, user := range users {
+		// Only include active employees (cashier or manager)
+		if user.IsActive && (user.Role == config.USER_ROLE_CASHIER || user.Role == config.USER_ROLE_MANAGER) {
+			var image *contract.FileRes
+			if user.Image != nil && u.storage != nil {
+				imageURL, _ := u.storage.PresignGet(*user.Image, 0)
+				image = &contract.FileRes{
+					Key: *user.Image,
+					URL: imageURL,
+				}
+			}
+
+			employees = append(employees, contract.LoginableEmployeeRes{
+				ID:    user.ID,
+				Name:  user.Name,
+				Role:  string(user.Role),
+				Image: image,
+			})
+		}
+	}
+
+	return employees, nil
+}
+
 func (u *AuthUsecase) Register(req *contract.RegisterReq) (*contract.RegisterRes, error) {
 	existingUser, err := u.userRepo.GetUserByEmail(req.Email)
 	if err != nil {

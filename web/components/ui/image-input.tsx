@@ -57,7 +57,7 @@ export const ImageInput = React.forwardRef<ImageInputRef, ImageInputProps>(
       onResetFile,
       disabled,
       readOnly,
-      placeholder = "Drag & drop or select image",
+      placeholder = "Select image",
       folder,
       maxSizeMB,
       isPublic,

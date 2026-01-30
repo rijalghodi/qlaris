@@ -77,6 +77,14 @@ type LoginEmployeeRes struct {
 	Image        *FileRes `json:"image"`
 }
 
+// LoginableEmployeeRes represents a simplified employee response for login selection
+type LoginableEmployeeRes struct {
+	ID    string   `json:"id"`
+	Name  string   `json:"name"`
+	Role  string   `json:"role"`
+	Image *FileRes `json:"image,omitempty"`
+}
+
 type RegisterReq struct {
 	Email    string `json:"email" validate:"required,email,max=50"`
 	Password string `json:"password" validate:"required,min=8,max=50"`

@@ -35,7 +35,8 @@ func (h *AuthHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	authGroup.Get("/google/login", h.GoogleLogin)
 	authGroup.Get("/google/callback", h.GoogleCallback)
 	authGroup.Post("/login", h.Login)
-	authGroup.Post("/login-employee", h.LoginEmployee)
+	authGroup.Post("/login/employees", h.LoginEmployee)
+	authGroup.Get("/login/:business_code/employees", h.ListLoginableEmployees)
 	authGroup.Post("/register", h.Register)
 	authGroup.Post("/send-verification", h.SendVerificationEmail)
 	authGroup.Post("/verify-email", h.VerifyEmail)
@@ -136,7 +137,7 @@ func (h *AuthHandler) GoogleCallback(c *fiber.Ctx) error {
 		return err
 	}
 
-	googleLoginURL := fmt.Sprintf(config.Env.GoogleOAuth.ClientCallbackURI)
+	googleLoginURL := fmt.Sprintf("%s", config.Env.GoogleOAuth.ClientCallbackURI)
 
 	return c.Status(fiber.StatusSeeOther).Redirect(googleLoginURL)
 }
@@ -197,6 +198,30 @@ func (h *AuthHandler) LoginEmployee(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
+}
+
+// @Tags Auth
+// @Summary List Loginable Employees
+// @Description Get list of active employees for a business by business code
+// @Accept json
+// @Produce json
+// @Param business_code path string true "Business code"
+// @Success 200 {object} util.BaseResponse{data=[]contract.LoginableEmployeeRes}
+// @Failure 404 {object} util.BaseResponse
+// @Router /auth/login/{business_code}/employees [get]
+func (h *AuthHandler) ListLoginableEmployees(c *fiber.Ctx) error {
+	businessCode := c.Params("business_code")
+	if businessCode == "" {
+		logger.Log.Warn("Business code is required")
+		return fiber.NewError(fiber.StatusBadRequest, "Business code is required")
+	}
+
+	employees, err := h.authUsecase.ListLoginableEmployees(businessCode)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(employees))
 }
 
 // @Tags Auth

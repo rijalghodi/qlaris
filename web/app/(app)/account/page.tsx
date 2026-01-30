@@ -7,6 +7,7 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { useGetCurrentUser } from "@/services/api-user";
 import { ROUTES } from "@/lib/routes";
 import { EditProfileCard } from "@/components/profile/edit-profile-card";
+import { EditBusinessCard } from "@/components/profile/edit-business-card";
 import { EditPasswordCard } from "@/components/profile/edit-password-card";
 import { DeleteAccountCard } from "@/components/profile/delete-account-card";
 
@@ -45,6 +46,7 @@ export default function AccountPage() {
 
       <div className="grid gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <EditProfileCard user={user} />
+        <EditBusinessCard user={user} />
         <EditPasswordCard />
         <DeleteAccountCard userId={user.id} />
       </div>
