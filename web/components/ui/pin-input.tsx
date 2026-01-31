@@ -66,7 +66,7 @@ export const PinInput = React.forwardRef<HTMLDivElement, PinInputProps>(
     ];
 
     return (
-      <div ref={ref} className={cn("w-full max-w-xs mx-auto", className)}>
+      <div ref={ref} className={cn("", className)}>
         {renderPinDots()}
 
         <div className="space-y-3">

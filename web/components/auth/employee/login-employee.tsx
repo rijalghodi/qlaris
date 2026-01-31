@@ -44,7 +44,17 @@ export function LoginEmployee() {
 
   // Step 3: Submit PIN
   const handlePinSubmit = (pin: string) => {
-    if (!selectedEmployee) return;
+    if (!selectedEmployee) {
+      setError("Employee not selected");
+      setStep(2);
+      return;
+    }
+
+    if (!businessCode) {
+      setError("Business code not selected");
+      setStep(1);
+      return;
+    }
     setError("");
     loginEmployee({
       businessCode,
@@ -66,14 +76,12 @@ export function LoginEmployee() {
   };
 
   return (
-    <div className="w-full max-w-lg space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="space-y-2 text-center mb-8">
-        {error && (
-          <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive text-center">
-            {error}
-          </div>
-        )}
-      </div>
+    <div className="w-full max-w-md space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {error && (
+        <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive text-center">
+          {error}
+        </div>
+      )}
 
       <Tabs
         defaultValue="1"

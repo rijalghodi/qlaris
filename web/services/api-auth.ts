@@ -356,6 +356,8 @@ export const useLoginEmployee = ({
   return useMutation({
     mutationFn: (data: LoginEmployeeReq) => authApi.loginEmployee(data),
     onSuccess: (data: LoginEmployeeRes) => {
+      // Note: Employee login uses httpOnly cookies set by the server
+      // No need to manually set cookies here
       onSuccess?.(data);
     },
     onError: (error: GErrorResponse) => {

@@ -43,7 +43,7 @@ export function PinInputSection({ selectedEmployee, onSubmit, onBack, isLoading 
   }
 
   return (
-    <div className="space-y-6 max-w-sm animate-in fade-in slide-in-from-bottom-4 duration-300 ease-out">
+    <div className="space-y-6 max-w-md animate-in fade-in slide-in-from-bottom-4 duration-300 ease-out">
       <div className="flex gap-0.5 items-center">
         <Button variant="ghost" size="icon" onClick={onBack}>
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -73,7 +73,7 @@ export function PinInputSection({ selectedEmployee, onSubmit, onBack, isLoading 
           control={form.control}
           name="pin"
           render={({ field }) => (
-            <FormItem className="py-3">
+            <FormItem className="py-3 flex justify-start">
               <FormControl>
                 <PinInput
                   length={6}
@@ -87,10 +87,10 @@ export function PinInputSection({ selectedEmployee, onSubmit, onBack, isLoading 
             </FormItem>
           )}
         />
-        <div className="flex gap-2 w-full">
+        <div className="flex gap-2 w-full justify-center">
           <Button
             type="button"
-            className="h-10 rounded-full flex-1"
+            className="h-10 rounded-full w-32"
             disabled={isLoading || form.watch("pin").length !== 6}
             onClick={() => onSubmit(form.watch("pin"))}
           >
