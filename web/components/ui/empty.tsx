@@ -93,14 +93,16 @@ function EmptyState({
   description,
   icon,
   action,
+  className,
 }: {
   title: string;
   description: string;
   icon: React.ReactNode;
   action?: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <Empty>
+    <Empty className={className}>
       <EmptyHeader>
         <EmptyMedia>{icon || <FolderOpen className="size-6 text-muted-foreground" />}</EmptyMedia>
         <EmptyTitle>{title}</EmptyTitle>

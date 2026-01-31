@@ -150,13 +150,23 @@ export function LoginForm() {
       </Button>
 
       {/* Register */}
-      <p className="px-8 text-center text-sm text-muted-foreground">
+      <p className="text-center text-sm text-muted-foreground">
         Don't have an account?{" "}
         <Link
           href="/register"
           className="hover:underline underline-offset-4 font-medium text-foreground"
         >
           Register
+        </Link>
+      </p>
+      {/* Employee Login */}
+      <p className="text-center text-sm text-muted-foreground">
+        Are you an employee?{" "}
+        <Link
+          href="/login-employee"
+          className="hover:underline underline-offset-4 font-medium text-foreground"
+        >
+          Login here
         </Link>
       </p>
     </div>
