@@ -298,7 +298,7 @@ export const ImageInput = React.forwardRef<ImageInputRef, ImageInputProps>(
     // Render empty file input
     if (!displayUrl) {
       return renderUploadLabel(
-        <div className="flex flex-col items-center justify-center gap-3 p-4">
+        <div className="flex flex-col items-center justify-center gap-2 p-4">
           <Upload className="text-primary/90 h-5 w-5" />
           <span className="text-muted-foreground text-center">{placeholder}</span>
         </div>

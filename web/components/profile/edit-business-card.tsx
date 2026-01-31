@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -32,26 +33,38 @@ import { SelectInput } from "../ui/select-input";
 import { BUSINESS_CATEGORIES, EMPLOYEE_COUNT } from "@/lib/constant";
 
 const businessSchema = z.object({
-  businessName: z.string().min(1, "Business name is required"),
-  businessCode: z.string().optional(),
-  businessAddress: z.string().optional(),
-  businessCategory: z.string().optional(),
-  businessEmployeeSize: z.string().optional(),
-  businessLogo: z.string().optional(),
+  name: z.string().optional(),
+  code: z.string().optional(),
+  address: z.string().optional(),
+  category: z.string().optional(),
+  employeeSize: z.string().optional(),
+  logo: z.string().optional(),
+  logoUrl: z.string().optional(),
 });
 
 type BusinessFormData = z.infer<typeof businessSchema>;
 
 export function EditBusinessCard({
-  user,
+  business,
   readOnly = false,
 }: {
-  user: UserRes;
+  business: BusinessFormData;
   readOnly?: boolean;
 }) {
   const { mutate: updateBusiness, isPending } = useEditCurrentUserBusiness({
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Business information updated successfully");
+      const business = data.data;
+      console.log(business);
+      form.reset({
+        name: business?.name || "",
+        code: business?.code || "",
+        address: business?.address || "",
+        category: business?.category,
+        employeeSize: business?.employeeSize,
+        logo: business?.logo?.key || "",
+        logoUrl: business?.logo?.url || "",
+      });
     },
     onError: (error) => {
       toast.error(error);
@@ -61,22 +74,24 @@ export function EditBusinessCard({
   const form = useForm<BusinessFormData>({
     resolver: zodResolver(businessSchema),
     defaultValues: {
-      businessName: user.business?.name || "",
-      businessCode: user.business?.code || "",
-      businessAddress: user.business?.address || "",
-      businessCategory: user.business?.category,
-      businessEmployeeSize: user.business?.employeeSize,
-      businessLogo: user.business?.logo?.key || "",
+      name: business.name || "",
+      code: business.code || "",
+      address: business.address || "",
+      category: business.category,
+      employeeSize: business.employeeSize,
+      logo: business.logo || "",
+      logoUrl: business.logoUrl || "",
     },
   });
 
   const onSubmit = (data: BusinessFormData) => {
     updateBusiness({
-      name: data.businessName,
-      address: data.businessAddress || undefined,
-      category: data.businessCategory || undefined,
-      employeeSize: data.businessEmployeeSize || undefined,
-      logo: data.businessLogo || undefined,
+      name: data.name,
+      address: data.address || undefined,
+      category: data.category || undefined,
+      employeeSize: data.employeeSize || undefined,
+      logo: data.logo || undefined,
+      code: data.code || undefined,
     });
   };
 
@@ -89,30 +104,49 @@ export function EditBusinessCard({
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="businessLogo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Business Logo</FormLabel>
-                  <FormControl>
-                    <ImageInput
-                      {...field}
-                      defaultValueUrl={user.business?.logo?.url}
-                      folder="businesses"
-                      className="rounded-full w-24 h-24 sm:w-28 sm:h-28"
-                      readOnly={readOnly}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="businessName"
+                name="logo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Logo</FormLabel>
+                    <FormControl>
+                      <ImageInput
+                        {...field}
+                        defaultValueUrl={business.logoUrl}
+                        folder="businesses"
+                        className="rounded-full w-24 h-24 sm:w-28 sm:h-28"
+                        readOnly={readOnly}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Code</FormLabel>
+                    <FormDescription>Share this code with your employees to login.</FormDescription>
+                    <FormControl>
+                      <Input
+                        placeholder="Business Code"
+                        className="h-11"
+                        inputClassName="font-mono text-lg sm:text-lg"
+                        {...field}
+                        readOnly={readOnly}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Business Name</FormLabel>
@@ -123,22 +157,10 @@ export function EditBusinessCard({
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
-                name="businessCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Business Code</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Business Code" {...field} readOnly={readOnly} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="businessCategory"
+                name="category"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Business Category</FormLabel>
@@ -155,7 +177,7 @@ export function EditBusinessCard({
               />
               <FormField
                 control={form.control}
-                name="businessEmployeeSize"
+                name="employeeSize"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Employee Number</FormLabel>
@@ -173,7 +195,7 @@ export function EditBusinessCard({
 
             <FormField
               control={form.control}
-              name="businessAddress"
+              name="address"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Business Address</FormLabel>

@@ -52,6 +52,7 @@ export type EditCurrentUserBusinessReq = {
   logo?: string;
   category?: string;
   employeeSize?: string;
+  code?: string;
 };
 
 export type EditPasswordReq = {
@@ -60,6 +61,7 @@ export type EditPasswordReq = {
 };
 
 export type GetCurrentUserRes = GResponse<UserRes>;
+export type GetCurrentBusinessRes = GResponse<BusinessRes>;
 
 // --- API FUNCTIONS ---
 
@@ -71,11 +73,15 @@ export const userApi = {
 
   editCurrentUser: async (data: EditCurrentUserReq): Promise<GetCurrentUserRes> => {
     const response = await apiClient.put("/users/current", data);
+    console.log(response.data);
     return response.data;
   },
 
-  editCurrentUserBusiness: async (data: EditCurrentUserBusinessReq): Promise<GetCurrentUserRes> => {
+  editCurrentUserBusiness: async (
+    data: EditCurrentUserBusinessReq
+  ): Promise<GetCurrentBusinessRes> => {
     const response = await apiClient.put("/users/current/business", data);
+    console.log(response.data);
     return response.data;
   },
 
@@ -124,7 +130,7 @@ export const useEditCurrentUserBusiness = ({
   onSuccess,
   onError,
 }: {
-  onSuccess?: (data: GetCurrentUserRes) => void;
+  onSuccess?: (data: GetCurrentBusinessRes) => void;
   onError?: (error: string) => void;
 } = {}) => {
   const queryClient = useQueryClient();

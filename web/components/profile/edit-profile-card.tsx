@@ -19,19 +19,32 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageInput } from "@/components/ui/image-input";
 
-import { useEditCurrentUser, type UserRes } from "@/services/api-user";
+import { useEditCurrentUser } from "@/services/api-user";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
   image: z.string().optional(),
+  imageUrl: z.string().optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
 
-export function EditProfileCard({ user, readOnly = false }: { user: UserRes; readOnly?: boolean }) {
+export function EditProfileCard({
+  user,
+  readOnly = false,
+}: {
+  user: ProfileFormData;
+  readOnly?: boolean;
+}) {
   const { mutate: updateProfile, isPending } = useEditCurrentUser({
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Profile updated successfully");
+      const user = data.data;
+      form.reset({
+        name: user?.name || "",
+        image: user?.image?.key || "",
+        imageUrl: user?.image?.url || "",
+      });
     },
     onError: (error) => {
       toast.error(error);
@@ -42,7 +55,8 @@ export function EditProfileCard({ user, readOnly = false }: { user: UserRes; rea
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: user.name || "",
-      image: user.image?.key || "",
+      image: user.imageUrl || "",
+      imageUrl: user.imageUrl || "",
     },
   });
 
@@ -71,7 +85,7 @@ export function EditProfileCard({ user, readOnly = false }: { user: UserRes; rea
                   <FormControl>
                     <ImageInput
                       {...field}
-                      defaultValueUrl={user.image?.url || user.googleImage}
+                      defaultValueUrl={user.imageUrl}
                       folder="users"
                       className="rounded-full w-24 h-24 sm:w-28 sm:h-28"
                       readOnly={readOnly}

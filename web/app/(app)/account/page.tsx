@@ -49,10 +49,27 @@ export default function AccountPage() {
       </div>
 
       <div className="grid gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <EditProfileCard user={user} readOnly={isEmployee} />
+        <EditProfileCard
+          user={{
+            name: user.name,
+            image: user.image?.key,
+            imageUrl: user.image?.url || user.googleImage,
+          }}
+          readOnly={isEmployee}
+        />
         {!isEmployee && (
           <>
-            <EditBusinessCard user={user} />
+            <EditBusinessCard
+              business={{
+                name: user.business?.name,
+                code: user.business?.code,
+                address: user.business?.address,
+                category: user.business?.category,
+                employeeSize: user.business?.employeeSize,
+                logo: user.business?.logo?.key,
+                logoUrl: user.business?.logo?.url,
+              }}
+            />
             <EditPasswordCard />
             <DeleteAccountCard userId={user.id} />
           </>
