@@ -4,7 +4,7 @@ import { apiClient } from "./api-client";
 import type { GErrorResponse, GResponse, MResponse } from "./type";
 import { FileRes } from "./api-user";
 import { buildQueryKey, buildQueryKeyPredicate } from "./util";
-import { EmployeeRole } from "@/lib/constant";
+import { Role } from "@/lib/constant";
 
 // --- TYPES ---
 
@@ -17,7 +17,7 @@ export type BusinessRes = {
 export type Employee = {
   id: string;
   name: string;
-  role: EmployeeRole;
+  role: Role;
   business?: BusinessRes;
   image?: FileRes;
   phone?: string;
@@ -30,7 +30,7 @@ export type Employee = {
 export type CreateEmployeeReq = {
   name: string;
   pin: string;
-  role: EmployeeRole;
+  role: Role;
   image?: string;
   phone?: string;
   email?: string;
@@ -39,7 +39,7 @@ export type CreateEmployeeReq = {
 
 export type UpdateEmployeeReq = {
   name?: string;
-  role?: EmployeeRole;
+  role?: Role;
   image?: string;
   pin?: string;
   phone?: string;

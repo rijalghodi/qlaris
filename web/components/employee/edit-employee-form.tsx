@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { useUpdateEmployee, type Employee } from "@/services/api-employee";
 import { ROUTES } from "@/lib/routes";
 import { toast } from "sonner";
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Lock } from "lucide-react";
 import { ImageInput } from "../ui/image-input-2";
 import { Switch } from "../ui/switch";
@@ -59,7 +59,7 @@ export function EditEmployeeForm({ employeeId, defaultValues }: EditEmployeeForm
     defaultValues: {
       name: defaultValues?.name || "",
       pin: "",
-      role: defaultValues?.role,
+      role: defaultValues?.role as Role.CASHIER | Role.MANAGER,
       image: defaultValues?.image?.key || "",
       isActive: defaultValues?.isActive ?? true,
     },
