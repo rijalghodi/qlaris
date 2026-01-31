@@ -41,7 +41,7 @@ const getCurrentUser = async (request: NextRequest) => {
     // Get cookies from the request
     const cookies = request.cookies.toString();
 
-    console.log("Cookies:", cookies);
+    // console.log("Cookies:", cookies);
 
     const response = await fetch(`${apiBaseUrl}/users/current`, {
       method: "GET",
@@ -52,7 +52,7 @@ const getCurrentUser = async (request: NextRequest) => {
       credentials: "include",
     });
 
-    console.log("Response.ok:", response.ok);
+    // console.log("Response.ok:", response.ok);
 
     if (!response.ok) {
       return null;
@@ -60,7 +60,7 @@ const getCurrentUser = async (request: NextRequest) => {
 
     const data = await response.json();
 
-    console.log("Data:", data);
+    // console.log("Data:", data);
 
     // Check if the response has success flag and data
     if (data.success && data.data) {
@@ -76,7 +76,7 @@ const getCurrentUser = async (request: NextRequest) => {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  console.log("Pathname:", pathname);
+  // console.log("Pathname:", pathname);
 
   // Check if current path is in any of the URL categories
   const isPublicUrl = matchesPattern(pathname, PUBLIC_URL);
