@@ -18,8 +18,8 @@ var customMessages = map[string]string{
 	"alphanum":          "Field %s must contain only alphanumeric characters",
 	"oneof":             "Invalid value for field %s",
 	"password":          "Field %s must contain at least 8 characters",
-	"employee_count":    "Invalid value for field %s",
-	"business_category": "Invalid value for field %s",
+	"employee_size":     "Invalid value for field %s. Must be one of: 0, 1-5, 6-10, 11-25, 26+",
+	"business_category": "Invalid value for field %s. Must be one of: cafe, restaurant, food_stall, retail, grocery, minimarket, bakery, pharmacy, fashion, laundry, barbershop, printing, other",
 }
 
 func CustomErrorMessages(err error) map[string]string {
@@ -54,7 +54,7 @@ func formatErrorMessage(customMessage string, err validator.FieldError, tag stri
 }
 
 func defaultErrorMessage(err validator.FieldError) string {
-	return fmt.Sprintf("Field validation for '%s' failed on the '%s' tag", err.Field(), err.Tag())
+	return fmt.Sprintf("Field validation for '%s' failed on the '%s' tag", ToCamelCase(err.Field()), err.Tag())
 }
 
 func Password(fl validator.FieldLevel) bool {

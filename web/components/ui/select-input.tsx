@@ -35,7 +35,7 @@ interface SelectInputProps {
 export function SelectInput({
   value,
   onChange,
-  placeholder,
+  placeholder = "Select",
   options,
   disabled,
   readOnly,
@@ -87,7 +87,7 @@ export function SelectInput({
   // Radix Select requires a string value, not undefined
   // Convert undefined to empty string for Radix, but maintain undefined in form state
   // Also convert numbers to strings for Radix compatibility
-  const selectValue = value !== undefined ? String(value) : "";
+  const selectValue = value !== undefined ? String(value) : undefined;
 
   return (
     <Select
@@ -148,9 +148,11 @@ export function SelectInput({
           className
         )}
       >
-        <div className="flex items-center gap-2">
-          <SelectValue placeholder={placeholder} className="" />
-        </div>
+        {value ? (
+          <SelectValue placeholder={placeholder} />
+        ) : (
+          <div className="text-muted-foreground">{placeholder}</div>
+        )}
       </SelectTrigger>
       <SelectContent className="max-h-[200px]">
         <SelectGroup>
@@ -174,11 +176,7 @@ export function SelectInput({
                   ? String(option)
                   : String(option.value);
               return (
-                <SelectItem
-                  key={index}
-                  value={value}
-                  onClick={() => console.log("value123", value)}
-                >
+                <SelectItem key={index} value={value}>
                   {label}
                 </SelectItem>
               );

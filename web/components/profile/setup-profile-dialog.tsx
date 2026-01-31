@@ -13,9 +13,10 @@ import { DialogFooter } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { ContextDialogProps, dialogs } from "../ui/dialog-manager";
 import { SelectInput } from "../ui/select-input";
-import { NumberInput } from "../ui/number-input";
 import { cn } from "@/lib/utils";
 import { BUSINESS_CATEGORIES, EMPLOYEE_COUNT, Role } from "@/lib/constant";
+import { Tabs, TabsContent } from "../ui/tabs";
+import { Textarea } from "../ui/textarea";
 
 type SetupProfileInnerProps = {
   onSuccess?: () => void;
@@ -33,7 +34,7 @@ const STEPS = [
   { id: 1, title: "Your Name", field: "name" as const },
   { id: 2, title: "Business Name", field: "businessName" as const },
   { id: 3, title: "Business Address", field: "businessAddress" as const },
-  { id: 4, title: "Employee Count", field: "employeeSize" as const },
+  { id: 4, title: "Employee Number", field: "employeeSize" as const },
   { id: 5, title: "Business Type", field: "businessCategory" as const },
 ];
 
@@ -67,14 +68,6 @@ export function SetupProfileDialog({
   const editUser = useEditCurrentUser({
     onSuccess: () => {
       toast.success("Profile updated successfully");
-    },
-    onError: (error) => {
-      toast.error(error);
-    },
-  });
-
-  const editBusiness = useEditCurrentUserBusiness({
-    onSuccess: () => {
       // Mark setup as completed in localStorage
       localStorage.setItem(SkipSetupProfileKey, "true");
       context.closeDialog(id);
@@ -87,13 +80,12 @@ export function SetupProfileDialog({
 
   const onSubmit = (data: FormData) => {
     // Update user name
-    editUser.mutate({ name: data.name });
-    // Update business info
-    editBusiness.mutate({
-      name: data.businessName,
-      address: data.businessAddress,
-      employeeSize: data.employeeSize,
-      category: data.businessCategory,
+    editUser.mutate({
+      name: data.name,
+      businessName: data.businessName,
+      businessAddress: data.businessAddress,
+      businessEmployeeSize: data.employeeSize,
+      businessCategory: data.businessCategory,
     });
   };
 
@@ -153,8 +145,12 @@ export function SetupProfileDialog({
       </div>
 
       {/* Form Fields */}
-      <div className="py-4">
-        {currentStep === 1 && (
+      <Tabs
+        value={currentStep.toString()}
+        onValueChange={(value) => setCurrentStep(Number(value) as 1 | 2 | 3 | 4 | 5)}
+        className="max-w-sm mx-auto"
+      >
+        <TabsContent value="1" className="py-4">
           <div className="grid gap-2">
             <Input
               id="name"
@@ -170,9 +166,9 @@ export function SetupProfileDialog({
             />
             {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
-        )}
+        </TabsContent>
 
-        {currentStep === 2 && (
+        <TabsContent value="2" className="py-4">
           <div className="grid gap-2">
             <Input
               id="businessName"
@@ -190,11 +186,11 @@ export function SetupProfileDialog({
               <p className="text-sm text-destructive">{errors.businessName.message}</p>
             )}
           </div>
-        )}
+        </TabsContent>
 
-        {currentStep === 3 && (
+        <TabsContent value="3" className="py-4">
           <div className="grid gap-2">
-            <Input
+            <Textarea
               id="businessAddress"
               placeholder="Enter your business address"
               aria-invalid={!!errors.businessAddress}
@@ -206,12 +202,12 @@ export function SetupProfileDialog({
               <p className="text-sm text-destructive">{errors.businessAddress.message}</p>
             )}
           </div>
-        )}
+        </TabsContent>
 
-        {currentStep === 4 && (
+        <TabsContent value="4" className="py-4">
           <div className="grid gap-2">
             <SelectInput
-              placeholder="Select employee count"
+              placeholder="Select employee number"
               options={EMPLOYEE_COUNT}
               value={watch("employeeSize")}
               onChange={(value) => setValue("employeeSize", value || "0")}
@@ -220,9 +216,9 @@ export function SetupProfileDialog({
               <p className="text-sm text-destructive">{errors.employeeSize.message}</p>
             )}
           </div>
-        )}
+        </TabsContent>
 
-        {currentStep === 5 && (
+        <TabsContent value="5" className="py-4">
           <div className="grid gap-2">
             <SelectInput
               placeholder="Select business type"
@@ -234,8 +230,8 @@ export function SetupProfileDialog({
               <p className="text-sm text-destructive">{errors.businessCategory.message}</p>
             )}
           </div>
-        )}
-      </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Footer */}
       <DialogFooter className="flex-row justify-between sm:justify-between">
@@ -248,16 +244,8 @@ export function SetupProfileDialog({
               Back
             </Button>
           )}
-          <Button
-            type="button"
-            onClick={handleNext}
-            disabled={editUser.isPending || editBusiness.isPending}
-          >
-            {currentStep === STEPS.length
-              ? editUser.isPending || editBusiness.isPending
-                ? "Saving..."
-                : "Finish"
-              : "Next"}
+          <Button type="button" onClick={handleNext} disabled={editUser.isPending}>
+            {currentStep === STEPS.length ? (editUser.isPending ? "Saving..." : "Finish") : "Next"}
           </Button>
         </div>
       </DialogFooter>

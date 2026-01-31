@@ -31,14 +31,14 @@ type UserRes struct {
 }
 
 type EditCurrentUserReq struct {
-	Name                 *string `json:"name" validate:"max=255"`
+	Name                 *string `json:"name" validate:"omitempty,max=255"`
 	Image                *string `json:"image"`
-	BusinessName         *string `json:"businessName" validate:"max=255"`
-	BusinessCode         *string `json:"businessCode" validate:"max=16"`
+	BusinessName         *string `json:"businessName" validate:"omitempty,max=255"`
+	BusinessCode         *string `json:"businessCode" validate:"omitempty,max=16"`
 	BusinessAddress      *string `json:"businessAddress"`
 	BusinessLogo         *string `json:"businessLogo"`
-	BusinessCategory     *string `json:"businessCategory" validate:"business_category"`
-	BusinessEmployeeSize *string `json:"businessEmployeeSize" validate:"employee_size"`
+	BusinessCategory     *string `json:"businessCategory" validate:"omitempty,business_category"`
+	BusinessEmployeeSize *string `json:"businessEmployeeSize" validate:"omitempty,employee_size"`
 }
 
 // Edit password
@@ -49,10 +49,10 @@ type EditCurrentUserPasswordReq struct {
 
 // Edit business
 type EditCurrentUserBusinessReq struct {
-	Name         *string `json:"name" validate:"max=255"`
-	Code         *string `json:"code" validate:"max=16"`
+	Name         *string `json:"name" validate:"omitempty,max=255"`
+	Code         *string `json:"code" validate:"omitempty,max=16"`
 	Address      *string `json:"address"`
 	Logo         *string `json:"logo"`
-	Category     *string `json:"category"`
-	EmployeeSize *string `json:"employeeSize" validate:"employee_size"`
+	Category     *string `json:"category" validate:"omitempty,business_category"`
+	EmployeeSize *string `json:"employeeSize" validate:"omitempty,employee_size"`
 }

@@ -29,8 +29,8 @@ export const BUSINESS_CATEGORIES = [
 
 export const EMPLOYEE_COUNT = [
   { label: "By Yourself", value: "0" },
-  { label: "1-5", value: "5" },
-  { label: "6-10", value: "10" },
-  { label: "11-25", value: "25" },
-  { label: "26+", value: "100" },
+  { label: "1-5", value: "1-5" },
+  { label: "6-10", value: "6-10" },
+  { label: "11-25", value: "11-25" },
+  { label: "26+", value: "26+" },
 ];
