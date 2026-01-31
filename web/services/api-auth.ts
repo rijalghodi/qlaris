@@ -42,6 +42,37 @@ export type LoginRes = GResponse<{
   tokenExpiredAt?: string;
 }>;
 
+// --- LOGIN EMPLOYEE ---
+
+export type FileRes = {
+  key: string;
+  url: string;
+};
+
+export type LoginEmployeeReq = {
+  businessCode: string;
+  pin: string;
+  employeeId: string;
+};
+
+export type LoginEmployeeRes = GResponse<{
+  id: string;
+  name: string;
+  role: string;
+  businessId: string;
+  businessName: string;
+  image?: FileRes;
+}>;
+
+// --- LIST LOGINABLE EMPLOYEES ---
+
+export type LoginableEmployeeRes = {
+  id: string;
+  name: string;
+  role: string;
+  image?: FileRes;
+};
+
 // --- REFRESH TOKEN ---
 
 export type RefreshTokenReq = {
@@ -143,8 +174,20 @@ export const authApi = {
     return response?.data;
   },
 
-  logout: async (): Promise<GResponse<any>> => {
+  logout: async (): Promise<GResponse<null>> => {
     const response = await apiClient.post("/auth/logout");
+    return response?.data;
+  },
+
+  loginEmployee: async (credentials: LoginEmployeeReq): Promise<LoginEmployeeRes> => {
+    const response = await apiClient.post("/auth/login/employees", credentials);
+    return response?.data;
+  },
+
+  listLoginableEmployees: async (
+    businessCode: string
+  ): Promise<GResponse<LoginableEmployeeRes[]>> => {
+    const response = await apiClient.get(`/auth/login/${businessCode}/employees`);
     return response?.data;
   },
 };
@@ -300,5 +343,33 @@ export const useLogout = ({
     onError: (error: GErrorResponse) => {
       onError?.(error.response?.data?.message || "An error occurred");
     },
+  });
+};
+
+export const useLoginEmployee = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (data: LoginEmployeeRes) => void;
+  onError?: (error: string) => void;
+}) => {
+  return useMutation({
+    mutationFn: (data: LoginEmployeeReq) => authApi.loginEmployee(data),
+    onSuccess: (data: LoginEmployeeRes) => {
+      // Note: Employee login uses httpOnly cookies set by the server
+      // No need to manually set cookies here
+      onSuccess?.(data);
+    },
+    onError: (error: GErrorResponse) => {
+      onError?.(error.response?.data?.message || "An error occurred");
+    },
+  });
+};
+
+export const useListLoginableEmployees = (businessCode: string) => {
+  return useQuery({
+    queryKey: ["loginable-employees", businessCode],
+    queryFn: () => authApi.listLoginableEmployees(businessCode),
+    enabled: !!businessCode,
   });
 };

@@ -58,7 +58,8 @@ apiClient.interceptors.response.use(
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      originalRequest.url !== "/auth/login"
+      originalRequest.url !== "/auth/login" &&
+      originalRequest.url !== "/auth/login/employees"
     ) {
       // Prevent infinite loops by marking this request as retried
       originalRequest._retry = true;

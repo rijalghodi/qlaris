@@ -58,9 +58,6 @@ func (h *CategoryHandler) CreateCategory(c *fiber.Ctx) error {
 	}
 
 	claims := middleware.GetAuthClaims(c)
-	if claims.BusinessID == nil {
-		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
-	}
 
 	if err := h.categoryUsecase.IsAllowedToAccess(claims, []config.Permission{config.CREATE_PRODUCT_ANY, config.CREATE_PRODUCT_ORG}, nil); err != nil {
 		return err
@@ -165,10 +162,6 @@ func (h *CategoryHandler) GetCategory(c *fiber.Ctx) error {
 func (h *CategoryHandler) ListCategories(c *fiber.Ctx) error {
 	claims := middleware.GetAuthClaims(c)
 
-	if claims.BusinessID == nil {
-		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
-	}
-
 	queries, err := util.ParsePaginationQueries(c)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -241,9 +234,6 @@ func (h *CategoryHandler) SortCategories(c *fiber.Ctx) error {
 	}
 
 	claims := middleware.GetAuthClaims(c)
-	if claims.BusinessID == nil {
-		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
-	}
 
 	if err := h.categoryUsecase.IsAllowedToAccess(claims, []config.Permission{config.UPDATE_PRODUCT_ANY, config.UPDATE_PRODUCT_ORG}, nil); err != nil {
 		return err

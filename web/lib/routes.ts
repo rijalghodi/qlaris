@@ -28,4 +28,9 @@ export const ROUTES = {
   TRANSACTION_DETAIL: (transactionId: string) => `/transactions/${transactionId}`,
   NEW_TRANSACTION: "/transactions/new",
   TRANSACTION_SUCCESS: (transactionId: string) => `/transactions/${transactionId}/success`,
+
+  // Employees
+  EMPLOYEES: "/employees",
+  EMPLOYEE_ADD: "/employees/add",
+  EMPLOYEE_EDIT: (employeeId: string) => `/employees/${employeeId}/edit`,
 };

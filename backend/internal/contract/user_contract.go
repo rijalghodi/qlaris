@@ -1,48 +1,58 @@
 package contract
 
+// Current user
+type BusinessRes struct {
+	ID           string   `json:"id"`
+	Name         string   `json:"name"`
+	Code         string   `json:"code"`
+	Address      *string  `json:"address"`
+	EmployeeSize *string  `json:"employeeSize"`
+	Category     *string  `json:"category"`
+	Logo         *FileRes `json:"logo"`
+}
+
+type RoleRes struct {
+	Role     string       `json:"role"`
+	Business *BusinessRes `json:"business,omitempty"`
+}
+
 type UserRes struct {
-	ID              string   `json:"id"`
-	Email           string   `json:"email"`
-	Name            string   `json:"name"`
-	Role            string   `json:"role"`
-	GoogleImage     *string  `json:"googleImage"`
-	Image           *FileRes `json:"image"`
-	IsVerified      bool     `json:"isVerified"`
-	HasPassword     bool     `json:"hasPassword"`
-	BusinessName    *string  `json:"businessName,omitempty"`
-	BusinessAddress *string  `json:"businessAddress,omitempty"`
-	IsDataCompleted *bool    `json:"isDataCompleted,omitempty"`
-	CreatedAt       string   `json:"createdAt"`
-	UpdatedAt       string   `json:"updatedAt"`
+	ID          string       `json:"id"`
+	Email       string       `json:"email"`
+	Name        string       `json:"name"`
+	Role        string       `json:"role"`
+	Business    *BusinessRes `json:"business,omitempty"`
+	GoogleImage *string      `json:"googleImage"`
+	Image       *FileRes     `json:"image"`
+	IsVerified  bool         `json:"isVerified"`
+	HasPassword bool         `json:"hasPassword"`
+	CreatedAt   string       `json:"createdAt"`
+	UpdatedAt   string       `json:"updatedAt"`
 }
 
 type EditCurrentUserReq struct {
-	Name            *string `json:"name" validate:"max=255"`
-	Image           *string `json:"image"`
-	BusinessName    *string `json:"businessName" validate:"max=255"`
-	BusinessAddress *string `json:"businessAddress"`
+	Name                 *string `json:"name" validate:"omitempty,max=255"`
+	Image                *string `json:"image"`
+	BusinessName         *string `json:"businessName" validate:"omitempty,max=255"`
+	BusinessCode         *string `json:"businessCode" validate:"omitempty,max=16"`
+	BusinessAddress      *string `json:"businessAddress"`
+	BusinessLogo         *string `json:"businessLogo"`
+	BusinessCategory     *string `json:"businessCategory" validate:"omitempty,business_category"`
+	BusinessEmployeeSize *string `json:"businessEmployeeSize" validate:"omitempty,employee_size"`
 }
 
-type EditPasswordReq struct {
-	CurrentPassword *string `json:"currentPassword" validate:"password"`
-	NewPassword     string  `json:"newPassword" validate:"required,password"`
+// Edit password
+type EditCurrentUserPasswordReq struct {
+	OldPassword *string `json:"oldPassword" validate:"password"`
+	NewPassword string  `json:"newPassword" validate:"required,password"`
 }
 
-type CreateUserReq struct {
-	Email           string  `json:"email" validate:"required,email,max=255"`
-	Password        string  `json:"password" validate:"required,password"`
-	Name            string  `json:"name" validate:"required,max=255"`
-	Role            string  `json:"role" validate:"required,oneof=owner manager cashier"`
-	BusinessID      *string `json:"businessId"`
-	Image           *string `json:"image"`
-	BusinessName    *string `json:"businessName" validate:"max=255"`
-	BusinessAddress *string `json:"businessAddress"`
-}
-
-type UpdateUserReq struct {
-	Name            *string `json:"name" validate:"max=255"`
-	Role            *string `json:"role" validate:"oneof=owner manager cashier"`
-	Image           *string `json:"image"`
-	BusinessName    *string `json:"businessName" validate:"max=255"`
-	BusinessAddress *string `json:"businessAddress"`
+// Edit business
+type EditCurrentUserBusinessReq struct {
+	Name         *string `json:"name" validate:"omitempty,max=255"`
+	Code         *string `json:"code" validate:"omitempty,max=16"`
+	Address      *string `json:"address"`
+	Logo         *string `json:"logo"`
+	Category     *string `json:"category" validate:"omitempty,business_category"`
+	EmployeeSize *string `json:"employeeSize" validate:"omitempty,employee_size"`
 }

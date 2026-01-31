@@ -1,5 +1,23 @@
 package contract
 
+// type UserAuthRes struct {
+// 	ID              string    `json:"id"`
+// 	Email           string    `json:"email"`
+// 	Name            string    `json:"name"`
+// 	Role            string    `json:"role,omitempty"`
+// 	BusinessID      string    `json:"businessId,omitempty"`
+// 	Roles           []RoleRes `json:"roles,omitempty"`
+// 	GoogleImage     *string   `json:"googleImage"`
+// 	Image           *FileRes  `json:"image"`
+// 	IsVerified      bool      `json:"isVerified"`
+// 	HasPassword     bool      `json:"hasPassword"`
+// 	BusinessName    *string   `json:"businessName,omitempty"`
+// 	BusinessAddress *string   `json:"businessAddress,omitempty"`
+// 	IsDataCompleted *bool     `json:"isDataCompleted,omitempty"`
+// 	CreatedAt       string    `json:"createdAt"`
+// 	UpdatedAt       string    `json:"updatedAt"`
+// }
+
 type TokenRes struct {
 	AccessToken           string `json:"accessToken"`
 	AccessTokenExpiresAt  string `json:"accessTokenExpiresAt"`
@@ -21,7 +39,7 @@ type RefreshTokenReq struct {
 }
 
 type RefreshTokenRes struct {
-	UserRes
+	TokenRes
 }
 
 type GoogleLoginReq struct {
@@ -32,7 +50,6 @@ type GoogleLoginReq struct {
 }
 
 type GoogleLoginRes struct {
-	TokenRes
 	UserRes
 }
 
@@ -43,6 +60,29 @@ type LoginReq struct {
 
 type LoginRes struct {
 	UserRes
+}
+
+type LoginEmployeeReq struct {
+	BusinessCode string `json:"businessCode" validate:"required"`
+	Pin          string `json:"pin" validate:"required"`
+	EmployeeID   string `json:"employeeId" validate:"required"`
+}
+
+type LoginEmployeeRes struct {
+	ID           string   `json:"id"`
+	Name         string   `json:"name"`
+	Role         string   `json:"role"`
+	BusinessID   string   `json:"businessId"`
+	BusinessName string   `json:"businessName"`
+	Image        *FileRes `json:"image"`
+}
+
+// LoginableEmployeeRes represents a simplified employee response for login selection
+type LoginableEmployeeRes struct {
+	ID    string   `json:"id"`
+	Name  string   `json:"name"`
+	Role  string   `json:"role"`
+	Image *FileRes `json:"image,omitempty"`
 }
 
 type RegisterReq struct {
@@ -87,4 +127,13 @@ type VerifyEmailReq struct {
 
 type VerifyEmailRes struct {
 	UserRes
+}
+
+// === Switch business ===
+type SwitchBusinessReq struct {
+	BusinessID string `json:"businessId" validate:"required"`
+}
+
+type SwitchBusinessRes struct {
+	TokenRes
 }

@@ -1,8 +1,10 @@
 package config
 
+type TokenType string
+
 const (
-	TokenTypeAccess        = "access"
-	TokenTypeRefresh       = "refresh"
-	TokenTypeResetPassword = "resetPassword"
-	TokenTypeVerifyEmail   = "verifyEmail"
+	TokenTypeAccess        TokenType = "access"
+	TokenTypeRefresh       TokenType = "refresh"
+	TokenTypeResetPassword TokenType = "resetPassword"
+	TokenTypeVerifyEmail   TokenType = "verifyEmail"
 )

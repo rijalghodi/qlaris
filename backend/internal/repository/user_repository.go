@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"app/internal/config"
 	"app/internal/model"
 
 	"gorm.io/gorm"
@@ -16,7 +17,7 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 
 func (r *UserRepository) GetUserByGoogleID(googleID string) (*model.User, error) {
 	var user model.User
-	err := r.db.Where("google_id = ?", googleID).First(&user).Error
+	err := r.db.Preload("Business").Where("google_id = ?", googleID).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -28,7 +29,7 @@ func (r *UserRepository) GetUserByGoogleID(googleID string) (*model.User, error)
 
 func (r *UserRepository) GetUserByEmail(email string) (*model.User, error) {
 	var user model.User
-	err := r.db.Where("email = ?", email).First(&user).Error
+	err := r.db.Preload("Business").Where("email = ?", email).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -52,7 +53,9 @@ func (r *UserRepository) GetUserByID(id string) (*model.User, error) {
 
 func (r *UserRepository) GetUserByIDAndBusinessID(id string, businessID string) (*model.User, error) {
 	var user model.User
-	err := r.db.Preload("Business").Where("id = ?", id).First(&user).Error
+
+	err := r.db.Preload("Business").Where("id = ? AND business_id = ?", id, businessID).First(&user).Error
+
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -64,10 +67,6 @@ func (r *UserRepository) GetUserByIDAndBusinessID(id string, businessID string) 
 }
 
 func (r *UserRepository) CreateUser(user *model.User) error {
-	// create user with the business
-	var business model.Business
-	r.db.Create(&business)
-	user.BusinessID = &business.ID
 	return r.db.Create(user).Error
 }
 
@@ -79,14 +78,18 @@ func (r *UserRepository) UpdateUserPassword(userID, hashedPassword string) error
 	return r.db.Model(&model.User{}).Where("id = ?", userID).Update("password_hash", hashedPassword).Error
 }
 
-func (r *UserRepository) ListUsers(businessID *string, page, pageSize int) ([]*model.User, int64, error) {
+func (r *UserRepository) ListUsers(businessID string, page, pageSize int, role []config.UserRole) ([]*model.User, int64, error) {
 	var users []*model.User
 	var total int64
 
 	query := r.db.Model(&model.User{}).Preload("Business")
 
-	if businessID != nil {
-		query = query.Where("business_id = ?", *businessID)
+	if businessID != "" {
+		query = query.Where("business_id = ?", businessID)
+	}
+
+	if len(role) > 0 {
+		query = query.Where("role IN ?", role)
 	}
 
 	if err := query.Count(&total).Error; err != nil {

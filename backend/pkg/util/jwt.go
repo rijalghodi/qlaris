@@ -9,7 +9,6 @@ import (
 
 type JWTClaims struct {
 	ID   string `json:"sub"`
-	Role string `json:"role"`
 	Type string `json:"type"`
 }
 
@@ -32,16 +31,14 @@ func VerifyToken(tokenStr, secret string) (JWTClaims, error) {
 		return JWTClaims{}, errors.New("invalid token sub")
 	}
 
-	role, _ := claims["role"].(string)
 	tokenType, _ := claims["type"].(string)
 
-	return JWTClaims{ID: id, Role: role, Type: tokenType}, nil
+	return JWTClaims{ID: id, Type: tokenType}, nil
 }
 
-func GenerateToken(userID, role, tokenType, secret string, expiresAt time.Time) (string, error) {
+func GenerateToken(userID string, tokenType, secret string, expiresAt time.Time) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub":  userID,
-		"role": role,
 		"type": tokenType,
 		"exp":  expiresAt.Unix(),
 	})

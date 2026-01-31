@@ -35,12 +35,15 @@ func (h *AuthHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	authGroup.Get("/google/login", h.GoogleLogin)
 	authGroup.Get("/google/callback", h.GoogleCallback)
 	authGroup.Post("/login", h.Login)
+	authGroup.Post("/login/employees", h.LoginEmployee)
+	authGroup.Get("/login/:business_code/employees", h.ListLoginableEmployees)
 	authGroup.Post("/register", h.Register)
 	authGroup.Post("/send-verification", h.SendVerificationEmail)
 	authGroup.Post("/verify-email", h.VerifyEmail)
 	authGroup.Post("/forgot-password", h.ForgotPassword)
 	authGroup.Post("/reset-password", h.ResetPassword)
 	authGroup.Post("/refresh-token", h.RefreshToken)
+	authGroup.Post("/switch-business", h.SwitchBusiness)
 	authGroup.Post("/logout", h.Logout)
 }
 
@@ -129,18 +132,12 @@ func (h *AuthHandler) GoogleCallback(c *fiber.Ctx) error {
 		return errJSON
 	}
 
-	res, err := h.authUsecase.LoginGoogleUser(c, googleUser)
+	_, err = h.authUsecase.LoginGoogleUser(c, googleUser)
 	if err != nil {
 		return err
 	}
 
-	googleLoginURL := fmt.Sprintf("%s?accessToken=%s&refreshToken=%s",
-		config.Env.GoogleOAuth.ClientCallbackURI, res.TokenRes.AccessToken, res.TokenRes.RefreshToken)
-
-	usecase.SetAuthCookies(c, &contract.TokenRes{
-		AccessToken:  res.TokenRes.AccessToken,
-		RefreshToken: res.TokenRes.RefreshToken,
-	})
+	googleLoginURL := fmt.Sprintf("%s", config.Env.GoogleOAuth.ClientCallbackURI)
 
 	return c.Status(fiber.StatusSeeOther).Redirect(googleLoginURL)
 }
@@ -172,6 +169,59 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
+}
+
+// @Tags Auth
+// @Summary Login Employee
+// @Description Authenticate employee with email and password
+// @Accept json
+// @Produce json
+// @Param request body contract.LoginEmployeeReq true "Login employee request"
+// @Success 200 {object} util.BaseResponse{data=contract.LoginEmployeeRes}
+// @Failure 401 {object} util.BaseResponse
+// @Router /auth/login-employee [post]
+func (h *AuthHandler) LoginEmployee(c *fiber.Ctx) error {
+	var req contract.LoginEmployeeReq
+	if err := c.BodyParser(&req); err != nil {
+		logger.Log.Warn("Failed to parse request body", zap.Error(err))
+		return err
+	}
+
+	if err := util.ValidateStruct(&req); err != nil {
+		logger.Log.Warn("Validation error", zap.Error(err))
+		return err
+	}
+
+	res, err := h.authUsecase.LoginEmployee(c, &req)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
+}
+
+// @Tags Auth
+// @Summary List Loginable Employees
+// @Description Get list of active employees for a business by business code
+// @Accept json
+// @Produce json
+// @Param business_code path string true "Business code"
+// @Success 200 {object} util.BaseResponse{data=[]contract.LoginableEmployeeRes}
+// @Failure 404 {object} util.BaseResponse
+// @Router /auth/login/{business_code}/employees [get]
+func (h *AuthHandler) ListLoginableEmployees(c *fiber.Ctx) error {
+	businessCode := c.Params("business_code")
+	if businessCode == "" {
+		logger.Log.Warn("Business code is required")
+		return fiber.NewError(fiber.StatusBadRequest, "Business code is required")
+	}
+
+	employees, err := h.authUsecase.ListLoginableEmployees(businessCode)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(employees))
 }
 
 // @Tags Auth
@@ -354,6 +404,35 @@ func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
 	res, err := h.authUsecase.RefreshToken(c, &req)
 	if err != nil {
 		logger.Log.Warn("Failed to refresh token: %v", err)
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))
+}
+
+// @Tags Auth
+// @Summary Switch business
+// @Description Switch business
+// @Accept json
+// @Produce json
+// @Param request body contract.SwitchBusinessReq true "Switch business request"
+// @Success 200 {object} util.BaseResponse{data=contract.SwitchBusinessRes}
+// @Failure 401 {object} util.BaseResponse
+// @Router /auth/switch-business [post]
+func (h *AuthHandler) SwitchBusiness(c *fiber.Ctx) error {
+	var req contract.SwitchBusinessReq
+	if err := c.BodyParser(&req); err != nil {
+		logger.Log.Warn("Failed to parse request body: %v", err)
+		return err
+	}
+
+	if err := util.ValidateStruct(&req); err != nil {
+		logger.Log.Warn("Validation error: %v", err)
+		return err
+	}
+
+	res, err := h.authUsecase.SwitchBusiness(c, req.BusinessID)
+	if err != nil {
+		logger.Log.Warn("Failed to switch business: %v", err)
 		return err
 	}
 	return c.Status(fiber.StatusOK).JSON(util.ToSuccessResponse(res))

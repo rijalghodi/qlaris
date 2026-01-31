@@ -22,7 +22,7 @@ import { useEditCurrentUserPassword } from "@/services/api-user";
 
 const passwordSchema = z
   .object({
-    currentPassword: z.string().min(1, "Current password is required"),
+    oldPassword: z.string().min(1, "Current password is required"),
     newPassword: z.string().min(6, "Password must be at least 6 characters"),
     confirmNewPassword: z.string().min(1, "Please confirm your new password"),
   })
@@ -37,7 +37,7 @@ export function EditPasswordCard() {
   const form = useForm<PasswordFormData>({
     resolver: zodResolver(passwordSchema),
     defaultValues: {
-      currentPassword: "",
+      oldPassword: "",
       newPassword: "",
       confirmNewPassword: "",
     },
@@ -55,7 +55,7 @@ export function EditPasswordCard() {
 
   const onSubmit = (data: PasswordFormData) => {
     updatePassword({
-      currentPassword: data.currentPassword,
+      oldPassword: data.oldPassword,
       newPassword: data.newPassword,
     });
   };
@@ -73,7 +73,7 @@ export function EditPasswordCard() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="currentPassword"
+              name="oldPassword"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Current Password</FormLabel>

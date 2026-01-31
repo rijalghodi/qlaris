@@ -57,9 +57,6 @@ func (h *TransactionHandler) CreateTransaction(c *fiber.Ctx) error {
 	}
 
 	claims := middleware.GetAuthClaims(c)
-	if claims.BusinessID == nil {
-		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
-	}
 
 	if err := h.transactionUsecase.IsAllowedToAccess(claims, []config.Permission{config.CREATE_TRANSACTION_ANY, config.CREATE_TRANSACTION_ORG}, nil); err != nil {
 		return err
@@ -87,10 +84,6 @@ func (h *TransactionHandler) CreateTransaction(c *fiber.Ctx) error {
 // @Router /transactions [get]
 func (h *TransactionHandler) ListTransactions(c *fiber.Ctx) error {
 	claims := middleware.GetAuthClaims(c)
-
-	if claims.BusinessID == nil {
-		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
-	}
 
 	queries, err := util.ParsePaginationQueries(c)
 	if err != nil {
@@ -131,10 +124,6 @@ func (h *TransactionHandler) GetTransaction(c *fiber.Ctx) error {
 
 	if err := h.transactionUsecase.IsAllowedToAccess(claims, []config.Permission{config.READ_TRANSACTION_ANY, config.READ_TRANSACTION_ORG}, &transactionID); err != nil {
 		return err
-	}
-
-	if claims.BusinessID == nil {
-		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
 	}
 
 	transaction, err := h.transactionUsecase.GetTransaction(transactionID)
@@ -182,10 +171,6 @@ func (h *TransactionHandler) UpdateTransaction(c *fiber.Ctx) error {
 		return err
 	}
 
-	if claims.BusinessID == nil {
-		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
-	}
-
 	transaction, err := h.transactionUsecase.UpdateTransaction(claims.ID, *claims.BusinessID, transactionID, &req)
 	if err != nil {
 		return err
@@ -229,10 +214,6 @@ func (h *TransactionHandler) PayTransaction(c *fiber.Ctx) error {
 
 	if err := h.transactionUsecase.IsAllowedToAccess(claims, []config.Permission{config.PAY_TRANSACTION_ANY, config.PAY_TRANSACTION_ORG}, &transactionID); err != nil {
 		return err
-	}
-
-	if claims.BusinessID == nil {
-		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
 	}
 
 	transaction, err := h.transactionUsecase.PayTransaction(claims.ID, *claims.BusinessID, transactionID, &req)

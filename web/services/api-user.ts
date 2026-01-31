@@ -1,12 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { setAuthCookie } from "@/lib/auth-cookie";
-import { removeAuthCookie } from "@/lib/auth-cookie";
-import { ROUTES } from "@/lib/routes";
 import { Role } from "@/lib/constant";
 
 import { apiClient } from "./api-client";
-import type { GErrorResponse, GResponse, MResponse } from "./type";
+import type { GErrorResponse, GResponse } from "./type";
 
 // --- TYPES ---
 
@@ -15,18 +12,26 @@ export type FileRes = {
   url: string;
 };
 
+export type BusinessRes = {
+  id: string;
+  name: string;
+  code: string;
+  address?: string;
+  employeeSize?: string;
+  category?: string;
+  logo?: FileRes;
+};
+
 export type UserRes = {
   id: string;
   email: string;
   name: string;
   role: Role;
+  business?: BusinessRes;
   googleImage?: string;
   image?: FileRes;
   isVerified: boolean;
   hasPassword: boolean;
-  businessName?: string;
-  businessAddress?: string;
-  isDataCompleted?: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -36,35 +41,27 @@ export type EditCurrentUserReq = {
   image?: string;
   businessName?: string;
   businessAddress?: string;
+  businessLogo?: string;
+  businessCategory?: string;
+  businessEmployeeSize?: string;
+};
+
+export type EditCurrentUserBusinessReq = {
+  name?: string;
+  address?: string;
+  logo?: string;
+  category?: string;
+  employeeSize?: string;
+  code?: string;
 };
 
 export type EditPasswordReq = {
-  currentPassword?: string;
+  oldPassword?: string;
   newPassword: string;
 };
 
-export type CreateUserReq = {
-  email: string;
-  password: string;
-  name: string;
-  role: "owner" | "manager" | "cashier";
-  businessId?: string;
-  image?: string;
-  businessName?: string;
-  businessAddress?: string;
-};
-
-export type UpdateUserReq = {
-  name?: string;
-  role?: "owner" | "manager" | "cashier";
-  image?: string;
-  businessName?: string;
-  businessAddress?: string;
-};
-
 export type GetCurrentUserRes = GResponse<UserRes>;
-export type GetUserRes = GResponse<UserRes>;
-export type ListUsersRes = MResponse<UserRes>;
+export type GetCurrentBusinessRes = GResponse<BusinessRes>;
 
 // --- API FUNCTIONS ---
 
@@ -74,8 +71,17 @@ export const userApi = {
     return response.data;
   },
 
-  editCurrentUser: async (data: EditCurrentUserReq): Promise<GetUserRes> => {
+  editCurrentUser: async (data: EditCurrentUserReq): Promise<GetCurrentUserRes> => {
     const response = await apiClient.put("/users/current", data);
+    console.log(response.data);
+    return response.data;
+  },
+
+  editCurrentUserBusiness: async (
+    data: EditCurrentUserBusinessReq
+  ): Promise<GetCurrentBusinessRes> => {
+    const response = await apiClient.put("/users/current/business", data);
+    console.log(response.data);
     return response.data;
   },
 
@@ -84,33 +90,8 @@ export const userApi = {
     return response.data;
   },
 
-  getUser: async (id: string): Promise<GetUserRes> => {
-    const response = await apiClient.get(`/users/${id}`);
-    return response.data;
-  },
-
-  listUsers: async (params?: { page?: number; pageSize?: number }): Promise<ListUsersRes> => {
-    const response = await apiClient.get("/users", { params });
-    return response.data;
-  },
-
-  createUser: async (data: CreateUserReq): Promise<GetUserRes> => {
-    const response = await apiClient.post("/users", data);
-    return response.data;
-  },
-
-  updateUser: async (id: string, data: UpdateUserReq): Promise<GetUserRes> => {
-    const response = await apiClient.put(`/users/${id}`, data);
-    return response.data;
-  },
-
-  deleteUser: async (id: string): Promise<GResponse<null>> => {
-    const response = await apiClient.delete(`/users/${id}`);
-    return response.data;
-  },
-
-  editPassword: async (id: string, data: EditPasswordReq): Promise<GResponse<string>> => {
-    const response = await apiClient.put(`/users/${id}/password`, data);
+  deleteUser: async (): Promise<GResponse<string>> => {
+    const response = await apiClient.delete("/users/current");
     return response.data;
   },
 };
@@ -128,13 +109,34 @@ export const useEditCurrentUser = ({
   onSuccess,
   onError,
 }: {
-  onSuccess?: (data: GetUserRes) => void;
+  onSuccess?: (data: GetCurrentUserRes) => void;
   onError?: (error: string) => void;
 } = {}) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: EditCurrentUserReq) => userApi.editCurrentUser(data),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["current-user"] });
+      onSuccess?.(data);
+    },
+    onError: (error: GErrorResponse) => {
+      onError?.(error.response?.data?.message || "An error occurred");
+    },
+  });
+};
+
+export const useEditCurrentUserBusiness = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (data: GetCurrentBusinessRes) => void;
+  onError?: (error: string) => void;
+} = {}) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: EditCurrentUserBusinessReq) => userApi.editCurrentUserBusiness(data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["current-user"] });
       onSuccess?.(data);
@@ -163,64 +165,6 @@ export const useEditCurrentUserPassword = ({
   });
 };
 
-export const useGetUser = (id: string) => {
-  return useQuery({
-    queryKey: ["users", id],
-    queryFn: () => userApi.getUser(id),
-    enabled: !!id,
-  });
-};
-
-export const useListUsers = (params?: { page?: number; pageSize?: number }) => {
-  return useQuery({
-    queryKey: ["users", params],
-    queryFn: () => userApi.listUsers(params),
-  });
-};
-
-export const useCreateUser = ({
-  onSuccess,
-  onError,
-}: {
-  onSuccess?: (data: GetUserRes) => void;
-  onError?: (error: string) => void;
-} = {}) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: CreateUserReq) => userApi.createUser(data),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-      onSuccess?.(data);
-    },
-    onError: (error: GErrorResponse) => {
-      onError?.(error.response?.data?.message || "An error occurred");
-    },
-  });
-};
-
-export const useUpdateUser = ({
-  onSuccess,
-  onError,
-}: {
-  onSuccess?: (data: GetUserRes) => void;
-  onError?: (error: string) => void;
-} = {}) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateUserReq }) => userApi.updateUser(id, data),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-      queryClient.invalidateQueries({ queryKey: ["current-user"] });
-      onSuccess?.(data);
-    },
-    onError: (error: GErrorResponse) => {
-      onError?.(error.response?.data?.message || "An error occurred");
-    },
-  });
-};
-
 export const useDeleteUser = ({
   onSuccess,
   onError,
@@ -228,12 +172,9 @@ export const useDeleteUser = ({
   onSuccess?: () => void;
   onError?: (error: string) => void;
 } = {}) => {
-  const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: (id: string) => userApi.deleteUser(id),
+    mutationFn: () => userApi.deleteUser(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
       onSuccess?.();
     },
     onError: (error: GErrorResponse) => {

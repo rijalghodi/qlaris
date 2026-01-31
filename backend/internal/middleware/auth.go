@@ -12,15 +12,15 @@ import (
 )
 
 type Claims struct {
-	ID         string          `json:"id"`
-	Role       config.UserRole `json:"role"`
-	Type       string          `json:"type"`
-	BusinessID *string         `json:"business_id"`
+	ID         string           `json:"id"`
+	Type       config.TokenType `json:"type"`
+	Role       config.UserRole  `json:"role"`
+	BusinessID *string          `json:"business_id"`
 }
 
 func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// Extract token from Authorization header
+		// Extract token from cookie
 		token := extractToken(c)
 		if token == "" {
 			logger.Log.Warn("Token not found")
@@ -34,28 +34,44 @@ func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 			return fiber.NewError(fiber.StatusUnauthorized, "Please authenticate")
 		}
 
-		claims := Claims{
-			ID:   jwtClaims.ID,
-			Type: jwtClaims.Type,
-		}
-
-		// Check role permissions if roles are specified
-		if len(roles) > 0 && !slices.Contains(roles, string(claims.Role)) {
-			logger.Log.Warn("Role not allowed", "role:", claims.Role, "allowed_roles:", roles)
-			return fiber.NewError(fiber.StatusForbidden, "You are not authorized to access this resource")
-		}
-
-		// get user from DB
-		user := &model.User{}
-		if err := db.Preload("Business").First(user, "id = ?", claims.ID).Error; err != nil {
-			logger.Log.Warn("User not found", "error", err, "user_id", claims.ID)
+		if config.TokenType(jwtClaims.Type) != config.TokenTypeAccess {
+			logger.Log.Warn("Invalid token type")
 			return fiber.NewError(fiber.StatusUnauthorized, "Please authenticate")
 		}
 
-		claims.Role = user.Role
+		claims := Claims{
+			ID:   jwtClaims.ID,
+			Type: config.TokenType(jwtClaims.Type),
+		}
 
-		if user.Business != nil {
-			claims.BusinessID = &user.Business.ID
+		// try to get employee or user
+		var user model.User
+		if err := db.Preload("Business").First(&user, "id = ?", jwtClaims.ID).Error; err == nil {
+			claims.BusinessID = user.BusinessID
+			claims.Role = user.Role
+		} else {
+			logger.Log.Warn("User not found", "error", err, "user_id", jwtClaims.ID)
+			return fiber.NewError(fiber.StatusUnauthorized, "Please authenticate")
+		}
+
+		if (user.Role == config.USER_ROLE_CASHIER || user.Role == config.USER_ROLE_MANAGER) && !user.IsActive {
+			logger.Log.Warn("Employee is not active", "user_id", jwtClaims.ID)
+			return fiber.NewError(fiber.StatusUnauthorized, "Please authenticate")
+		}
+
+		if user.Role == config.USER_ROLE_OWNER && !user.IsVerified {
+			logger.Log.Warn("Owner is not verified", "user_id", jwtClaims.ID)
+			return fiber.NewError(fiber.StatusUnauthorized, "Please authenticate")
+		}
+
+		hasPermission := false
+		if len(roles) == 0 || slices.Contains(roles, string(claims.Role)) {
+			hasPermission = true
+		}
+
+		if !hasPermission {
+			logger.Log.Warn("Role not allowed", "role:", claims.Role, "allowed_roles:", roles)
+			return fiber.NewError(fiber.StatusForbidden, "You are not authorized to access this resource")
 		}
 
 		c.Locals("user", claims)

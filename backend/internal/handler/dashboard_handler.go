@@ -38,10 +38,6 @@ func (h *DashboardHandler) RegisterRoutes(app *fiber.App, db *gorm.DB) {
 func (h *DashboardHandler) GetDashboardSummary(c *fiber.Ctx) error {
 	claims := middleware.GetAuthClaims(c)
 
-	if claims.BusinessID == nil {
-		return fiber.NewError(fiber.StatusNotFound, "Finish onboarding first")
-	}
-
 	summary, err := h.dashboardUsecase.GetDashboardSummary(*claims.BusinessID)
 	if err != nil {
 		return err

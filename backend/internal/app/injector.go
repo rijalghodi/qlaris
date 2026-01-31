@@ -101,7 +101,13 @@ func InjectHTTPHandlers(ctx context.Context, app *fiber.App) {
 	userHandler := handler.NewUserHandler(userUsecase)
 	userHandler.RegisterRoutes(app, db)
 
+	// Employee setup
+	employeeUsecase := usecase.NewEmployeeUsecase(userRepo, storage)
+	employeeHandler := handler.NewEmployeeHandler(employeeUsecase)
+	employeeHandler.RegisterRoutes(app, db)
+
 	// Dashboard setup
+
 	dashboardRepo := repository.NewDashboardRepository(db)
 	dashboardUsecase := usecase.NewDashboardUsecase(dashboardRepo, transactionRepo, productRepo, storage)
 	dashboardHandler := handler.NewDashboardHandler(dashboardUsecase)

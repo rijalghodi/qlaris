@@ -10,8 +10,8 @@ import (
 func FiberConfig() fiber.Config {
 	return fiber.Config{
 		CaseSensitive: true,
-		ServerHeader:  "Qlaris",
-		AppName:       "Qlaris API",
+		ServerHeader:  APP_NAME,
+		AppName:       APP_NAME + " API",
 		ErrorHandler:  util.ErrorHandler,
 		JSONEncoder:   json.Marshal,
 		JSONDecoder:   json.Unmarshal,
