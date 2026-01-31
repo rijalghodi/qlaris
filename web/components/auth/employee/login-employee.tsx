@@ -7,7 +7,7 @@ import { ROUTES } from "@/lib/routes";
 import type { LoginableEmployeeRes } from "@/services/api-auth";
 import { BusinessCodeInput } from "./business-code-input";
 import { EmployeeSelect } from "./employee-select";
-import { PinInput } from "./pin-input";
+import { PinInputSection } from "./pin-input-section";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 
 export function LoginEmployee() {
@@ -21,7 +21,7 @@ export function LoginEmployee() {
   const { mutate: loginEmployee, isPending: loggingIn } = useLoginEmployee({
     onSuccess: (data) => {
       console.log("Employee login successful:", data);
-      router.push(ROUTES.DASHBOARD);
+      // router.push(ROUTES.DASHBOARD);
     },
     onError: (errorMessage) => {
       setError(errorMessage || "An error occurred");
@@ -56,7 +56,6 @@ export function LoginEmployee() {
   // Back button handlers
   const handleBackFromStep2 = () => {
     setStep(1);
-    setBusinessCode("");
     setError("");
   };
 
@@ -67,12 +66,8 @@ export function LoginEmployee() {
   };
 
   return (
-    <div className="w-full max-w-2xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Header */}
-
-      <div className="space-y-2 text-center mb-20">
-        <h1 className="text-2xl font-semibold">Employee Login</h1>
-        {/* Error Message */}
+    <div className="w-full max-w-lg space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="space-y-2 text-center mb-8">
         {error && (
           <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive text-center">
             {error}
@@ -86,7 +81,7 @@ export function LoginEmployee() {
         onValueChange={(value) => setStep(Number(value) as 1 | 2 | 3)}
       >
         <TabsContent value="1">
-          <BusinessCodeInput onSubmit={handleBusinessCodeSubmit} />
+          <BusinessCodeInput businessCode={businessCode} onSubmit={handleBusinessCodeSubmit} />
         </TabsContent>
         <TabsContent value="2">
           <EmployeeSelect
@@ -96,7 +91,7 @@ export function LoginEmployee() {
           />
         </TabsContent>
         <TabsContent value="3">
-          <PinInput
+          <PinInputSection
             selectedEmployee={selectedEmployee as LoginableEmployeeRes}
             onSubmit={handlePinSubmit}
             onBack={handleBackFromStep3}

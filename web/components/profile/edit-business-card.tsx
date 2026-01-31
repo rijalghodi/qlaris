@@ -19,13 +19,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ImageInput } from "@/components/ui/image-input";
 
 import { useEditCurrentUserBusiness, type UserRes } from "@/services/api-user";
@@ -60,8 +53,8 @@ export function EditBusinessCard({
         name: business?.name || "",
         code: business?.code || "",
         address: business?.address || "",
-        category: business?.category,
-        employeeSize: business?.employeeSize,
+        category: business?.category || undefined,
+        employeeSize: business?.employeeSize || undefined,
         logo: business?.logo?.key || "",
         logoUrl: business?.logo?.url || "",
       });
@@ -77,8 +70,8 @@ export function EditBusinessCard({
       name: business.name || "",
       code: business.code || "",
       address: business.address || "",
-      category: business.category,
-      employeeSize: business.employeeSize,
+      category: business.category || undefined,
+      employeeSize: business.employeeSize || undefined,
       logo: business.logo || "",
       logoUrl: business.logoUrl || "",
     },

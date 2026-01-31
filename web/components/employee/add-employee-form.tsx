@@ -210,7 +210,7 @@ export function AddEmployeeForm() {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} className="rounded-full">
                 {isSubmitting ? "Creating..." : "Create Employee"}
               </Button>
             </div>

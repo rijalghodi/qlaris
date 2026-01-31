@@ -51,19 +51,26 @@ export function EmployeeSelect({ businessCode, onSelect, onBack }: EmployeeSelec
   }
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-3">
+    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300 ease-out">
+      <div className="flex gap-0.5 items-center">
+        <Button variant="ghost" size="icon" onClick={onBack}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+        </Button>
+        <p className="text-lg font-semibold">Select Your Profile</p>
+      </div>
+      <p className="text-sm text-muted-foreground">If it is not listed, call your manager</p>
+      <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
         {employees.map((employee) => (
           <button
             key={employee.id}
             onClick={() => onSelect(employee)}
-            className="flex items-center gap-4 p-4 border rounded-lg hover:bg-accent transition-colors text-left"
+            className="flex text-left gap-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
           >
             <Avatar className="h-12 w-12">
               <AvatarImage src={employee.image?.url} alt={employee.name} />
               <AvatarFallback>{employee.name.charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
-            <div className="flex-1">
+            <div className="flex-1 space-y-1">
               <p className="font-medium">{employee.name}</p>
               <Badge
                 variant={employee.role === Role.MANAGER ? "default" : "secondary"}
