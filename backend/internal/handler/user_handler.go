@@ -92,7 +92,7 @@ func (h *UserHandler) EditCurrentUser(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param request body contract.EditPasswordReq true "Edit password request"
+// @Param request body contract.EditCurrentUserPasswordReq true "Edit password request"
 // @Success 200 {object} util.BaseResponse
 // @Failure 400 {object} util.BaseResponse
 // @Failure 401 {object} util.BaseResponse
