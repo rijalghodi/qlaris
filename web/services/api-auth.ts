@@ -7,7 +7,15 @@ import { Role } from "@/lib/constant";
 
 import { apiClient } from "./api-client";
 import type { GErrorResponse, GResponse } from "./type";
-import { useCallback, useState } from "react";
+
+// --- SHARED TYPES ---
+
+export type TokenRes = {
+  accessToken: string;
+  accessTokenExpiresAt: string;
+  refreshToken: string;
+  refreshTokenExpiresAt: string;
+};
 
 // --- REGISTER ---
 
@@ -17,13 +25,13 @@ export type RegisterReq = {
   password: string;
 };
 
-export type RegisterRes = GResponse<{
-  phone?: string;
-  email?: string;
-  role?: Role;
-  token?: string;
-  tokenExpiredAt?: string;
-}>;
+export type RegisterRes = GResponse<
+  {
+    phone?: string;
+    email?: string;
+    role?: Role;
+  } & TokenRes
+>;
 
 // --- LOGIN ---
 
@@ -33,14 +41,14 @@ export type LoginReq = {
   password: string;
 };
 
-export type LoginRes = GResponse<{
-  name?: string;
-  phone?: string;
-  email?: string;
-  role?: Role;
-  token?: string;
-  tokenExpiredAt?: string;
-}>;
+export type LoginRes = GResponse<
+  {
+    name?: string;
+    phone?: string;
+    email?: string;
+    role?: Role;
+  } & TokenRes
+>;
 
 // --- LOGIN EMPLOYEE ---
 
@@ -55,14 +63,16 @@ export type LoginEmployeeReq = {
   employeeId: string;
 };
 
-export type LoginEmployeeRes = GResponse<{
-  id: string;
-  name: string;
-  role: string;
-  businessId: string;
-  businessName: string;
-  image?: FileRes;
-}>;
+export type LoginEmployeeRes = GResponse<
+  {
+    id: string;
+    name: string;
+    role: string;
+    businessId: string;
+    businessName: string;
+    image?: FileRes;
+  } & TokenRes
+>;
 
 // --- LIST LOGINABLE EMPLOYEES ---
 
@@ -79,10 +89,12 @@ export type RefreshTokenReq = {
   refreshToken: string;
 };
 
-export type RefreshTokenRes = GResponse<{
-  token?: string;
-  tokenExpiredAt?: string;
-}>;
+export type RefreshTokenRes = GResponse<
+  {
+    token?: string;
+    tokenExpiredAt?: string;
+  } & TokenRes
+>;
 
 // --- FORGOT PASSWORD (REQUEST OTP) ---
 
@@ -111,15 +123,15 @@ export type VerifyEmailReq = {
 
 // --- GET CURRENT USER ---
 
-export type GetCurrentUserRes = GResponse<{
-  name?: string;
-  phone?: string;
-  email?: string;
-  role?: Role;
-  token?: string;
-  googleImage?: string;
-  tokenExpiredAt?: string;
-}>;
+export type GetCurrentUserRes = GResponse<
+  {
+    name?: string;
+    phone?: string;
+    email?: string;
+    role?: Role;
+    googleImage?: string;
+  } & TokenRes
+>;
 
 // --- RESET PASSWORD ---
 
@@ -204,10 +216,12 @@ export const useRegister = ({
   return useMutation({
     mutationFn: (data: RegisterReq) => authApi.register(data),
     onSuccess: (data: RegisterRes) => {
-      if (data.data?.token) {
+      if (data.data?.accessToken) {
         setAuthCookie({
-          accessToken: data.data.token,
-          accessTokenExpires: data.data.tokenExpiredAt,
+          accessToken: data.data.accessToken,
+          accessTokenExpires: data.data.accessTokenExpiresAt,
+          refreshToken: data.data.refreshToken,
+          refreshTokenExpires: data.data.refreshTokenExpiresAt,
         });
       }
       onSuccess?.(data);
@@ -228,6 +242,14 @@ export const useLogin = ({
   return useMutation({
     mutationFn: (data: LoginReq) => authApi.login(data),
     onSuccess: (data: LoginRes) => {
+      if (data.data?.accessToken) {
+        setAuthCookie({
+          accessToken: data.data.accessToken,
+          accessTokenExpires: data.data.accessTokenExpiresAt,
+          refreshToken: data.data.refreshToken,
+          refreshTokenExpires: data.data.refreshTokenExpiresAt,
+        });
+      }
       onSuccess?.(data);
     },
     onError: (error: GErrorResponse) => {
@@ -319,6 +341,14 @@ export const useVerifyEmail = ({
   return useMutation({
     mutationFn: (data: VerifyEmailReq) => authApi.verifyEmail(data),
     onSuccess: (data: LoginRes) => {
+      if (data.data?.accessToken) {
+        setAuthCookie({
+          accessToken: data.data.accessToken,
+          accessTokenExpires: data.data.accessTokenExpiresAt,
+          refreshToken: data.data.refreshToken,
+          refreshTokenExpires: data.data.refreshTokenExpiresAt,
+        });
+      }
       onSuccess?.(data);
     },
     onError: (error: GErrorResponse) => {
@@ -337,6 +367,7 @@ export const useLogout = ({
   return useMutation({
     mutationFn: () => authApi.logout(),
     onSuccess: () => {
+      removeAuthCookie();
       window.location.href = ROUTES.LOGIN;
       onSuccess?.();
     },
@@ -356,8 +387,14 @@ export const useLoginEmployee = ({
   return useMutation({
     mutationFn: (data: LoginEmployeeReq) => authApi.loginEmployee(data),
     onSuccess: (data: LoginEmployeeRes) => {
-      // Note: Employee login uses httpOnly cookies set by the server
-      // No need to manually set cookies here
+      if (data.data?.accessToken) {
+        setAuthCookie({
+          accessToken: data.data.accessToken,
+          accessTokenExpires: data.data.accessTokenExpiresAt,
+          refreshToken: data.data.refreshToken,
+          refreshTokenExpires: data.data.refreshTokenExpiresAt,
+        });
+      }
       onSuccess?.(data);
     },
     onError: (error: GErrorResponse) => {

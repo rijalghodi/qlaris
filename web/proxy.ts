@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { ROUTES } from "./lib/routes";
+import { ACCESS_TOKEN_KEY } from "./lib/constant";
 
 // Define URL patterns
 const PUBLIC_URL = ["/"];
@@ -38,17 +39,19 @@ const getCurrentUser = async (request: NextRequest) => {
       return null;
     }
 
-    // Get cookies from the request
-    const cookies = request.cookies.toString();
+    const accessToken = request.cookies.get(ACCESS_TOKEN_KEY)?.value;
 
-    console.log("Cookies:", cookies);
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (accessToken) {
+      headers["Authorization"] = `Bearer ${accessToken}`;
+    }
 
     const response = await fetch(`${apiBaseUrl}/users/current`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Cookie: cookies,
-      },
+      headers,
       credentials: "include",
     });
 

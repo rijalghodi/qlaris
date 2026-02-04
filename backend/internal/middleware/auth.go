@@ -80,6 +80,11 @@ func AuthGuard(db *gorm.DB, roles ...string) fiber.Handler {
 }
 
 func extractToken(c *fiber.Ctx) string {
+	// check header first
+	authHeader := c.Get("Authorization")
+	if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
+		return authHeader[7:]
+	}
 	// Read token from cookie
 	return c.Cookies(config.ACCESS_TOKEN_COOKIE_NAME)
 }

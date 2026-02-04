@@ -84,10 +84,9 @@ func (u *AuthUsecase) LoginGoogleUser(
 		return nil, err
 	}
 
-	SetAuthCookies(c, tokens)
-
 	return &contract.GoogleLoginRes{
-		UserRes: BuildUserRes(util.ToValue(user), u.storage),
+		UserRes:  BuildUserRes(util.ToValue(user), u.storage),
+		TokenRes: tokens,
 	}, nil
 }
 
@@ -116,12 +115,11 @@ func (u *AuthUsecase) Login(c *fiber.Ctx, req *contract.LoginReq) (*contract.Log
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	SetAuthCookies(c, tokens)
-
 	userRes := BuildUserRes(util.ToValue(user), u.storage)
 
 	return &contract.LoginRes{
-		UserRes: userRes,
+		UserRes:  userRes,
+		TokenRes: tokens,
 	}, nil
 }
 func (u *AuthUsecase) LoginEmployee(c *fiber.Ctx, req *contract.LoginEmployeeReq) (*contract.LoginRes, error) {
@@ -159,12 +157,11 @@ func (u *AuthUsecase) LoginEmployee(c *fiber.Ctx, req *contract.LoginEmployeeReq
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	SetAuthCookies(c, tokens)
-
 	userRes := BuildUserRes(util.ToValue(user), u.storage)
 
 	return &contract.LoginRes{
-		UserRes: userRes,
+		UserRes:  userRes,
+		TokenRes: tokens,
 	}, nil
 }
 
@@ -210,7 +207,7 @@ func (u *AuthUsecase) ListLoginableEmployees(businessCode string) ([]contract.Lo
 	return employees, nil
 }
 
-func (u *AuthUsecase) Register(req *contract.RegisterReq) (*contract.RegisterRes, error) {
+func (u *AuthUsecase) Register(c *fiber.Ctx, req *contract.RegisterReq) (*contract.RegisterRes, error) {
 	existingUser, err := u.userRepo.GetUserByEmail(req.Email)
 	if err != nil {
 		logger.Log.Error("Failed to query user by email", zap.Error(err), zap.String("email", req.Email))
@@ -251,10 +248,12 @@ func (u *AuthUsecase) Register(req *contract.RegisterReq) (*contract.RegisterRes
 		logger.Log.Error("Failed to send verification email", zap.Error(err), zap.String("email", util.ToValue(newUser.Email)))
 	}
 
-	return &contract.RegisterRes{
+	res := &contract.RegisterRes{
 		UserRes:       BuildUserRes(util.ToValue(newUser), u.storage),
 		NextRequestAt: verifyEmailRes.NextRequestAt,
-	}, nil
+	}
+
+	return res, nil
 }
 
 func (u *AuthUsecase) SendVerificationEmail(email string) (*contract.SendVerificationEmailRes, error) {
@@ -347,10 +346,9 @@ func (u *AuthUsecase) VerifyEmail(c *fiber.Ctx, token string) (*contract.VerifyE
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	SetAuthCookies(c, tokens)
-
 	return &contract.VerifyEmailRes{
-		UserRes: BuildUserRes(util.ToValue(user), u.storage),
+		UserRes:  BuildUserRes(util.ToValue(user), u.storage),
+		TokenRes: tokens,
 	}, nil
 }
 
@@ -459,15 +457,8 @@ func (u *AuthUsecase) RefreshToken(c *fiber.Ctx, req *contract.RefreshTokenReq) 
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	if tokens == nil {
-		logger.Log.Error("Failed to generate token pair", zap.Error(err), zap.String("userID", claims.ID))
-		return nil, fiber.NewError(fiber.StatusInternalServerError)
-	}
-
-	SetAuthCookies(c, tokens)
-
 	return &contract.RefreshTokenRes{
-		TokenRes: *tokens,
+		TokenRes: tokens,
 	}, nil
 }
 
@@ -496,25 +487,23 @@ func (u *AuthUsecase) SwitchBusiness(c *fiber.Ctx, businessID string) (*contract
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to generate tokens")
 	}
 
-	SetAuthCookies(c, tokens)
-
-	return tokens, nil
+	return &tokens, nil
 }
 
-func (u *AuthUsecase) generateTokenPair(userID string) (*contract.TokenRes, error) {
+func (u *AuthUsecase) generateTokenPair(userID string) (res contract.TokenRes, err error) {
 	accessExpiresAt := time.Now().Add(config.JWT_ACCESS_TTL)
 	accessToken, err := util.GenerateToken(userID, string(config.TokenTypeAccess), config.Env.JWT.Secret, accessExpiresAt)
 	if err != nil {
-		return nil, err
+		return res, err
 	}
 
 	refreshExpiresAt := time.Now().Add(config.JWT_REFRESH_TTL)
 	refreshToken, err := util.GenerateToken(userID, string(config.TokenTypeRefresh), config.Env.JWT.Secret, refreshExpiresAt)
 	if err != nil {
-		return nil, err
+		return res, err
 	}
 
-	return &contract.TokenRes{
+	return contract.TokenRes{
 		AccessToken:           accessToken,
 		AccessTokenExpiresAt:  accessExpiresAt.Format(time.RFC3339),
 		RefreshToken:          refreshToken,
@@ -537,33 +526,6 @@ func nextRequestAt(lastRequestAt *time.Time, ttlDuration time.Duration) *string 
 		return nil
 	}
 	return util.ToPointer(lastRequestAt.Add(ttlDuration).Format(time.RFC3339))
-}
-
-func SetAuthCookies(c *fiber.Ctx, tokens *contract.TokenRes) {
-	sameSite := "Lax"
-	if !config.Env.App.IsDev {
-		sameSite = "None"
-	}
-
-	c.Cookie(&fiber.Cookie{
-		Name:     config.ACCESS_TOKEN_COOKIE_NAME,
-		Value:    tokens.AccessToken,
-		HTTPOnly: true,
-		Secure:   !config.Env.App.IsDev,
-		SameSite: sameSite,
-		MaxAge:   int(config.JWT_ACCESS_TTL.Seconds()),
-		Path:     "/",
-	})
-
-	c.Cookie(&fiber.Cookie{
-		Name:     config.REFRESH_TOKEN_COOKIE_NAME,
-		Value:    tokens.RefreshToken,
-		HTTPOnly: true,
-		Secure:   !config.Env.App.IsDev,
-		SameSite: sameSite,
-		MaxAge:   int(config.JWT_REFRESH_TTL.Seconds()),
-		Path:     "/",
-	})
 }
 
 func ClearAuthCookies(c *fiber.Ctx) {

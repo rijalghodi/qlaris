@@ -51,6 +51,7 @@ type GoogleLoginReq struct {
 
 type GoogleLoginRes struct {
 	UserRes
+	TokenRes
 }
 
 type LoginReq struct {
@@ -60,6 +61,7 @@ type LoginReq struct {
 
 type LoginRes struct {
 	UserRes
+	TokenRes
 }
 
 type LoginEmployeeReq struct {
@@ -75,6 +77,7 @@ type LoginEmployeeRes struct {
 	BusinessID   string   `json:"businessId"`
 	BusinessName string   `json:"businessName"`
 	Image        *FileRes `json:"image"`
+	TokenRes
 }
 
 // LoginableEmployeeRes represents a simplified employee response for login selection
@@ -94,6 +97,7 @@ type RegisterReq struct {
 type RegisterRes struct {
 	UserRes
 	NextRequestAt *string `json:"nextRequestAt"`
+	TokenRes
 }
 
 type ForgotPasswordReq struct {
@@ -127,6 +131,7 @@ type VerifyEmailReq struct {
 
 type VerifyEmailRes struct {
 	UserRes
+	TokenRes
 }
 
 // === Switch business ===

@@ -1,7 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { setAuthCookie, removeAuthCookie } from "@/lib/auth-cookie";
+import { setAuthCookie, removeAuthCookie, getAuthCookie } from "@/lib/auth-cookie";
 import { ROUTES } from "@/lib/routes";
-import { REFRESH_TOKEN_KEY } from "@/lib/constant";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -34,17 +33,19 @@ const processQueue = (error: Error | null) => {
   failedQueue = [];
 };
 
-// Utility to get a cookie value
-const getCookie = (name: string): string | null => {
-  if (typeof document === "undefined") return null;
-
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    return parts.pop()?.split(";").shift() || null;
+// Request interceptor to add Bearer token
+apiClient.interceptors.request.use(
+  (config) => {
+    const { accessToken } = getAuthCookie();
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return null;
-};
+);
 
 // Response interceptor for error handling and token refresh
 apiClient.interceptors.response.use(
@@ -82,7 +83,7 @@ apiClient.interceptors.response.use(
 
       try {
         // Get refresh token from cookie
-        const refreshToken = getCookie(REFRESH_TOKEN_KEY);
+        const { refreshToken } = getAuthCookie();
 
         if (!refreshToken) {
           throw new Error("No refresh token available");
@@ -93,13 +94,28 @@ apiClient.interceptors.response.use(
           refreshToken,
         });
 
-        if (response.data.success) {
-          // Server has been set the cookie
+        if (response.data.success && response.data.data) {
+          // Update cookies with new tokens
+          const {
+            accessToken,
+            accessTokenExpiresAt,
+            refreshToken: newRefreshToken,
+            refreshTokenExpiresAt,
+          } = response.data.data;
+
+          setAuthCookie({
+            accessToken,
+            accessTokenExpires: accessTokenExpiresAt,
+            refreshToken: newRefreshToken,
+            refreshTokenExpires: refreshTokenExpiresAt,
+          });
 
           // Process the queue of failed requests
           processQueue(null);
 
           // Retry the original request with new token
+          // Update the header with the new token
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return apiClient(originalRequest);
         } else {
           throw new Error("No token in refresh response");

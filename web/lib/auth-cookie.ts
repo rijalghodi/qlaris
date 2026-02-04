@@ -1,42 +1,7 @@
 "use client";
 
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/lib/constant";
-
-function addSecondsToCurrentDate(seconds: number): Date {
-  return new Date(Date.now() + seconds * 1000);
-}
-
-function setCookie(key: string, value: string, expires?: Date) {
-  const cookieParts = [`${key}=${encodeURIComponent(value)}`];
-
-  if (expires) {
-    cookieParts.push(`expires=${expires.toUTCString()}`);
-  }
-
-  cookieParts.push("path=/");
-  cookieParts.push("SameSite=Strict");
-
-  if (process.env.NODE_ENV === "production") {
-    cookieParts.push("Secure");
-  }
-
-  document.cookie = cookieParts.join("; ");
-}
-
-function removeCookie(key: string) {
-  document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-}
-
-function setCookieWithExpiration(key: string, value: string, expires?: string | Date | number) {
-  const expiresDate =
-    typeof expires === "number"
-      ? addSecondsToCurrentDate(expires)
-      : expires
-        ? new Date(expires)
-        : undefined;
-
-  setCookie(key, value, expiresDate);
-}
+import Cookies from "js-cookie";
 
 type AuthCookie = {
   accessToken: string;
@@ -51,14 +16,32 @@ export function setAuthCookie({
   accessTokenExpires,
   refreshTokenExpires,
 }: AuthCookie) {
-  setCookieWithExpiration(ACCESS_TOKEN_KEY, accessToken, accessTokenExpires);
+  Cookies.set(ACCESS_TOKEN_KEY, accessToken, {
+    expires: accessTokenExpires ? new Date(accessTokenExpires) : undefined,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Lax",
+  });
 
   if (refreshToken) {
-    setCookieWithExpiration(REFRESH_TOKEN_KEY, refreshToken, refreshTokenExpires);
+    Cookies.set(REFRESH_TOKEN_KEY, refreshToken, {
+      expires: refreshTokenExpires ? new Date(refreshTokenExpires) : undefined,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Lax",
+    });
   }
 }
 
 export function removeAuthCookie() {
-  removeCookie(ACCESS_TOKEN_KEY);
-  removeCookie(REFRESH_TOKEN_KEY);
+  Cookies.remove(ACCESS_TOKEN_KEY);
+  Cookies.remove(REFRESH_TOKEN_KEY);
+}
+
+export function getAuthCookie() {
+  const accessToken = Cookies.get(ACCESS_TOKEN_KEY);
+  const refreshToken = Cookies.get(REFRESH_TOKEN_KEY);
+
+  return {
+    accessToken,
+    refreshToken,
+  };
 }

@@ -132,12 +132,18 @@ func (h *AuthHandler) GoogleCallback(c *fiber.Ctx) error {
 		return errJSON
 	}
 
-	_, err = h.authUsecase.LoginGoogleUser(c, googleUser)
+	res, err := h.authUsecase.LoginGoogleUser(c, googleUser)
 	if err != nil {
 		return err
 	}
 
-	googleLoginURL := fmt.Sprintf("%s", config.Env.GoogleOAuth.ClientCallbackURI)
+	googleLoginURL := fmt.Sprintf("%s?accessToken=%s&accessTokenExpiresAt=%s&refreshToken=%s&refreshTokenExpiresAt=%s",
+		config.Env.GoogleOAuth.ClientCallbackURI,
+		res.AccessToken,
+		res.AccessTokenExpiresAt,
+		res.RefreshToken,
+		res.RefreshTokenExpiresAt,
+	)
 
 	return c.Status(fiber.StatusSeeOther).Redirect(googleLoginURL)
 }
@@ -245,7 +251,7 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 		return err
 	}
 
-	res, err := h.authUsecase.Register(&req)
+	res, err := h.authUsecase.Register(c, &req)
 	if err != nil {
 		logger.Log.Error("Failed to register user", zap.Error(err))
 		return err
