@@ -55,19 +55,20 @@ const getCurrentUser = async (request: NextRequest) => {
     console.log("Response:", response);
 
     if (!response.ok) {
-      return null;
+      throw new Error("Response is not ok", {
+        cause: response,
+      });
     }
 
     const data = await response.json();
 
-    console.log("Data:", data);
-
-    // Check if the response has success flag and data
-    if (data.success && data.data) {
-      return data.data;
+    if (!data.data) {
+      throw new Error("No user data", {
+        cause: data,
+      });
     }
 
-    return null;
+    return data.data;
   } catch (error) {
     console.error("Error fetching current user:", error);
     return null;
