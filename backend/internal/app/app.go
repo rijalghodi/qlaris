@@ -56,6 +56,7 @@ func setupFiberApp() *fiber.App {
 	app := fiber.New(config.FiberConfig())
 
 	// Middleware setup
+	app.Use(middleware.HostCheck(config.Env.App.AllowedHosts))
 	app.Use("/auth", middleware.LimiterConfig())
 	app.Use(middleware.LoggerConfig())
 	app.Use(helmet.New())

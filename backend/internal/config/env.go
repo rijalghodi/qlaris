@@ -28,6 +28,7 @@ type App struct {
 	BaseURL       string `env:"APP_BASE_URL"`
 	SuperPassword string `env:"APP_SUPER_PASSWORD"`
 	IsDev         bool   `env:"APP_IS_DEV"`
+	AllowedHosts  string `env:"ALLOWED_HOSTS"`
 }
 
 type Logger struct {
