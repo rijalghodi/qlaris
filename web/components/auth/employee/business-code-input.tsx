@@ -37,7 +37,6 @@ export function BusinessCodeInput({ businessCode = "", onSubmit }: BusinessCodeI
       <p className="text-sm text-muted-foreground">
         It can be found in your manager’s settings. Ask them for it.
       </p>
-      <p className="text-sm text-muted-foreground">Business code: {businessCode}</p>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <FormField
