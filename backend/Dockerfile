@@ -15,7 +15,7 @@ RUN go mod download
 COPY . .
 
 # Generate Swagger docs
-RUN swag init --dir . --output ./docs --parseDependency --parseInternal
+RUN swag init --dir . --output ./docs --parseDependency --parseInternal -g cmd/http.go
 
 # Build static binary
 RUN CGO_ENABLED=0 GOOS=linux go build -o main .

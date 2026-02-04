@@ -6,7 +6,7 @@ start:
 lint:
 	@golangci-lint run
 swagger:
-	@swag init
+	@swag init -g cmd/http.go
 migration-%:
 	@if [ ! -d "internal/database/migrations" ]; then mkdir -p internal/database/migrations; fi; \
 	NEXT_NUM=$$(ls -1 internal/database/migrations/*.sql 2>/dev/null | sed -n 's/.*\/\([0-9]*\)_.*/\1/p' | sort -n | tail -1); \
