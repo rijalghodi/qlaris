@@ -52,7 +52,7 @@ const getCurrentUser = async (request: NextRequest) => {
       credentials: "include",
     });
 
-    // console.log("Response.ok:", response.ok);
+    console.log("Response.ok:", response.ok);
 
     if (!response.ok) {
       return null;
@@ -60,7 +60,7 @@ const getCurrentUser = async (request: NextRequest) => {
 
     const data = await response.json();
 
-    // console.log("Data:", data);
+    console.log("Data:", data);
 
     // Check if the response has success flag and data
     if (data.success && data.data) {
