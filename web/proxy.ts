@@ -119,7 +119,6 @@ const getCurrentUser = async (request: NextRequest) => {
             expires: new Date(newTokens.accessTokenExpiresAt),
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
-            httpOnly: true,
           });
 
           // Set new refresh token cookie
@@ -127,7 +126,6 @@ const getCurrentUser = async (request: NextRequest) => {
             expires: new Date(newTokens.refreshTokenExpiresAt),
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
-            httpOnly: true,
           });
 
           // Retry the request with new access token
