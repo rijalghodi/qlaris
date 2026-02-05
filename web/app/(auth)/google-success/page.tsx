@@ -12,7 +12,7 @@ import {
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ROUTES } from "@/lib/routes";
-import { Loader2, CheckCircle2, X } from "lucide-react";
+import { CheckCircle2, X } from "lucide-react";
 import { setAuthCookie } from "@/lib/auth-cookie";
 import { Spinner } from "@/components/ui/spinner";
 
