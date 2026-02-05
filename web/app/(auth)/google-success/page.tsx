@@ -29,7 +29,9 @@ export function GoogleSuccess() {
   const searchParams = useSearchParams();
 
   const accessToken = searchParams.get("accessToken");
-  const refreshToken = searchParams.get("refreshToken");
+  const refreshToken = searchParams.get("refreshToken") || "";
+  const accessTokenExpires = searchParams.get("accessTokenExpiresAt") || "";
+  const refreshTokenExpires = searchParams.get("refreshTokenExpiresAt") || "";
 
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
@@ -39,9 +41,9 @@ export function GoogleSuccess() {
       if (accessToken) {
         setAuthCookie({
           accessToken,
-          refreshToken: refreshToken || "",
-          accessTokenExpires: searchParams.get("accessTokenExpiresAt") || "",
-          refreshTokenExpires: searchParams.get("refreshTokenExpiresAt") || "",
+          refreshToken,
+          accessTokenExpires,
+          refreshTokenExpires,
         });
       }
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -51,6 +53,7 @@ export function GoogleSuccess() {
       setError("Failed to set authentication cookies");
       console.error(err);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, refreshToken, router]);
 
   // Loading State (initial state)
