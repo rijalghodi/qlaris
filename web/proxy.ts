@@ -59,7 +59,10 @@ const getCurrentUser = async (request: NextRequest) => {
 
     if (!response.ok) {
       throw new Error("Response is not ok", {
-        cause: response,
+        cause: {
+          response,
+          accessToken,
+        },
       });
     }
 
@@ -67,7 +70,10 @@ const getCurrentUser = async (request: NextRequest) => {
 
     if (!data.data) {
       throw new Error("No user data", {
-        cause: data,
+        cause: {
+          data,
+          accessToken,
+        },
       });
     }
 
