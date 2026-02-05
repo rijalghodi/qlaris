@@ -36,6 +36,15 @@ export function GoogleSuccess() {
 
   useEffect(() => {
     try {
+      if (accessToken) {
+        setAuthCookie({
+          accessToken,
+          refreshToken: refreshToken || "",
+          accessTokenExpires: searchParams.get("accessTokenExpiresAt") || "",
+          refreshTokenExpires: searchParams.get("refreshTokenExpiresAt") || "",
+        });
+      }
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSuccess(true);
       router.push(ROUTES.DASHBOARD);
     } catch (err) {
