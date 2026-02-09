@@ -2,7 +2,6 @@ package app
 
 import (
 	"app/internal/config"
-	"app/internal/cron"
 	"app/internal/middleware"
 	"app/pkg/logger"
 	"context"
@@ -40,7 +39,7 @@ func Run() error {
 	}
 
 	// Start cron jobs
-	_ = cron.NewHelloCron(ctx)
+	// _ = cron.NewHelloCron(ctx)
 
 	address := fmt.Sprintf("%s:%d", config.Env.App.Host, config.Env.App.Port)
 

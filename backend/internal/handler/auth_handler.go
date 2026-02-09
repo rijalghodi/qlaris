@@ -93,6 +93,7 @@ func (h *AuthHandler) GoogleCallback(c *fiber.Ctx) error {
 	storedState := c.Cookies("oauth_state")
 
 	if state != storedState {
+		logger.Log.Error("States don't Match!", zap.String("state", state), zap.String("storedState", storedState))
 		return fiber.NewError(fiber.StatusUnauthorized, "States don't Match!")
 	}
 
@@ -124,16 +125,19 @@ func (h *AuthHandler) GoogleCallback(c *fiber.Ctx) error {
 
 	userData, err := io.ReadAll(resp.Body)
 	if err != nil {
+		logger.Log.Error("Failed to read response body: %v", err)
 		return err
 	}
 
 	googleUser := new(contract.GoogleLoginReq)
 	if errJSON := json.Unmarshal(userData, googleUser); errJSON != nil {
+		logger.Log.Error("Failed to unmarshal response body: %v", errJSON)
 		return errJSON
 	}
 
 	res, err := h.authUsecase.LoginGoogleUser(c, googleUser)
 	if err != nil {
+		logger.Log.Error("Failed to login google user: %v", err)
 		return err
 	}
 
