@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -49,21 +48,21 @@ func (u *AuthUsecase) LoginGoogleUser(
 
 	user, err := u.userRepo.GetUserByEmail(req.Email)
 	if err != nil || user == nil {
+		business := &model.Business{
+			Name: "My store",
+			Code: util.GenerateBusinessCode(),
+		}
+
 		user = &model.User{
-			ID:          uuid.New().String(),
 			Name:        req.Name,
 			Email:       &req.Email,
 			IsVerified:  req.VerifiedEmail,
 			GoogleImage: googleImage,
 			Role:        config.USER_ROLE_OWNER,
-			Business: &model.Business{
-				ID:   uuid.New().String(),
-				Name: "My store",
-			},
 		}
 
-		if err := u.userRepo.CreateUser(user); err != nil {
-			logger.Log.Errorf("Failed to create user: %+v", err)
+		if err := u.userRepo.CreateUserAndBusiness(user, business); err != nil {
+			logger.Log.Errorf("Failed to create user and business: %+v", err)
 			return nil, err
 		}
 	} else {
@@ -227,21 +226,21 @@ func (u *AuthUsecase) Register(c *fiber.Ctx, req *contract.RegisterReq) (*contra
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 
+	business := &model.Business{
+		Name: "My store",
+		Code: util.GenerateBusinessCode(),
+	}
+
 	newUser := &model.User{
-		ID:           uuid.New().String(),
 		Name:         req.Name,
 		Email:        &req.Email,
 		PasswordHash: &hashedPassword,
 		IsVerified:   false,
 		Role:         config.USER_ROLE_OWNER,
-		Business: &model.Business{
-			ID:   uuid.New().String(),
-			Name: "My store",
-		},
 	}
 
-	if err := u.userRepo.CreateUser(newUser); err != nil {
-		logger.Log.Error("Failed to create user", zap.Error(err), zap.String("email", req.Email))
+	if err := u.userRepo.CreateUserAndBusiness(newUser, business); err != nil {
+		logger.Log.Error("Failed to create user and business", zap.Error(err), zap.String("email", req.Email))
 		return nil, fiber.NewError(fiber.StatusInternalServerError)
 	}
 

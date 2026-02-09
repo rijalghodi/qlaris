@@ -1,7 +1,10 @@
 package util
 
 import (
+	"fmt"
+	"math/rand"
 	"strings"
+	"time"
 	"unicode"
 )
 
@@ -54,4 +57,11 @@ func ToCamelCase(str string) string {
 	}
 
 	return result.String()
+}
+
+// GenerateBusinessCode generates a random 6-digit business code
+func GenerateBusinessCode() string {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	code := r.Intn(1000000) // 0 to 999999
+	return fmt.Sprintf("%06d", code)
 }

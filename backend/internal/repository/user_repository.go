@@ -70,6 +70,29 @@ func (r *UserRepository) CreateUser(user *model.User) error {
 	return r.db.Create(user).Error
 }
 
+// CreateUserAndBusiness creates a user and optionally a business in a transaction
+// If business is not nil, it creates the business first, then creates the user with the business ID
+// If business is nil, it creates the user only
+func (r *UserRepository) CreateUserAndBusiness(user *model.User, business *model.Business) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		// If business is provided, create it first
+		if business != nil {
+			if err := tx.Create(business).Error; err != nil {
+				return err
+			}
+			// Set the business ID on the user
+			user.BusinessID = &business.ID
+		}
+
+		// Create the user
+		if err := tx.Create(user).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
 func (r *UserRepository) UpdateUser(user *model.User) error {
 	return r.db.Save(user).Error
 }
