@@ -127,8 +127,7 @@ export function EditBusinessCard({
                     <FormControl>
                       <Input
                         placeholder="Business Code"
-                        className="h-11"
-                        inputClassName="font-mono text-lg sm:text-lg"
+                        className="rounded-full"
                         {...field}
                         readOnly={readOnly}
                       />

@@ -50,12 +50,14 @@ func (u *AuthUsecase) LoginGoogleUser(
 	user, err := u.userRepo.GetUserByEmail(req.Email)
 	if err != nil || user == nil {
 		user = &model.User{
+			ID:          uuid.New().String(),
 			Name:        req.Name,
 			Email:       &req.Email,
 			IsVerified:  req.VerifiedEmail,
 			GoogleImage: googleImage,
 			Role:        config.USER_ROLE_OWNER,
 			Business: &model.Business{
+				ID:   uuid.New().String(),
 				Name: "My store",
 			},
 		}
@@ -233,6 +235,7 @@ func (u *AuthUsecase) Register(c *fiber.Ctx, req *contract.RegisterReq) (*contra
 		IsVerified:   false,
 		Role:         config.USER_ROLE_OWNER,
 		Business: &model.Business{
+			ID:   uuid.New().String(),
 			Name: "My store",
 		},
 	}
