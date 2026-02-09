@@ -12,7 +12,7 @@ import {
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ROUTES } from "@/lib/routes";
-import { Loader2, CheckCircle2, X } from "lucide-react";
+import { CheckCircle2, X } from "lucide-react";
 import { setAuthCookie } from "@/lib/auth-cookie";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -29,19 +29,31 @@ export function GoogleSuccess() {
   const searchParams = useSearchParams();
 
   const accessToken = searchParams.get("accessToken");
-  const refreshToken = searchParams.get("refreshToken");
+  const refreshToken = searchParams.get("refreshToken") || "";
+  const accessTokenExpires = searchParams.get("accessTokenExpiresAt") || "";
+  const refreshTokenExpires = searchParams.get("refreshTokenExpiresAt") || "";
 
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
 
   useEffect(() => {
     try {
+      if (accessToken) {
+        setAuthCookie({
+          accessToken,
+          refreshToken,
+          accessTokenExpires,
+          refreshTokenExpires,
+        });
+      }
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSuccess(true);
       router.push(ROUTES.DASHBOARD);
     } catch (err) {
       setError("Failed to set authentication cookies");
       console.error(err);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, refreshToken, router]);
 
   // Loading State (initial state)

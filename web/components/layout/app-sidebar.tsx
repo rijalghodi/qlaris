@@ -1,36 +1,6 @@
 "use client";
 
-import {
-  ArrowRight,
-  ArrowRightLeftIcon,
-  Box,
-  ChartNoAxesCombinedIcon,
-  ChartPieIcon,
-  ChartSplineIcon,
-  ClipboardListIcon,
-  Clock9Icon,
-  CrownIcon,
-  File,
-  FileClock,
-  FileStack,
-  FolderClock,
-  Gift,
-  HashIcon,
-  Home,
-  LayoutDashboard,
-  ListTodo,
-  Plus,
-  ShoppingBag,
-  ShoppingBagIcon,
-  ShoppingBasket,
-  Sparkle,
-  Sparkles,
-  SquareActivityIcon,
-  Tags,
-  Users,
-  UsersIcon,
-  UsersRound,
-} from "lucide-react";
+import { Box, File, LayoutDashboard, Plus, ShoppingBagIcon, Tags, UsersRound } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -39,11 +9,8 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
@@ -55,6 +22,8 @@ import { ProfileDropdown } from "./profile-dropdown";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useGetCurrentUser } from "@/services/api-user";
 import { Skeleton } from "../ui/skeleton";
+import { useMemo } from "react";
+import { Role } from "@/lib/constant";
 
 export function AppSidebar() {
   const { data: user, isLoading, isFetching } = useGetCurrentUser();
@@ -64,6 +33,61 @@ export function AppSidebar() {
   const pathname = usePathname();
 
   const { open } = useSidebar();
+
+  const menus = useMemo(() => {
+    const menuItems = [
+      {
+        title: "Dashboard",
+        href: ROUTES.DASHBOARD,
+        isActive: pathname.startsWith(ROUTES.DASHBOARD),
+        icon: LayoutDashboard,
+        role: [Role.OWNER, Role.CASHIER, Role.MANAGER],
+      },
+      {
+        title: "New Transaction",
+        href: ROUTES.NEW_TRANSACTION,
+        isActive: pathname === ROUTES.NEW_TRANSACTION,
+        icon: Plus,
+        role: [Role.OWNER, Role.CASHIER, Role.MANAGER],
+      },
+      {
+        title: "Products",
+        href: ROUTES.PRODUCTS,
+        isActive: pathname.startsWith(ROUTES.PRODUCTS),
+        icon: Box,
+        role: [Role.OWNER, Role.MANAGER],
+      },
+      {
+        title: "Categories",
+        href: ROUTES.CATEGORIES,
+        isActive: pathname.startsWith(ROUTES.CATEGORIES),
+        icon: Tags,
+        role: [Role.OWNER, Role.MANAGER],
+      },
+      {
+        title: "Transaction History",
+        href: ROUTES.TRANSACTIONS,
+        isActive: pathname.startsWith(ROUTES.TRANSACTIONS) && pathname !== ROUTES.NEW_TRANSACTION,
+        icon: File,
+        role: [Role.OWNER, Role.CASHIER, Role.MANAGER],
+      },
+      {
+        title: "Employees",
+        href: ROUTES.EMPLOYEES,
+        isActive: pathname.startsWith(ROUTES.EMPLOYEES),
+        icon: UsersRound,
+        role: [Role.OWNER],
+      },
+    ];
+
+    // filter menu items based on user role
+    const filteredMenuItems = menuItems.filter(
+      (item) => user?.data?.role && item.role.includes(user?.data?.role)
+    );
+
+    return filteredMenuItems;
+  }, [user?.data?.role, pathname]);
+
   return (
     <Sidebar variant="sidebar" collapsible="icon">
       {isLoading || isFetching ? (
@@ -95,84 +119,16 @@ export function AppSidebar() {
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname.startsWith(ROUTES.DASHBOARD)}
-                      title="Dashboard"
-                    >
-                      <Link href={ROUTES.DASHBOARD}>
-                        <LayoutDashboard />
-                        <span>Dashboard</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      variant="default"
-                      isActive={pathname == ROUTES.NEW_TRANSACTION}
-                      title="New Transaction"
-                    >
-                      <Link href={ROUTES.NEW_TRANSACTION}>
-                        <Plus />
-                        <span>New Transaction</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname.startsWith(ROUTES.PRODUCTS)}
-                      title="Products"
-                    >
-                      <Link href={ROUTES.PRODUCTS}>
-                        <Box />
-                        <span>Products</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname.startsWith(ROUTES.CATEGORIES)}
-                      title="Categories"
-                    >
-                      <Link href={ROUTES.CATEGORIES}>
-                        <Tags />
-                        <span>Categories</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={
-                        pathname.startsWith(ROUTES.TRANSACTIONS) &&
-                        pathname !== ROUTES.NEW_TRANSACTION
-                      }
-                      title="Transaction History"
-                    >
-                      <Link href={ROUTES.TRANSACTIONS}>
-                        <File />
-                        <span>Transaction History</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={
-                        pathname.startsWith(ROUTES.EMPLOYEES) && pathname !== ROUTES.EMPLOYEES
-                      }
-                      title="Employees"
-                    >
-                      <Link href={ROUTES.EMPLOYEES}>
-                        <UsersRound />
-                        <span>Employees</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  {menus.map((menu) => (
+                    <SidebarMenuItem key={menu.href}>
+                      <SidebarMenuButton asChild isActive={menu.isActive} title={menu.title}>
+                        <Link href={menu.href}>
+                          <menu.icon />
+                          <span>{menu.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -184,9 +140,7 @@ export function AppSidebar() {
                   {open && (
                     <Link href={ROUTES.LANDING} className="flex items-center gap-2">
                       <ShoppingBagIcon className="size-6! text-primary" strokeWidth={2.5} />
-                      <span className="font-semibold text-2xl bg-linear-to-r from-lime-600 to-lime-700 bg-clip-text text-transparent tracking-normal leading-none">
-                        Qlaris
-                      </span>
+                      <span className="font-semibold text-2xl text-primary">Qlaris</span>
                     </Link>
                   )}
                   <SidebarTrigger title="Toggle Sidebar" className="size-11 rounded-full" />
